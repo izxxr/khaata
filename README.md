@@ -1,3 +1,2 @@
 # khaata
-
-A new Flutter project.
+A simple cross platform finance tracker.
