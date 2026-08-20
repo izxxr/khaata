@@ -31,7 +31,7 @@ class Goals extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: AppSpacing.md,
               children: [
-                Icon(Icons.rocket_launch_rounded, size: 100),
+                Icon(Icons.hourglass_bottom, size: 100),
                 SizedBox(height: AppSpacing.md),
                 Text(
                   "Coming soon...",

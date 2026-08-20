@@ -32,6 +32,8 @@ class AccountsList extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: AppSpacing.md,
                 children: [
+                  Icon(Icons.info, size: 100),
+                  SizedBox(height: AppSpacing.md),
                   Text(
                     "No accounts",
                     style: Theme.of(context).textTheme.titleLarge,
