@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khaata/app/bloc/app_bloc.dart';
+import 'package:khaata/app/bloc/app_state.dart';
+import 'package:khaata/app/app.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final state = await AppState.buildInitialState();
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
-    );
-  }
+  runApp(
+    BlocProvider(
+      create: (_) => AppBloc(state),
+      child: const App(),
+    ),
+  );
 }
