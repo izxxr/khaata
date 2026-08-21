@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/app/bloc/app_bloc.dart';
 
 
 /// Overview card for presenting user's balance and important details
@@ -27,7 +29,7 @@ class OverviewCard extends StatelessWidget {
                           ?.copyWith(color: Theme.of(context).disabledColor)
             ),
             Text(
-              "IZHAR AHMAD",
+              context.read<AppBloc>().state.username?.toUpperCase() ?? "DEFAULT USER",
               style: Theme.of(context)
                             .textTheme
                             .headlineSmall

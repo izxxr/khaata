@@ -23,6 +23,7 @@ class SettingsEntry extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.sm,
       children: [
+        SizedBox(height: AppSpacing.lg),
         Text(
           label,
           style: Theme.of(context).textTheme.titleMedium,

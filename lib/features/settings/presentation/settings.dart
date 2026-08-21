@@ -51,6 +51,26 @@ class Settings extends StatelessWidget {
             },
           )
         ),
+        SettingsEntry(
+          label: "Shared Preferences",
+          description: "Reset application shared preferences. For debug purposes only.",
+          controlWidget: ElevatedButton.icon(
+            onPressed: () {
+              context.read<AppBloc>().add(StateReset());
+            },
+            label: Text(
+              "Clear",
+              style: Theme.of(context)
+                           .textTheme
+                           .labelLarge
+                          ?.copyWith(color: Theme.of(context).colorScheme.onErrorContainer)
+            ),
+            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.onErrorContainer),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            ),
+          )
+        ),
       ],
     );
   }

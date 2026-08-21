@@ -8,17 +8,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppState {
   const AppState({
     required this.themeMode,
+    required this.username,
+    required this.onboardingComplete,
   });
 
   /// The app's current theme mode.
   final ThemeMode themeMode;
 
+  /// The username displayed in app.
+  final String? username;
+
+  /// Whether the user has completed onboarding steps.
+  final bool onboardingComplete;
+
   /// Copy the app state with provided overrides.
   AppState copyWith({
-    ThemeMode? themeMode
+    ThemeMode? themeMode,
+    String? username,
+    bool? onboardingComplete,
   }) {
     return AppState(
-      themeMode: themeMode ?? this.themeMode
+      themeMode: themeMode ?? this.themeMode,
+      username: username ?? this.username,
+      onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
   }
 
@@ -27,12 +39,19 @@ class AppState {
     final prefs = await SharedPreferences.getInstance();
 
     final themeName = prefs.getString('themeMode');
+    final username = prefs.getString('username');
+    final onboardingComplete = prefs.getBool('onboardingComplete') ?? false;
+
     final themeMode = switch (themeName) {
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
       _ => ThemeMode.system,
     };
 
-    return AppState(themeMode: themeMode);
+    return AppState(
+      themeMode: themeMode,
+      username: username,
+      onboardingComplete: onboardingComplete
+    );
   }
 }
