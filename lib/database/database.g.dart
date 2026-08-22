@@ -49,6 +49,16 @@ class $AccountTable extends Account with TableInfo<$AccountTable, AccountData> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<int> color = GeneratedColumn<int>(
+    'color',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -62,7 +72,13 @@ class $AccountTable extends Account with TableInfo<$AccountTable, AccountData> {
     defaultValue: currentDateAndTime,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, title, description, createdAt];
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    description,
+    color,
+    createdAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -95,6 +111,12 @@ class $AccountTable extends Account with TableInfo<$AccountTable, AccountData> {
         ),
       );
     }
+    if (data.containsKey('color')) {
+      context.handle(
+        _colorMeta,
+        color.isAcceptableOrUnknown(data['color']!, _colorMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -122,6 +144,10 @@ class $AccountTable extends Account with TableInfo<$AccountTable, AccountData> {
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      color: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}color'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -145,12 +171,16 @@ class AccountData extends DataClass implements Insertable<AccountData> {
   /// The account's optional description.
   final String? description;
 
+  /// The account's display color.
+  final int color;
+
   /// The time when this account was created.
   final DateTime createdAt;
   const AccountData({
     required this.id,
     required this.title,
     this.description,
+    required this.color,
     required this.createdAt,
   });
   @override
@@ -161,6 +191,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    map['color'] = Variable<int>(color);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -172,6 +203,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      color: Value(color),
       createdAt: Value(createdAt),
     );
   }
@@ -185,6 +217,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
+      color: serializer.fromJson<int>(json['color']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -195,6 +228,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
+      'color': serializer.toJson<int>(color),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -203,11 +237,13 @@ class AccountData extends DataClass implements Insertable<AccountData> {
     int? id,
     String? title,
     Value<String?> description = const Value.absent(),
+    int? color,
     DateTime? createdAt,
   }) => AccountData(
     id: id ?? this.id,
     title: title ?? this.title,
     description: description.present ? description.value : this.description,
+    color: color ?? this.color,
     createdAt: createdAt ?? this.createdAt,
   );
   AccountData copyWithCompanion(AccountCompanion data) {
@@ -217,6 +253,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      color: data.color.present ? data.color.value : this.color,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -227,13 +264,14 @@ class AccountData extends DataClass implements Insertable<AccountData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('color: $color, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, createdAt);
+  int get hashCode => Object.hash(id, title, description, color, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -241,6 +279,7 @@ class AccountData extends DataClass implements Insertable<AccountData> {
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
+          other.color == this.color &&
           other.createdAt == this.createdAt);
 }
 
@@ -248,29 +287,34 @@ class AccountCompanion extends UpdateCompanion<AccountData> {
   final Value<int> id;
   final Value<String> title;
   final Value<String?> description;
+  final Value<int> color;
   final Value<DateTime> createdAt;
   const AccountCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
+    this.color = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   AccountCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     this.description = const Value.absent(),
+    this.color = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : title = Value(title);
   static Insertable<AccountData> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? description,
+    Expression<int>? color,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
+      if (color != null) 'color': color,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -279,12 +323,14 @@ class AccountCompanion extends UpdateCompanion<AccountData> {
     Value<int>? id,
     Value<String>? title,
     Value<String?>? description,
+    Value<int>? color,
     Value<DateTime>? createdAt,
   }) {
     return AccountCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      color: color ?? this.color,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -301,6 +347,9 @@ class AccountCompanion extends UpdateCompanion<AccountData> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (color.present) {
+      map['color'] = Variable<int>(color.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -313,6 +362,7 @@ class AccountCompanion extends UpdateCompanion<AccountData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('color: $color, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -334,12 +384,14 @@ typedef $$AccountTableCreateCompanionBuilder = AccountCompanion Function({
   Value<int> id,
   required String title,
   Value<String?> description,
+  Value<int> color,
   Value<DateTime> createdAt,
 });
 typedef $$AccountTableUpdateCompanionBuilder = AccountCompanion Function({
   Value<int> id,
   Value<String> title,
   Value<String?> description,
+  Value<int> color,
   Value<DateTime> createdAt,
 });
 
@@ -364,6 +416,11 @@ class $$AccountTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
     column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get color => $composableBuilder(
+    column: $table.color,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -397,6 +454,11 @@ class $$AccountTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get color => $composableBuilder(
+    column: $table.color,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -422,6 +484,9 @@ class $$AccountTableAnnotationComposer
     column: $table.description,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get color =>
+      $composableBuilder(column: $table.color, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -461,11 +526,13 @@ class $$AccountTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<int> color = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => AccountCompanion(
                 id: id,
                 title: title,
                 description: description,
+                color: color,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -473,11 +540,13 @@ class $$AccountTableTableManager
                 Value<int> id = const Value.absent(),
                 required String title,
                 Value<String?> description = const Value.absent(),
+                Value<int> color = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => AccountCompanion.insert(
                 id: id,
                 title: title,
                 description: description,
+                color: color,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

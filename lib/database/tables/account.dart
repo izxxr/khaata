@@ -1,24 +1,6 @@
 import 'package:drift/drift.dart';
 
 
-/// IMPORTANT: Order of enum values must not be changed. New values to be added
-/// at the end of the list.
-enum AccountColorValues {
-  blue,
-  sky,
-  green,
-  emerald,
-  amber,
-  orange,
-  red,
-  rose,
-  violet,
-  fuchsia,
-  teal,
-  slate,
-}
-
-
 /// Represents a financial account.
 class Account extends Table {
   /// Unique ID of this account.
@@ -31,7 +13,7 @@ class Account extends Table {
   TextColumn get description => text().nullable().withLength(min: 0, max: 256)();
 
   /// The account's display color.
-  IntColumn get color => intEnum<AccountColorValues>().clientDefault(() => AccountColorValues.slate.index)();
+  IntColumn get color => integer().withDefault(const Constant(0))();
 
   /// The time when this account was created.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

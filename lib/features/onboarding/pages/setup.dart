@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_event.dart';
-import 'package:khaata/features/onboarding/presentation/banner.dart';
+import 'package:khaata/features/onboarding/widgets/banner.dart';
 
 
 class OnboardingSetup extends StatefulWidget {

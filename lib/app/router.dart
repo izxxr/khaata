@@ -1,13 +1,13 @@
 import 'package:go_router/go_router.dart';
-import 'package:khaata/core/go_router_refreshable_stream.dart';
+import 'package:khaata/helpers/go_router_refreshable_stream.dart';
 import 'package:khaata/app/app_shell.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
-import 'package:khaata/features/dashboard/presentation/dashboard.dart';
-import 'package:khaata/features/onboarding/presentation/intro.dart';
-import 'package:khaata/features/onboarding/presentation/setup.dart';
-import 'package:khaata/features/onboarding/presentation/final.dart';
-import 'package:khaata/features/accounts/presentation/accounts_list.dart';
-import 'package:khaata/features/goals/presentation/goals.dart';
+import 'package:khaata/features/dashboard/pages/dashboard.dart';
+import 'package:khaata/features/onboarding/pages/intro.dart';
+import 'package:khaata/features/onboarding/pages/setup.dart';
+import 'package:khaata/features/onboarding/pages/final.dart';
+import 'package:khaata/features/accounts/pages/accounts_list.dart';
+import 'package:khaata/features/goals/pages/goals.dart';
 import 'package:khaata/features/settings/presentation/settings.dart';
 
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
-import 'package:khaata/features/onboarding/presentation/banner.dart';
+import 'package:khaata/features/onboarding/widgets/banner.dart';
 
 class OnboardingIntro extends StatelessWidget {
   const new({super.key});
