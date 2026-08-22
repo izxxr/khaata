@@ -95,7 +95,7 @@ GoRouter createRouter(AppBloc appBloc) {
             routes: [
               GoRoute(
                 path: '/settings',
-                builder: (context, state) => const Settings(),
+                builder: (context, state) => Settings(),
               ),
             ],
           ),

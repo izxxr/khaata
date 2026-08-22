@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_event.dart';
@@ -8,7 +9,9 @@ import 'package:khaata/features/settings/presentation/settings_entry.dart';
 
 /// Main widget for the "Settings" section.
 class Settings extends StatelessWidget {
-  const new({super.key});
+  new({super.key});
+
+  final Uri _viewSourceUrl = Uri.parse("https://github.com/izxxr/khata");
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,6 @@ class Settings extends StatelessWidget {
                       .titleSmall
                       ?.copyWith(color: Theme.of(context).hintColor),
         ),
-        SizedBox(height: AppSpacing.xl),
         SettingsEntry(
           label: "Theme",
           description: "To use device's default theme, set to System",
@@ -53,7 +55,7 @@ class Settings extends StatelessWidget {
         ),
         SettingsEntry(
           label: "Shared Preferences",
-          description: "Reset application shared preferences. For debug purposes only.",
+          description: "Reset application shared preferences.\n\nThis will clear app settings (username, theme, etc.) only. Accounts data and transactions remain unchanged.\n\nFor debugging purposes only.",
           controlWidget: ElevatedButton.icon(
             onPressed: () {
               context.read<AppBloc>().add(StateReset());
@@ -71,6 +73,18 @@ class Settings extends StatelessWidget {
             ),
           )
         ),
+        SettingsEntry(
+          label: "App Info",
+          description: "Khaata version 1.0 - developed with ❤️ by Izhar Ahmad\n\n"
+                       "This app is open source and welcomes contributions.\nView code and report issues on GitHub repository.",
+          controlWidget: TextButton.icon(
+            onPressed: () async {
+              await launchUrl(_viewSourceUrl);
+            },
+            label: Text("View GitHub"),
+            icon: Icon(Icons.link)
+          ),
+        )
       ],
     );
   }
