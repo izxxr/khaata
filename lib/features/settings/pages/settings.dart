@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_event.dart';
-import 'package:khaata/features/settings/presentation/settings_entry.dart';
+import 'package:khaata/features/settings/widgets/settings_entry.dart';
 
 
 /// Main widget for the "Settings" section.

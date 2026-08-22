@@ -9,7 +9,7 @@ import 'package:khaata/features/onboarding/pages/final.dart';
 import 'package:khaata/features/accounts/pages/accounts_list.dart';
 import 'package:khaata/features/accounts/pages/account_view.dart';
 import 'package:khaata/features/goals/pages/goals.dart';
-import 'package:khaata/features/settings/presentation/settings.dart';
+import 'package:khaata/features/settings/pages/settings.dart';
 
 
 /// Build the application router.
