@@ -11,7 +11,7 @@ import 'package:khaata/features/settings/widgets/settings_entry.dart';
 class Settings extends StatelessWidget {
   new({super.key});
 
-  final Uri _viewSourceUrl = Uri.parse("https://github.com/izxxr/khata");
+  final Uri _viewSourceUrl = Uri.parse("https://github.com/izxxr/khaata");
 
   @override
   Widget build(BuildContext context) {

@@ -3,9 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
 import 'package:khaata/features/accounts/widgets/account_modals.dart';
 import 'package:khaata/features/accounts/widgets/account_overview_card.dart';
+import 'package:khaata/features/transactions/widgets/transaction_card.dart';
+import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
+import 'package:khaata/widgets/default_screen.dart';
 
 
 class AccountView extends StatefulWidget {
@@ -21,7 +25,8 @@ class AccountView extends StatefulWidget {
 class _AccountViewState extends State<AccountView> {
   late Stream<Account> _accountWatcher;
 
-  final _formKey = GlobalKey<FormState>();
+  final _editAccountFormKey = GlobalKey<FormState>();
+  final _addTransactionFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -52,7 +57,7 @@ class _AccountViewState extends State<AccountView> {
                 icon: Icon(Icons.edit),
                 onPressed: () => showAccountCreationModal(
                   context,
-                  _formKey,
+                  _editAccountFormKey,
                   accountId: account.id,
                   initialTitle: account.title,
                   initialDescription: account.description,
@@ -81,11 +86,45 @@ class _AccountViewState extends State<AccountView> {
                     )
                   ]
                 ),
+                SizedBox(height: AppSpacing.sm),
+                StreamBuilder(
+                  stream: context.read<TransactionRepository>().watchTransactions(account.id, 7),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    final transactions = snapshot.data!;
+
+                    if (transactions.isEmpty) {
+                      return const DefaultScreen(
+                        icon: Icons.money_off,
+                        title: "No transactions",
+                        subtitle: "Tap on + to log transactions"
+                      );
+                    }
+
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: transactions.length,
+                        itemBuilder: (context, index) => TransactionCard(transaction: transactions[index])
+                      )
+                    );
+                  }
+                )
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => showTransactionModal(context, _addTransactionFormKey, account.id, null),
             child: Icon(Icons.add),
           ),
         );

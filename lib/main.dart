@@ -6,6 +6,7 @@ import 'package:khaata/app/app.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_state.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,9 @@ void main() async {
       providers: [
         RepositoryProvider(
           create: (_) => AccountRepository(db: database)
+        ),
+        RepositoryProvider(
+          create: (_) => TransactionRepository(db: database)
         )
       ],
       child: BlocProvider.value(

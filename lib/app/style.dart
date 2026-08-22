@@ -181,6 +181,17 @@ class AppTheme {
 }
 
 
+class TransactionColors {
+  // Light theme
+  static const incomeLight = Color.fromARGB(255, 193, 250, 213);
+  static const expenseLight = Color.fromARGB(255, 255, 194, 194);
+
+  // Dark theme
+  static const incomeDark = Color(0xFF14532D);
+  static const expenseDark = Color(0xFF7F1D1D);
+}
+
+
 /// Global application spacing scheme.
 class AppSpacing {
   static const xs = 4.0;
