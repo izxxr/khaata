@@ -31,7 +31,7 @@ class Account extends Table {
   TextColumn get description => text().nullable().withLength(min: 0, max: 256)();
 
   /// The account's display color.
-  IntColumn get color => intEnum<AccountColorValues>()();
+  IntColumn get color => intEnum<AccountColorValues>().clientDefault(() => AccountColorValues.slate.index)();
 
   /// The time when this account was created.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
