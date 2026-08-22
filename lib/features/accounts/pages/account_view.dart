@@ -19,23 +19,15 @@ class AccountView extends StatefulWidget {
 
 
 class _AccountViewState extends State<AccountView> {
-  final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final colorController = TextEditingController();
-
   late Stream<Account> _accountWatcher;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
 
     _accountWatcher = context.read<AccountRepository>().getAccount(widget.accountId);
-
-    _accountWatcher.listen((data) {
-      nameController.value = TextEditingValue(text: data.title);
-      descriptionController.value = TextEditingValue(text: data.description ?? "");
-      colorController.value = TextEditingValue(text: AccountColor.fromId(data.color).name);
-    });
   }
 
   @override
@@ -60,10 +52,11 @@ class _AccountViewState extends State<AccountView> {
                 icon: Icon(Icons.edit),
                 onPressed: () => showAccountCreationModal(
                   context,
-                  nameController: nameController,
-                  descriptionController: descriptionController,
-                  colorController: colorController,
+                  _formKey,
                   accountId: account.id,
+                  initialTitle: account.title,
+                  initialDescription: account.description,
+                  initialColor: AccountColor.fromId(account.color),
                 ),
               )
             ],

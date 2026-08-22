@@ -17,9 +17,7 @@ class AccountsList extends StatefulWidget {
 
 
 class _AccountsListState extends State<AccountsList> {
-  final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final colorController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -81,12 +79,7 @@ class _AccountsListState extends State<AccountsList> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showAccountCreationModal(
-          context,
-          nameController: nameController,
-          descriptionController: descriptionController,
-          colorController: colorController,
-        ),
+        onPressed: () => showAccountCreationModal(context, _formKey),
         child: const Icon(Icons.add),
       ),
     );

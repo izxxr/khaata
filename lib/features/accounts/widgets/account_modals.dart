@@ -6,16 +6,21 @@ import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
 
-void showAccountCreationModal(
+Future showAccountCreationModal(
   BuildContext context,
+  GlobalKey<FormState> formKey,
   {
-    required TextEditingController nameController,
-    required TextEditingController descriptionController,
-    required TextEditingController colorController,
+    String? initialTitle,
+    String? initialDescription,
+    AccountColor? initialColor,
     int? accountId,
   }
-) {
-  showModalBottomSheet(
+) async {
+  String title = initialTitle ?? '';
+  String description = initialDescription ?? '';
+  AccountColor color = initialColor ?? AccountColor.slate;
+
+  await showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -24,140 +29,153 @@ void showAccountCreationModal(
       return SizedBox(
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.globalPadding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        (accountId != null) ? "Update Account" : "Create Account",
-                        style: Theme.of(context).textTheme.titleMedium
-                      ),
-                      SizedBox(height: AppSpacing.sm),
-                      Text(
-                        "${(accountId != null) ? 'Modify' : 'Enter'} the account details",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor)
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  (accountId != null) ?
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (accountId != null) ? "Update Account" : "Create Account",
+                          style: Theme.of(context).textTheme.titleMedium
+                        ),
+                        SizedBox(height: AppSpacing.sm),
+                        Text(
+                          "${(accountId != null) ? 'Modify' : 'Enter'} the account details",
+                          style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(color: Theme.of(context).hintColor)
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    (accountId != null) ?
+                      IconButton(
+                        onPressed: () async {
+                          final confirmed = await showConfirmDialog(
+                            context, 
+                            title: 'Delete Account', 
+                            message: 'Are you sure? This action is irreversible.'
+                          );
+
+                          if (!confirmed) return;
+                          if (!context.mounted) return;
+
+                          await context.read<AccountRepository>().deleteAccount(accountId);
+                          if (!context.mounted) return;
+
+                          context.go('/accounts');
+                        },
+                        icon: Icon(Icons.delete),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      )
+                    : SizedBox(),
+                    SizedBox(width: AppSpacing.sm),
                     IconButton(
                       onPressed: () async {
-                        final confirmed = await showConfirmDialog(
-                          context, 
-                          title: 'Delete Account', 
-                          message: 'Are you sure? This action is irreversible.'
-                        );
+                        if (!formKey.currentState!.validate()) {
+                          return;
+                        }
 
-                        if (!confirmed) return;
+                        formKey.currentState!.save();
+
+                        if (accountId != null) {
+                          await context.read<AccountRepository>().updateAccount(
+                            accountId,
+                            title: title,
+                            description: description,
+                            color: color,
+                          );
+                        } else {
+                          await context.read<AccountRepository>().createAccount(
+                            title,
+                            description: description,
+                            color: color,
+                          );
+                        }
+
+                        formKey.currentState!.reset();
+
                         if (!context.mounted) return;
 
-                        await context.read<AccountRepository>().deleteAccount(accountId);
-                        if (!context.mounted) return;
-
-                        context.go('/accounts');
+                        Navigator.pop(context);
                       },
-                      icon: Icon(Icons.delete),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
+                      icon: Icon(Icons.done),
+                      style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primaryContainer),
                     )
-                  : SizedBox(),
-                  SizedBox(width: AppSpacing.sm),
-                  IconButton(
-                    onPressed: () async {
-                      final title = nameController.text.trim();
-                      final description = descriptionController.text.trim();
-                      final color = AccountColor.values.firstWhere(
-                        (v) => v.name.toLowerCase() == colorController.text.trim().toLowerCase()
-                      );
-
-                      if (title.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Account name must be provided.'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        return;
-                      }
-
-                      if (title.length < 2) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Account name must be at least 2 characters long'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        return;
-                      }
-
-                      if (accountId != null) {
-                        await context.read<AccountRepository>().updateAccount(
-                          accountId,
-                          title: title,
-                          description: description,
-                          color: color,
-                        );
-                      } else {
-                        await context.read<AccountRepository>().createAccount(
-                          title,
-                          description: description,
-                          color: color,
-                        );
-                      }
-
-                      if (!context.mounted) return;
-
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.done),
-                    style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primaryContainer),
-                  )
-                ],
-              ),
-              SizedBox(height: AppSpacing.xl),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  label: Text("Account name"),
-                  hint: Text("Bank, cash, wallet, etc."),
+                  ],
                 ),
-              ),
-              SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  label: Text("Description (optional)"),
+                SizedBox(height: AppSpacing.xl),
+                TextFormField(
+                  decoration: InputDecoration(
+                    label: Text("Account name"),
+                    hint: Text("Bank, cash, wallet, etc."),
+                  ),
+                  initialValue: initialTitle,
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Account name is required.';
+                    }
+
+                    if (value.isEmpty) {
+                      return 'Account name is required.';
+                    }
+
+                    if (value.length < 2) {
+                      return 'Account name must be at least 2 characters.';
+                    }
+
+                    return null;
+                  },
+                  onSaved: (newValue) {
+                    title = newValue ?? '';
+                  },
                 ),
-              ),
-              SizedBox(height: AppSpacing.md),
-              DropdownMenu<int>(
-                label: Text("Color"),
-                menuHeight: 300,
-                width: MediaQuery.of(context).size.width,
-                controller: colorController,
-                dropdownMenuEntries: [
-                  for (var entry in AccountColor.values)
-                    DropdownMenuEntry(
-                      label: entry.name,
-                      value: entry.id,
-                      leadingIcon: Icon(Icons.circle, color: entry.color),
-                    )
-                ]
-              ),
-              SizedBox(height: AppSpacing.lg),
-            ],
+                SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  decoration: InputDecoration(
+                    label: Text("Description (optional)"),
+                  ),
+                  initialValue: initialDescription,
+                  onSaved: (newValue) {
+                    description = newValue ?? '';
+                  },
+                ),
+                SizedBox(height: AppSpacing.md),
+                DropdownMenuFormField<int>(
+                  label: Text("Color"),
+                  menuHeight: 300,
+                  width: MediaQuery.of(context).size.width,
+                  dropdownMenuEntries: [
+                    for (var entry in AccountColor.values)
+                      DropdownMenuEntry(
+                        label: entry.name,
+                        value: entry.id,
+                        leadingIcon: Icon(Icons.circle, color: entry.color),
+                      )
+                  ],
+                  initialSelection: initialColor?.id,
+                  onSaved: (newValue) {
+                    if (newValue == null) {
+                      color = AccountColor.slate;
+                    } else {
+                      color = AccountColor.fromId(newValue);
+                    }
+                  },
+                ),
+                SizedBox(height: AppSpacing.lg),
+              ],
+            )
           )
         )
       );
