@@ -2,12 +2,13 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:khaata/database/tables/account.dart';
+import 'package:khaata/database/tables/transaction.dart';
 
 part 'database.g.dart';
 
 
 /// The Drift application database.
-@DriftDatabase(tables: [Account])
+@DriftDatabase(tables: [Accounts, Transactions])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 

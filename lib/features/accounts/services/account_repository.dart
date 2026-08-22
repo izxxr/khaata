@@ -13,16 +13,16 @@ class AccountRepository {
   /// 
   /// This uses Drift's watch and streams the accounts once the underlying
   /// accounts data changes.
-  Stream<List<AccountData>> watchAccounts() {
-    return db.select(db.account).watch();
+  Stream<List<Account>> watchAccounts() {
+    return db.select(db.accounts).watch();
   }
 
   /// Streams the list of all accounts stored in database.
   /// 
   /// This uses Drift's watch and streams the accounts once the underlying
   /// accounts data changes.
-  Stream<AccountData> getAccount(int id) {
-    return (db.select(db.account)..where((a) => a.id.equals(id))).watchSingle();
+  Stream<Account> getAccount(int id) {
+    return (db.select(db.accounts)..where((a) => a.id.equals(id))).watchSingle();
   }
 
   /// Creates a new account with given details.
@@ -33,7 +33,7 @@ class AccountRepository {
     // which will be equivalent to Account.id in this case.
     // This will need to be changed if in future, Account.id uses some other scheme
     // of IDs.
-    return await db.into(db.account).insert(AccountCompanion.insert(
+    return await db.into(db.accounts).insert(AccountsCompanion.insert(
       title: title,
       description: Value(description),
       color: Value(color.id),
@@ -42,7 +42,7 @@ class AccountRepository {
 
   /// Updates an account.
   Future<void> updateAccount(int id, {String? title, String? description, AccountColor? color}) async {
-    await (db.update(db.account)..where((a) => a.id.equals(id))).write(AccountCompanion(
+    await (db.update(db.accounts)..where((a) => a.id.equals(id))).write(AccountsCompanion(
       title: title != null ? Value(title) : Value.absent(),
       description: description != null ? Value(description) : Value.absent(),
       color: color != null ? Value(color.id) : Value.absent(),
@@ -51,6 +51,6 @@ class AccountRepository {
 
   /// Deletes an account.
   Future<void> deleteAccount(int id) async {
-    await (db.delete(db.account)..where((a) => a.id.equals(id))).go();
+    await (db.delete(db.accounts)..where((a) => a.id.equals(id))).go();
   }
 }

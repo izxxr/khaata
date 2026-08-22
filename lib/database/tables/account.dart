@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 
 /// Represents a financial account.
-class Account extends Table {
+class Accounts extends Table {
   /// Unique ID of this account.
   IntColumn get id => integer().autoIncrement()();
 

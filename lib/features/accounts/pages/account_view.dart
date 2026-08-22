@@ -23,7 +23,7 @@ class _AccountViewState extends State<AccountView> {
   final descriptionController = TextEditingController();
   final colorController = TextEditingController();
 
-  late Stream<AccountData> _accountWatcher;
+  late Stream<Account> _accountWatcher;
 
   @override
   void initState() {

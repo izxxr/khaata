@@ -5,7 +5,7 @@ import 'package:khaata/database/database.dart';
 class AccountOverviewCard extends StatelessWidget {
   const new({super.key, required this.account});
 
-  final AccountData account;
+  final Account account;
 
   @override
   Widget build(BuildContext context) {

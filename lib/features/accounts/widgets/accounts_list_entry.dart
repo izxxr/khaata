@@ -7,7 +7,7 @@ import 'package:khaata/features/accounts/widgets/account_colors.dart';
 class AccountsListEntry extends StatelessWidget {
   const new({super.key, required this.data});
 
-  final AccountData data;
+  final Account data;
 
   void _onTap(BuildContext context) {
     context.go('/accounts/${data.id}');
