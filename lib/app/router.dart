@@ -7,6 +7,7 @@ import 'package:khaata/features/onboarding/pages/intro.dart';
 import 'package:khaata/features/onboarding/pages/setup.dart';
 import 'package:khaata/features/onboarding/pages/final.dart';
 import 'package:khaata/features/accounts/pages/accounts_list.dart';
+import 'package:khaata/features/accounts/pages/account_view.dart';
 import 'package:khaata/features/goals/pages/goals.dart';
 import 'package:khaata/features/settings/presentation/settings.dart';
 
@@ -65,15 +66,20 @@ GoRouter createRouter(AppBloc appBloc) {
               GoRoute(
                 path: '/accounts',
                 builder: (context, state) => const AccountsList(),
-                // routes: [
-                //   GoRoute(
-                //     path: ':id',
-                //     builder: (context, state) {
-                //       final id = state.pathParameters['id']!;
-                //       return Acc(id: id);
-                //     },
-                //   ),
-                // ],
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final int? id = int.tryParse(state.pathParameters['id']!);
+
+                      if (id == null) {
+                        return const Dashboard();
+                      } else {
+                        return AccountView(accountId: id);
+                      }
+                    },
+                  ),
+                ],
               ),
             ],
           ),

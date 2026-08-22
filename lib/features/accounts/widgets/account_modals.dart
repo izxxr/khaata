@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/widgets/confirm_dialog.dart';
+import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
 
 void showAccountCreationModal(
@@ -8,8 +12,7 @@ void showAccountCreationModal(
     required TextEditingController nameController,
     required TextEditingController descriptionController,
     required TextEditingController colorController,
-    required VoidCallback onSubmit,
-    bool isUpdate = false
+    int? accountId,
   }
 ) {
   showModalBottomSheet(
@@ -32,12 +35,12 @@ void showAccountCreationModal(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isUpdate ? "Update Account" : "Create Account",
+                        (accountId != null) ? "Update Account" : "Create Account",
                         style: Theme.of(context).textTheme.titleMedium
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
-                        "${isUpdate ? 'Modify' : 'Enter'} the account details",
+                        "${(accountId != null) ? 'Modify' : 'Enter'} the account details",
                         style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -46,8 +49,78 @@ void showAccountCreationModal(
                     ],
                   ),
                   Spacer(),
+                  (accountId != null) ?
+                    IconButton(
+                      onPressed: () async {
+                        final confirmed = await showConfirmDialog(
+                          context, 
+                          title: 'Delete Account', 
+                          message: 'Are you sure? This action is irreversible.'
+                        );
+
+                        if (!confirmed) return;
+                        if (!context.mounted) return;
+
+                        await context.read<AccountRepository>().deleteAccount(accountId);
+                        if (!context.mounted) return;
+
+                        context.go('/accounts');
+                      },
+                      icon: Icon(Icons.delete),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    )
+                  : SizedBox(),
+                  SizedBox(width: AppSpacing.sm),
                   IconButton(
-                    onPressed: onSubmit,
+                    onPressed: () async {
+                      final title = nameController.text.trim();
+                      final description = descriptionController.text.trim();
+                      final color = AccountColor.values.firstWhere(
+                        (v) => v.name.toLowerCase() == colorController.text.trim().toLowerCase()
+                      );
+
+                      if (title.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Account name must be provided.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (title.length < 2) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Account name must be at least 2 characters long'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (accountId != null) {
+                        await context.read<AccountRepository>().updateAccount(
+                          accountId,
+                          title: title,
+                          description: description,
+                          color: color,
+                        );
+                      } else {
+                        await context.read<AccountRepository>().createAccount(
+                          title,
+                          description: description,
+                          color: color,
+                        );
+                      }
+
+                      if (!context.mounted) return;
+
+                      Navigator.pop(context);
+                    },
                     icon: Icon(Icons.done),
                     style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primaryContainer),
                   )
@@ -71,7 +144,6 @@ void showAccountCreationModal(
               SizedBox(height: AppSpacing.md),
               DropdownMenu<int>(
                 label: Text("Color"),
-                initialSelection: 0,
                 menuHeight: 300,
                 width: MediaQuery.of(context).size.width,
                 controller: colorController,

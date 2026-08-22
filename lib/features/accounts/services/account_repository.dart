@@ -9,6 +9,22 @@ class AccountRepository {
 
   final AppDatabase db;
 
+  /// Streams the list of all accounts stored in database.
+  /// 
+  /// This uses Drift's watch and streams the accounts once the underlying
+  /// accounts data changes.
+  Stream<List<AccountData>> watchAccounts() {
+    return db.select(db.account).watch();
+  }
+
+  /// Streams the list of all accounts stored in database.
+  /// 
+  /// This uses Drift's watch and streams the accounts once the underlying
+  /// accounts data changes.
+  Stream<AccountData> getAccount(int id) {
+    return (db.select(db.account)..where((a) => a.id.equals(id))).watchSingle();
+  }
+
   /// Creates a new account with given details.
   /// 
   /// Returns the ID of created account.
@@ -24,11 +40,17 @@ class AccountRepository {
     ));
   }
 
-  /// Streams the list of all accounts stored in database.
-  /// 
-  /// This uses Drift's watch and streams the accounts once the underlying
-  /// accounts data changes.
-  Stream<List<AccountData>> watchAccounts() {
-    return db.select(db.account).watch();
+  /// Updates an account.
+  Future<void> updateAccount(int id, {String? title, String? description, AccountColor? color}) async {
+    await (db.update(db.account)..where((a) => a.id.equals(id))).write(AccountCompanion(
+      title: title != null ? Value(title) : Value.absent(),
+      description: description != null ? Value(description) : Value.absent(),
+      color: color != null ? Value(color.id) : Value.absent(),
+    ));
+  }
+
+  /// Deletes an account.
+  Future<void> deleteAccount(int id) async {
+    await (db.delete(db.account)..where((a) => a.id.equals(id))).go();
   }
 }

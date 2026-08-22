@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
@@ -7,6 +8,10 @@ class AccountsListEntry extends StatelessWidget {
   const new({super.key, required this.data});
 
   final AccountData data;
+
+  void _onTap(BuildContext context) {
+    context.go('/accounts/${data.id}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,7 @@ class AccountsListEntry extends StatelessWidget {
             Spacer(),
             IconButton(
               icon: Icon(Icons.arrow_right_alt),
-              onPressed: () {},
+              onPressed: () => _onTap(context),
             )
           ]
         ),
@@ -44,7 +49,7 @@ class AccountsListEntry extends StatelessWidget {
             Spacer(),
             IconButton(
               icon: Icon(Icons.arrow_right_alt),
-              onPressed: () {},
+              onPressed: () => _onTap(context),
             )
           ]
         ),
@@ -54,7 +59,7 @@ class AccountsListEntry extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: AppSpacing.md),
       child: InkWell(
-        onTap: () {},
+        onTap: () => _onTap(context),
         child: Ink(
           padding: EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(

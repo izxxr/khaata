@@ -58,7 +58,7 @@ class OverviewCard extends StatelessWidget {
                     ),
                     Text(
                       "4316.00",
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineLarge,
                     )
                   ]
                 ),

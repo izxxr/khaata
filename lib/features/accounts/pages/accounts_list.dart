@@ -4,7 +4,6 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/features/accounts/widgets/accounts_list_entry.dart';
 import 'package:khaata/widgets/default_screen.dart';
 import 'package:khaata/features/accounts/widgets/account_modals.dart';
-import 'package:khaata/features/accounts/widgets/account_colors.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
 
 
@@ -87,43 +86,6 @@ class _AccountsListState extends State<AccountsList> {
           nameController: nameController,
           descriptionController: descriptionController,
           colorController: colorController,
-          onSubmit: () async {
-            final title = nameController.text.trim();
-            final description = descriptionController.text.trim();
-            final color = AccountColor.values.firstWhere(
-              (v) => v.name.toLowerCase() == colorController.text.trim().toLowerCase()
-            );
-
-            if (title.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Account name must be provided.'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              return;
-            }
-
-            if (title.length < 2) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Account name must be at least 2 characters long'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              return;
-            }
-
-            await context.read<AccountRepository>().createAccount(
-              title,
-              description: description,
-              color: color,
-            );
-
-            if (!this.context.mounted) return;
-
-            Navigator.pop(context);
-          }
         ),
         child: const Icon(Icons.add),
       ),
