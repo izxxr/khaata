@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
-import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountOverviewCard extends StatefulWidget {
   const new({super.key, required this.account});
@@ -20,7 +20,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
   void initState() {
     super.initState();
 
-    _balanceStream = context.read<AccountRepository>().watchBalance(widget.account.id);
+    _balanceStream = context.read<TransactionRepository>().watchBalance(widget.account.id);
   }
 
   @override

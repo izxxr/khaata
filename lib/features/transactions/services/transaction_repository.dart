@@ -7,6 +7,20 @@ class TransactionRepository {
 
   final AppDatabase db;
 
+  /// Streams the balance computed from account's transactions.
+  Stream<int> watchBalance(int? accountId) {
+    final sum = db.transactions.amount.sum();
+
+    var query = db.selectOnly(db.transactions)
+                    ..addColumns([sum]);
+
+    if (accountId != null) {
+      query = query..where(db.transactions.accountId.equals(accountId));
+    }
+
+    return query.map((row) => row.read(sum)!).watchSingle();
+  }
+
   /// Streams the list of all transactions associated to a specific account.
   /// 
   /// This uses Drift's watch and streams the transactions once the underlying

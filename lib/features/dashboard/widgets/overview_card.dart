@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
-import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 
 /// Overview card for presenting user's balance and important details
@@ -58,7 +58,7 @@ class OverviewCard extends StatelessWidget {
                                   ?.copyWith(color: Theme.of(context).hintColor),
                     ),
                     StreamBuilder(
-                      stream: context.read<AccountRepository>().watchBalance(null),
+                      stream: context.read<TransactionRepository>().watchBalance(null),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return CircularProgressIndicator();
