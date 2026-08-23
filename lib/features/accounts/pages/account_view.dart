@@ -72,10 +72,9 @@ class _AccountViewState extends State<AccountView> {
                     AccountOverviewCard(account: account),
                   ],
                 ),
-                SizedBox(height: AppSpacing.xl),
+                SizedBox(height: AppSpacing.lg),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  // mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       "Transactions",

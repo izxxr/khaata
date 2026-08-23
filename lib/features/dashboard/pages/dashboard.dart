@@ -19,14 +19,12 @@ class Dashboard extends StatelessWidget {
               padding: EdgeInsetsGeometry.all(AppSpacing.globalPadding),
               child: Column(
                 children: [
-                  SizedBox(height: AppSpacing.md),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    // mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         "Recent Transactions",
-                        style: Theme.of(context).textTheme.titleMedium
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Spacer(),
                       TextButton.icon(
