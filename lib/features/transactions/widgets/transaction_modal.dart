@@ -240,7 +240,7 @@ Future showTransactionModal(
                       child: TextFormField(
                         decoration: InputDecoration(
                           label: Text("Amount"),
-                          hint: Text("Decimal or whole number e.g. 43.10 or 43"),
+                          hint: Text("Currency e.g. 43.10 or 43"),
                           suffixIcon: Icon(Icons.money)
                         ),
                         initialValue: initialAmount != null ? (initialAmount / 100).abs().toString() : "",
