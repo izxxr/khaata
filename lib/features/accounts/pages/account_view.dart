@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
-import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
 import 'package:khaata/features/accounts/widgets/account_modal.dart';
 import 'package:khaata/features/accounts/widgets/account_overview_card.dart';
-import 'package:khaata/features/transactions/widgets/transaction_card.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
-import 'package:khaata/widgets/default_screen.dart';
+import 'package:khaata/features/transactions/widgets/transactions_list.dart';
 
 
 class AccountView extends StatefulWidget {
@@ -32,7 +30,7 @@ class _AccountViewState extends State<AccountView> {
   void initState() {
     super.initState();
 
-    _accountWatcher = context.read<AccountRepository>().getAccount(widget.accountId);
+    _accountWatcher = context.read<AccountRepository>().watchAccount(widget.accountId);
   }
 
   @override
@@ -72,56 +70,26 @@ class _AccountViewState extends State<AccountView> {
                   children: [
                     SizedBox(height: AppSpacing.md),
                     AccountOverviewCard(account: account),
-                    SizedBox(height: AppSpacing.xl),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      // mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Transactions", style: Theme.of(context).textTheme.titleMedium),
-                        Spacer(),
-                        TextButton.icon(
-                          onPressed: () {},
-                          label: Text("View History"),
-                        )
-                      ]
-                    ),
-                    SizedBox(height: AppSpacing.sm),
                   ],
                 ),
-                Expanded(
-                  child: StreamBuilder(
-                    stream: context.read<TransactionRepository>().watchTransactions(account.id, 7),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      }
-
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-
-                      final transactions = snapshot.data!;
-
-                      if (transactions.isEmpty) {
-                        return const DefaultScreen(
-                          icon: Icons.money_off,
-                          title: "No transactions",
-                          subtitle: "Tap on + to log transactions"
-                        );
-                      }
-
-                      return ListView.builder(
-                        clipBehavior: .hardEdge,
-                        itemCount: transactions.length,
-                        itemBuilder: (context, index) => Material(child: TransactionCard(transaction: transactions[index]))
-                      );
-                    }
-                  ),
+                SizedBox(height: AppSpacing.xl),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Transactions",
+                      style: Theme.of(context).textTheme.titleMedium
+                    ),
+                    Spacer(),
+                    TextButton.icon(
+                      onPressed: () {},
+                      label: Text("View History"),
+                    )
+                  ]
                 ),
+                SizedBox(height: AppSpacing.sm),
+                Expanded(child: TransactionsList(account: account, limit: null)),
               ],
             ),
           ),

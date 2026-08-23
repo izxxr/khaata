@@ -17,12 +17,14 @@ class AccountRepository {
     return db.select(db.accounts).watch();
   }
 
-  /// Streams the list of all accounts stored in database.
-  /// 
-  /// This uses Drift's watch and streams the accounts once the underlying
-  /// accounts data changes.
-  Stream<Account> getAccount(int id) {
+  /// Streams a single account from its ID.
+  Stream<Account> watchAccount(int id) {
     return (db.select(db.accounts)..where((a) => a.id.equals(id))).watchSingle();
+  }
+
+  /// Get a single account from its ID.
+  Future<Account> getAccount(int id) {
+    return (db.select(db.accounts)..where((a) => a.id.equals(id))).getSingle();
   }
 
   /// Creates a new account with given details.
