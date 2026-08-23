@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -20,6 +21,26 @@ class AppState {
 
   /// Whether the user has completed onboarding steps.
   final bool onboardingComplete;
+
+  /// Format the time according to user's preferred format.
+  String formatDateTime(DateTime dt, {bool shorten = true}) {
+    final now = DateTime.now();
+
+    String dateFmt = "";
+
+    if (shorten && dt.month == now.month && dt.year == now.year) {
+      int delta = now.day - dt.day;
+
+      if (dt.day == now.day) { dateFmt = "'Today'"; }
+      else if (dt.day == now.day - 1) { dateFmt = "'Yesterday'"; }
+      else if (delta > 0 && delta <= 3) { dateFmt = "'$delta days ago'"; }
+      else { dateFmt = "dd MMM yyy"; }
+    } else {
+      dateFmt = "dd MMM yyy";
+    }
+
+    return DateFormat("$dateFmt, hh:mm a").format(dt);
+  }
 
   /// Copy the app state with provided overrides.
   AppState copyWith({

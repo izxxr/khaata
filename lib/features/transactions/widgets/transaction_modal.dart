@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
+import 'package:khaata/widgets/datetime_picker.dart';
 
 
 int _parseAmount(String raw, int sign) {
@@ -25,12 +27,18 @@ Future showTransactionModal(
     String? initialTitle,
     String? initialDescription,
     int? initialAmount,
+    DateTime? initialCreatedAt,
   }
 ) async {
   String title = "";
   String description = "";
+  DateTime createdAt = initialCreatedAt ?? DateTime.now();
   int amount = 0;
   int sign = 1;
+
+  final dateTimeController = TextEditingController(
+    text: context.read<AppBloc>().state.formatDateTime(createdAt)
+  );
 
   await showModalBottomSheet(
     context: context,
@@ -107,6 +115,7 @@ Future showTransactionModal(
                             title: title,
                             description: description,
                             amount: amount,
+                            createdAt: createdAt,
                           );
                         } else {
                           await context.read<TransactionRepository>().createTransaction(
@@ -114,6 +123,7 @@ Future showTransactionModal(
                             title,
                             amount,
                             description: description,
+                            createdAt: createdAt,
                           );
                         }
 
@@ -165,6 +175,28 @@ Future showTransactionModal(
                   },
                 ),
                 SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: dateTimeController,
+                  readOnly: true,
+                  onTap: () async {
+                    createdAt = await showDateTimePickerModal(
+                      context,
+                      initialDateTime: createdAt
+                    ) ?? DateTime.now();
+
+                    if (!context.mounted) return;
+
+                    dateTimeController.value = TextEditingValue(
+                      text: context.read<AppBloc>().state.formatDateTime(createdAt)
+                    );
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Time',
+                    suffixIcon: Icon(Icons.calendar_today),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
                     Expanded(
@@ -208,7 +240,8 @@ Future showTransactionModal(
                       child: TextFormField(
                         decoration: InputDecoration(
                           label: Text("Amount"),
-                          hint: Text("Decimal or whole number e.g. 43.10 or 43")
+                          hint: Text("Decimal or whole number e.g. 43.10 or 43"),
+                          suffixIcon: Icon(Icons.money)
                         ),
                         initialValue: initialAmount != null ? (initialAmount / 100).abs().toString() : "",
                         keyboardType: TextInputType.number, // Shows numeric keyboard
@@ -235,10 +268,6 @@ Future showTransactionModal(
                           if (!RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(value)) {
                             return 'Invalid amount';
                           }
-
-                          print(value);
-
-                          print(sign);
 
                           if (_parseAmount(value, sign) == 0) {
                             return 'Amount cannot be zero';

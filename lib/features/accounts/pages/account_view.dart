@@ -69,57 +69,62 @@ class _AccountViewState extends State<AccountView> {
           body: Padding(
             padding: EdgeInsets.all(AppSpacing.globalPadding),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: AppSpacing.md),
-                AccountOverviewCard(account: account),
-                SizedBox(height: AppSpacing.xl),
-                Row(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  // mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("Transactions", style: Theme.of(context).textTheme.titleMedium),
-                    Spacer(),
-                    TextButton.icon(
-                      onPressed: () {},
-                      label: Text("View History"),
-                    )
-                  ]
+                    SizedBox(height: AppSpacing.md),
+                    AccountOverviewCard(account: account),
+                    SizedBox(height: AppSpacing.xl),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text("Transactions", style: Theme.of(context).textTheme.titleMedium),
+                        Spacer(),
+                        TextButton.icon(
+                          onPressed: () {},
+                          label: Text("View History"),
+                        )
+                      ]
+                    ),
+                    SizedBox(height: AppSpacing.sm),
+                  ],
                 ),
-                SizedBox(height: AppSpacing.sm),
-                StreamBuilder(
-                  stream: context.read<TransactionRepository>().watchTransactions(account.id, 7),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error: ${snapshot.error}'),
-                      );
-                    }
+                Expanded(
+                  child: StreamBuilder(
+                    stream: context.read<TransactionRepository>().watchTransactions(account.id, 7),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      }
 
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                    final transactions = snapshot.data!;
+                      final transactions = snapshot.data!;
 
-                    if (transactions.isEmpty) {
-                      return const DefaultScreen(
-                        icon: Icons.money_off,
-                        title: "No transactions",
-                        subtitle: "Tap on + to log transactions"
-                      );
-                    }
+                      if (transactions.isEmpty) {
+                        return const DefaultScreen(
+                          icon: Icons.money_off,
+                          title: "No transactions",
+                          subtitle: "Tap on + to log transactions"
+                        );
+                      }
 
-                    return Expanded(
-                      child: ListView.builder(
+                      return ListView.builder(
+                        clipBehavior: .hardEdge,
                         itemCount: transactions.length,
-                        itemBuilder: (context, index) => TransactionCard(transaction: transactions[index])
-                      )
-                    );
-                  }
-                )
+                        itemBuilder: (context, index) => Material(child: TransactionCard(transaction: transactions[index]))
+                      );
+                    }
+                  ),
+                ),
               ],
             ),
           ),

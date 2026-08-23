@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
@@ -31,6 +33,7 @@ class TransactionCard extends StatelessWidget {
           initialTitle: transaction.title,
           initialDescription: transaction.description,
           initialAmount: transaction.amount,
+          initialCreatedAt: transaction.createdAt,
         ),
         child: Ink(
           padding: EdgeInsets.all(AppSpacing.md),
@@ -39,7 +42,7 @@ class TransactionCard extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(5)
           ),
-          width: MediaQuery.of(context).size.width,
+          width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -61,14 +64,19 @@ class TransactionCard extends StatelessWidget {
                   ),
                 ]
               ),
-              SizedBox(height: description.isNotEmpty ? AppSpacing.sm : 0),
+              SizedBox(height: AppSpacing.xs),
+              Text(
+                context.read<AppBloc>().state.formatDateTime(transaction.createdAt),
+                style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                            ?.copyWith(color: Theme.of(context).hintColor)
+              ),
+              SizedBox(height: description.isNotEmpty ? AppSpacing.md : 0),
               description.isNotEmpty ?
                 Text(
                   transaction.description!,
-                  style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                              ?.copyWith(color: Theme.of(context).hintColor)
+                  style: Theme.of(context).textTheme.bodySmall
                 )
               : SizedBox()
             ]

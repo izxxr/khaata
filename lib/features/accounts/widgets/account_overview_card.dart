@@ -31,7 +31,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(5)
       ),
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       child: StreamBuilder(
         stream: _balanceStream,
         builder: (context, snapshot) {
