@@ -11,16 +11,20 @@ class TransactionRepository {
   /// 
   /// This uses Drift's watch and streams the transactions once the underlying
   /// accounts data changes.
-  Stream<List<Transaction>> watchTransactions(int accountId, int? limit) {
-    final query = db.select(db.transactions)
-                    ..where((t) => t.accountId.equals(accountId))
-                    ..orderBy([
-                      (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
-                    ]);
+  Stream<List<Transaction>> watchTransactions(int? accountId, int? limit) {
+    var query = db.select(db.transactions);
+
+    if (accountId != null) {
+      query = query..where((t) => t.accountId.equals(accountId));
+    }
 
     if (limit != null) {
-      return (query..limit(limit)).watch();
+      query = query..limit(limit);
     }
+
+    query = query..orderBy([
+      (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
+    ]);
 
     return query.watch();
   }

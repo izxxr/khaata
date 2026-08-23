@@ -18,25 +18,17 @@ class AccountRepository {
   }
 
   /// Streams the balance computed from account's transactions.
-  Stream<int> watchBalance(int accountId) {
+  Stream<int> watchBalance(int? accountId) {
     final sum = db.transactions.amount.sum();
 
-    final query = db.selectOnly(db.transactions)
-                    ..addColumns([sum])
-                    ..where(db.transactions.accountId.equals(accountId));
+    var query = db.selectOnly(db.transactions)
+                    ..addColumns([sum]);
+
+    if (accountId != null) {
+      query = query..where(db.transactions.accountId.equals(accountId));
+    }
 
     return query.map((row) => row.read(sum)!).watchSingle();
-  }
-
-  /// Computes the account balance and returns it.
-  Future<int> getBalance(int accountId) {
-    final sum = db.transactions.amount.sum();
-
-    final query = db.selectOnly(db.transactions)
-                    ..addColumns([sum])
-                    ..where(db.transactions.accountId.equals(accountId));
-
-    return query.map((row) => row.read(sum)!).getSingle();
   }
 
   /// Streams the list of all accounts stored in database.
