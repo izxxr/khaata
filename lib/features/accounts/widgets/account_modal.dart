@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
@@ -9,16 +10,11 @@ import 'package:khaata/features/accounts/widgets/account_colors.dart';
 Future showAccountCreationModal(
   BuildContext context,
   GlobalKey<FormState> formKey,
-  {
-    String? initialTitle,
-    String? initialDescription,
-    AccountColor? initialColor,
-    int? accountId,
-  }
+  Account? account,
 ) async {
-  String title = initialTitle ?? '';
-  String description = initialDescription ?? '';
-  AccountColor color = initialColor ?? AccountColor.slate;
+  String title = account?.title ?? '';
+  String description = account?.description ?? '';
+  AccountColor color = account != null ? AccountColor.fromId(account.color) : AccountColor.slate;
 
   await showModalBottomSheet(
     context: context,
@@ -42,12 +38,12 @@ Future showAccountCreationModal(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          (accountId != null) ? "Update Account" : "Create Account",
+                          (account != null) ? "Update Account" : "Create Account",
                           style: Theme.of(context).textTheme.titleMedium
                         ),
                         SizedBox(height: AppSpacing.sm),
                         Text(
-                          "${(accountId != null) ? 'Modify' : 'Enter'} the account details",
+                          "${(account != null) ? 'Modify' : 'Enter'} the account details",
                           style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -56,7 +52,7 @@ Future showAccountCreationModal(
                       ],
                     ),
                     Spacer(),
-                    (accountId != null) ?
+                    (account != null) ?
                       IconButton(
                         onPressed: () async {
                           final confirmed = await showConfirmDialog(
@@ -68,7 +64,7 @@ Future showAccountCreationModal(
                           if (!confirmed) return;
                           if (!context.mounted) return;
 
-                          await context.read<AccountRepository>().deleteAccount(accountId);
+                          await context.read<AccountRepository>().deleteAccount(account.id);
                           if (!context.mounted) return;
 
                           context.go('/accounts');
@@ -89,9 +85,9 @@ Future showAccountCreationModal(
 
                         formKey.currentState!.save();
 
-                        if (accountId != null) {
+                        if (account != null) {
                           await context.read<AccountRepository>().updateAccount(
-                            accountId,
+                            account.id,
                             title: title,
                             description: description,
                             color: color,
@@ -121,7 +117,7 @@ Future showAccountCreationModal(
                     label: Text("Account name"),
                     hint: Text("Bank, cash, wallet, etc."),
                   ),
-                  initialValue: initialTitle,
+                  initialValue: account?.title,
                   validator: (value) {
                     if (value == null) {
                       return 'Account name is required.';
@@ -146,7 +142,7 @@ Future showAccountCreationModal(
                   decoration: InputDecoration(
                     label: Text("Description (optional)"),
                   ),
-                  initialValue: initialDescription,
+                  initialValue: account?.description,
                   onSaved: (newValue) {
                     description = newValue ?? '';
                   },
@@ -164,7 +160,7 @@ Future showAccountCreationModal(
                         leadingIcon: Icon(Icons.circle, color: entry.color),
                       )
                   ],
-                  initialSelection: initialColor?.id,
+                  initialSelection: account?.color,
                   onSaved: (newValue) {
                     if (newValue == null) {
                       color = AccountColor.slate;

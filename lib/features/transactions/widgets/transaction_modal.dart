@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/widgets/datetime_picker.dart';
@@ -22,17 +23,11 @@ Future showTransactionModal(
   BuildContext context,
   GlobalKey<FormState> formKey,
   int accountId,
-  int? transactionId,
-  {
-    String? initialTitle,
-    String? initialDescription,
-    int? initialAmount,
-    DateTime? initialCreatedAt,
-  }
+  Transaction? transaction,
 ) async {
   String title = "";
   String description = "";
-  DateTime createdAt = initialCreatedAt ?? DateTime.now();
+  DateTime createdAt = transaction?.createdAt ?? DateTime.now();
   int amount = 0;
   int sign = 1;
 
@@ -62,12 +57,12 @@ Future showTransactionModal(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "${transactionId != null ? 'Modify' : 'Log'} Transaction",
+                          "${transaction != null ? 'Modify' : 'Log'} Transaction",
                           style: Theme.of(context).textTheme.titleMedium
                         ),
                         SizedBox(height: AppSpacing.sm),
                         Text(
-                          "${transactionId != null ? 'Edit' : 'Enter'} the transaction details",
+                          "${transaction != null ? 'Edit' : 'Enter'} the transaction details",
                           style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -76,7 +71,7 @@ Future showTransactionModal(
                       ],
                     ),
                     Spacer(),
-                    (transactionId != null) ?
+                    (transaction != null) ?
                       IconButton(
                         onPressed: () async {
                           final confirmed = await showConfirmDialog(
@@ -87,7 +82,7 @@ Future showTransactionModal(
 
                           if (!confirmed || !context.mounted) return;
 
-                          await context.read<TransactionRepository>().deleteTransaction(transactionId);
+                          await context.read<TransactionRepository>().deleteTransaction(transaction.id);
 
                           if (!context.mounted) return;
 
@@ -109,9 +104,9 @@ Future showTransactionModal(
 
                         formKey.currentState!.save();
 
-                        if (transactionId != null) {
+                        if (transaction != null) {
                           await context.read<TransactionRepository>().updateTransaction(
-                            transactionId,
+                            transaction.id,
                             title: title,
                             description: description,
                             amount: amount,
@@ -144,7 +139,7 @@ Future showTransactionModal(
                     label: Text("Title"),
                     hint: Text("Food, groceries, salary, etc."),
                   ),
-                  initialValue: initialTitle,
+                  initialValue: transaction?.title,
                   validator: (value) {
                     if (value == null) {
                       return 'Transaction title is required.';
@@ -169,7 +164,7 @@ Future showTransactionModal(
                   decoration: InputDecoration(
                     label: Text("Description (optional)"),
                   ),
-                  initialValue: initialDescription,
+                  initialValue: transaction?.description,
                   onSaved: (newValue) {
                     description = newValue ?? '';
                   },
@@ -226,7 +221,7 @@ Future showTransactionModal(
                             ),
                           ),
                         ],
-                        initialValue: initialAmount != null ? (initialAmount > 0 ? 1 : -1) : 1,
+                        initialValue: transaction != null ? (transaction.amount > 0 ? 1 : -1) : 1,
                         onChanged: (value) {
                           sign = value ?? 1;
                         },
@@ -243,7 +238,7 @@ Future showTransactionModal(
                           hint: Text("Currency e.g. 43.10 or 43"),
                           suffixIcon: Icon(Icons.money)
                         ),
-                        initialValue: initialAmount != null ? (initialAmount / 100).abs().toString() : "",
+                        initialValue: transaction != null ? (transaction.amount / 100).abs().toString() : "",
                         keyboardType: TextInputType.number, // Shows numeric keyboard
                         inputFormatters: <TextInputFormatter>[
                           TextInputFormatter.withFunction((oldValue, newValue) {

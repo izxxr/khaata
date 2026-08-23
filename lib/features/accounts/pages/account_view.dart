@@ -5,7 +5,7 @@ import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
-import 'package:khaata/features/accounts/widgets/account_modals.dart';
+import 'package:khaata/features/accounts/widgets/account_modal.dart';
 import 'package:khaata/features/accounts/widgets/account_overview_card.dart';
 import 'package:khaata/features/transactions/widgets/transaction_card.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
@@ -58,10 +58,7 @@ class _AccountViewState extends State<AccountView> {
                 onPressed: () => showAccountCreationModal(
                   context,
                   _editAccountFormKey,
-                  accountId: account.id,
-                  initialTitle: account.title,
-                  initialDescription: account.description,
-                  initialColor: AccountColor.fromId(account.color),
+                  account
                 ),
               )
             ],

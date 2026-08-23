@@ -29,11 +29,7 @@ class TransactionCard extends StatelessWidget {
           context,
           _formKey,
           transaction.accountId,
-          transaction.id,
-          initialTitle: transaction.title,
-          initialDescription: transaction.description,
-          initialAmount: transaction.amount,
-          initialCreatedAt: transaction.createdAt,
+          transaction,
         ),
         child: Ink(
           padding: EdgeInsets.all(AppSpacing.md),
