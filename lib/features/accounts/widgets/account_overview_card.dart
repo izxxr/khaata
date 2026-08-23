@@ -67,6 +67,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                       widget.account.isolatedAccount ?
                         Tooltip(
                           message: "Isolated account",
+                          triggerMode: TooltipTriggerMode.tap,
                           child: Icon(Icons.money_off, size: 28, color: Colors.orange)
                         )
                       : SizedBox(),
