@@ -41,7 +41,7 @@ Future showTransactionModal(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (BuildContext context) {
-      return SizedBox(
+      return SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.globalPadding),
           child: Form(
@@ -194,9 +194,10 @@ Future showTransactionModal(
                 SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       flex: 1,
                       child: DropdownButtonFormField(
+                        isExpanded: true,
                         items: [
                           DropdownMenuItem(
                             value: 1,
@@ -230,7 +231,7 @@ Future showTransactionModal(
                         },
                       ),
                     ),
-                    Expanded(
+                    Flexible(
                       flex: 4,
                       child: TextFormField(
                         decoration: InputDecoration(

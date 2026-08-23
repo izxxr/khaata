@@ -23,7 +23,7 @@ Future showAccountCreationModal(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (BuildContext context) {
-      return SizedBox(
+      return SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.globalPadding),
           child: Form(
