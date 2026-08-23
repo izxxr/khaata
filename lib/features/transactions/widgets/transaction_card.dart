@@ -76,7 +76,7 @@ class TransactionCard extends StatelessWidget {
             description: description,
             color: color,
             onTap: onTap,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
             accountName: snapshot.data != null ? snapshot.data!.title : "",
             amountColor: transaction.amount > 0 ? Colors.green.shade500 : Colors.redAccent,
             accountColor: (
