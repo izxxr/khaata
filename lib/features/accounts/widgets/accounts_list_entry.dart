@@ -17,42 +17,12 @@ class AccountsListEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> additionalChildren = [];
     final description = data.description ?? "";
-    final balanceStream = StreamBuilder(
-      stream: context.read<TransactionRepository>().watchBalance(data.id),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
 
-        return Text(
-          ((snapshot.data ?? 0) / 100).toStringAsFixed(2),
-          style: Theme.of(context)
-                       .textTheme
-                       .titleMedium
-                      ?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).hintColor,
-                        ),
-        );
-      }
-    );
-
-    List<Widget> children = [];
-
-    if (description.isEmpty) {
-      children = [
-        Row(
-          children: [
-            Text(data.title, style: Theme.of(context).textTheme.titleMedium),
-            Spacer(),
-            balanceStream
-          ]
-        ),
-      ];
-    } else {
-      children = [
-        Text(data.title, style: Theme.of(context).textTheme.titleMedium),
+    if (description.isNotEmpty) {
+      additionalChildren = [
+        SizedBox(height: AppSpacing.sm),
         Row(
           children: [
             SizedBox(
@@ -65,8 +35,6 @@ class AccountsListEntry extends StatelessWidget {
                             ?.copyWith(color: Theme.of(context).hintColor)
               ),
             ),
-            Spacer(),
-            balanceStream
           ]
         ),
       ];
@@ -90,7 +58,48 @@ class AccountsListEntry extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: children,
+            children: [
+              Row(
+                children: [
+                  Text(data.title, style: Theme.of(context).textTheme.titleMedium),
+                  SizedBox(width: AppSpacing.sm),
+
+                  data.isolatedAccount ?
+                    Icon(Icons.money_off, size: 18, color: Colors.orange)
+                  : SizedBox(),
+
+                  Spacer(),
+                  StreamBuilder(
+                    stream: context.read<TransactionRepository>().watchBalance(data.id),
+                    builder: (context, snapshot) {
+                      String text = "";
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        text = "Loading";
+                      }
+                      if (snapshot.hasError) {
+                        text = "Error";
+                      }
+                      if (snapshot.data != null) {
+                        text = (snapshot.data! / 100).toStringAsFixed(2);
+                      }
+
+                      return Text(
+                        text,
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).hintColor,
+                                      ),
+                      );
+                    }
+                  ),
+                ]
+              ),
+              ...additionalChildren,
+            ],
           ),
         ),
       )

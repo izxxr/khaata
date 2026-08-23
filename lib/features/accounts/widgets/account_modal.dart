@@ -14,6 +14,7 @@ Future showAccountCreationModal(
 ) async {
   String title = account?.title ?? '';
   String description = account?.description ?? '';
+  bool isolatedAccount = account?.isolatedAccount ?? false;
   AccountColor color = account != null ? AccountColor.fromId(account.color) : AccountColor.slate;
 
   await showModalBottomSheet(
@@ -91,12 +92,14 @@ Future showAccountCreationModal(
                             title: title,
                             description: description,
                             color: color,
+                            isolatedAccount: isolatedAccount,
                           );
                         } else {
                           await context.read<AccountRepository>().createAccount(
                             title,
                             description: description,
                             color: color,
+                            isolatedAccount: isolatedAccount,
                           );
                         }
 
@@ -169,7 +172,35 @@ Future showAccountCreationModal(
                     }
                   },
                 ),
-                SizedBox(height: AppSpacing.lg),
+                SizedBox(height: AppSpacing.md),
+                FormField<bool>(
+                  initialValue: account?.isolatedAccount ?? false,
+                  builder: (FormFieldState<bool> field) {
+                    return CheckboxListTile(
+                      title: const Text('Isolated account'),
+                      value: field.value,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.all(0),
+                      onChanged: (val) async {
+                        var confirmed = true;
+
+                        if (val!) {
+                          confirmed = await showConfirmDialog(
+                            context,
+                            title: "Mark as isolated",
+                            message: "An isolated account's transactions and balance will not be included in total balance.\n\nAre you sure you would like to continue?"
+                          );
+                        }
+
+                        if (confirmed) {
+                          isolatedAccount = val;
+                          field.didChange(val);
+                        }
+                      },
+                    );
+                  },
+                )
+
               ],
             )
           )

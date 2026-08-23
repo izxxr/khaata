@@ -60,7 +60,18 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                                 ?.copyWith(color: Theme.of(context).hintColor)
                   ),
                   SizedBox(height: AppSpacing.sm),
-                  child
+                  Row(
+                    children: [
+                      child,
+                      SizedBox(width: AppSpacing.md),
+                      widget.account.isolatedAccount ?
+                        Tooltip(
+                          message: "Isolated account",
+                          child: Icon(Icons.money_off, size: 28, color: Colors.orange)
+                        )
+                      : SizedBox(),
+                    ]
+                  ),
                 ]
               ),
               Spacer(),

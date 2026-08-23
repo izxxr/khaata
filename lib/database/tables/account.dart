@@ -17,4 +17,10 @@ class Accounts extends Table {
 
   /// The time when this account was created.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// Whether this account is an isolated one.
+  /// 
+  /// Isolated account's transactions are not included in total
+  /// balance computation.
+  BoolColumn get isolatedAccount => boolean().withDefault(const Constant(false))();
 }

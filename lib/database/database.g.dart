@@ -71,6 +71,21 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _isolatedAccountMeta = const VerificationMeta(
+    'isolatedAccount',
+  );
+  @override
+  late final GeneratedColumn<bool> isolatedAccount = GeneratedColumn<bool>(
+    'isolated_account',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("isolated_account" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -78,6 +93,7 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     description,
     color,
     createdAt,
+    isolatedAccount,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -123,6 +139,15 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('isolated_account')) {
+      context.handle(
+        _isolatedAccountMeta,
+        isolatedAccount.isAcceptableOrUnknown(
+          data['isolated_account']!,
+          _isolatedAccountMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -152,6 +177,10 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      isolatedAccount: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}isolated_account'],
+      )!,
     );
   }
 
@@ -176,12 +205,19 @@ class Account extends DataClass implements Insertable<Account> {
 
   /// The time when this account was created.
   final DateTime createdAt;
+
+  /// Whether this account is an isolated one.
+  ///
+  /// Isolated account's transactions are not included in total
+  /// balance computation.
+  final bool isolatedAccount;
   const Account({
     required this.id,
     required this.title,
     this.description,
     required this.color,
     required this.createdAt,
+    required this.isolatedAccount,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -193,6 +229,7 @@ class Account extends DataClass implements Insertable<Account> {
     }
     map['color'] = Variable<int>(color);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['isolated_account'] = Variable<bool>(isolatedAccount);
     return map;
   }
 
@@ -205,6 +242,7 @@ class Account extends DataClass implements Insertable<Account> {
           : Value(description),
       color: Value(color),
       createdAt: Value(createdAt),
+      isolatedAccount: Value(isolatedAccount),
     );
   }
 
@@ -219,6 +257,7 @@ class Account extends DataClass implements Insertable<Account> {
       description: serializer.fromJson<String?>(json['description']),
       color: serializer.fromJson<int>(json['color']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isolatedAccount: serializer.fromJson<bool>(json['isolatedAccount']),
     );
   }
   @override
@@ -230,6 +269,7 @@ class Account extends DataClass implements Insertable<Account> {
       'description': serializer.toJson<String?>(description),
       'color': serializer.toJson<int>(color),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isolatedAccount': serializer.toJson<bool>(isolatedAccount),
     };
   }
 
@@ -239,12 +279,14 @@ class Account extends DataClass implements Insertable<Account> {
     Value<String?> description = const Value.absent(),
     int? color,
     DateTime? createdAt,
+    bool? isolatedAccount,
   }) => Account(
     id: id ?? this.id,
     title: title ?? this.title,
     description: description.present ? description.value : this.description,
     color: color ?? this.color,
     createdAt: createdAt ?? this.createdAt,
+    isolatedAccount: isolatedAccount ?? this.isolatedAccount,
   );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
@@ -255,6 +297,9 @@ class Account extends DataClass implements Insertable<Account> {
           : this.description,
       color: data.color.present ? data.color.value : this.color,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isolatedAccount: data.isolatedAccount.present
+          ? data.isolatedAccount.value
+          : this.isolatedAccount,
     );
   }
 
@@ -265,13 +310,15 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('color: $color, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isolatedAccount: $isolatedAccount')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, color, createdAt);
+  int get hashCode =>
+      Object.hash(id, title, description, color, createdAt, isolatedAccount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -280,7 +327,8 @@ class Account extends DataClass implements Insertable<Account> {
           other.title == this.title &&
           other.description == this.description &&
           other.color == this.color &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isolatedAccount == this.isolatedAccount);
 }
 
 class AccountsCompanion extends UpdateCompanion<Account> {
@@ -289,12 +337,14 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String?> description;
   final Value<int> color;
   final Value<DateTime> createdAt;
+  final Value<bool> isolatedAccount;
   const AccountsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.color = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isolatedAccount = const Value.absent(),
   });
   AccountsCompanion.insert({
     this.id = const Value.absent(),
@@ -302,6 +352,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.description = const Value.absent(),
     this.color = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isolatedAccount = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Account> custom({
     Expression<int>? id,
@@ -309,6 +360,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? description,
     Expression<int>? color,
     Expression<DateTime>? createdAt,
+    Expression<bool>? isolatedAccount,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -316,6 +368,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (description != null) 'description': description,
       if (color != null) 'color': color,
       if (createdAt != null) 'created_at': createdAt,
+      if (isolatedAccount != null) 'isolated_account': isolatedAccount,
     });
   }
 
@@ -325,6 +378,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Value<String?>? description,
     Value<int>? color,
     Value<DateTime>? createdAt,
+    Value<bool>? isolatedAccount,
   }) {
     return AccountsCompanion(
       id: id ?? this.id,
@@ -332,6 +386,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       description: description ?? this.description,
       color: color ?? this.color,
       createdAt: createdAt ?? this.createdAt,
+      isolatedAccount: isolatedAccount ?? this.isolatedAccount,
     );
   }
 
@@ -353,6 +408,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (isolatedAccount.present) {
+      map['isolated_account'] = Variable<bool>(isolatedAccount.value);
+    }
     return map;
   }
 
@@ -363,7 +421,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('color: $color, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isolatedAccount: $isolatedAccount')
           ..write(')'))
         .toString();
   }
@@ -412,6 +471,15 @@ class $TransactionsTable extends Transactions
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -423,15 +491,6 @@ class $TransactionsTable extends Transactions
       maxTextLength: 32,
     ),
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
-  @override
-  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
-    'amount',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _descriptionMeta = const VerificationMeta(
@@ -466,8 +525,8 @@ class $TransactionsTable extends Transactions
     id,
     accountId,
     type,
-    title,
     amount,
+    title,
     description,
     createdAt,
   ];
@@ -500,14 +559,6 @@ class $TransactionsTable extends Transactions
         type.isAcceptableOrUnknown(data['type']!, _typeMeta),
       );
     }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
     if (data.containsKey('amount')) {
       context.handle(
         _amountMeta,
@@ -515,6 +566,14 @@ class $TransactionsTable extends Transactions
       );
     } else if (isInserting) {
       context.missing(_amountMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -552,13 +611,13 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}type'],
       )!,
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
       amount: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}amount'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
       )!,
       description: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -599,9 +658,6 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// In future, this will support types like "transfer" etc. -- TODO
   final int type;
 
-  /// The transaction's title.
-  final String title;
-
   /// The amount associated with this transaction in minor units format.
   ///
   /// Most currencies have 2 decimals so we currently use that for conversion
@@ -615,6 +671,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// currency and its number of decimals information. - TODO
   final int amount;
 
+  /// The transaction's title.
+  final String title;
+
   /// The transaction's optional description.
   final String? description;
 
@@ -624,8 +683,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.id,
     required this.accountId,
     required this.type,
-    required this.title,
     required this.amount,
+    required this.title,
     this.description,
     required this.createdAt,
   });
@@ -635,8 +694,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     map['id'] = Variable<int>(id);
     map['account_id'] = Variable<int>(accountId);
     map['type'] = Variable<int>(type);
-    map['title'] = Variable<String>(title);
     map['amount'] = Variable<int>(amount);
+    map['title'] = Variable<String>(title);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
@@ -649,8 +708,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       id: Value(id),
       accountId: Value(accountId),
       type: Value(type),
-      title: Value(title),
       amount: Value(amount),
+      title: Value(title),
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
@@ -667,8 +726,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       id: serializer.fromJson<int>(json['id']),
       accountId: serializer.fromJson<int>(json['accountId']),
       type: serializer.fromJson<int>(json['type']),
-      title: serializer.fromJson<String>(json['title']),
       amount: serializer.fromJson<int>(json['amount']),
+      title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -680,8 +739,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'id': serializer.toJson<int>(id),
       'accountId': serializer.toJson<int>(accountId),
       'type': serializer.toJson<int>(type),
-      'title': serializer.toJson<String>(title),
       'amount': serializer.toJson<int>(amount),
+      'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -691,16 +750,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     int? id,
     int? accountId,
     int? type,
-    String? title,
     int? amount,
+    String? title,
     Value<String?> description = const Value.absent(),
     DateTime? createdAt,
   }) => Transaction(
     id: id ?? this.id,
     accountId: accountId ?? this.accountId,
     type: type ?? this.type,
-    title: title ?? this.title,
     amount: amount ?? this.amount,
+    title: title ?? this.title,
     description: description.present ? description.value : this.description,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -709,8 +768,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       id: data.id.present ? data.id.value : this.id,
       accountId: data.accountId.present ? data.accountId.value : this.accountId,
       type: data.type.present ? data.type.value : this.type,
-      title: data.title.present ? data.title.value : this.title,
       amount: data.amount.present ? data.amount.value : this.amount,
+      title: data.title.present ? data.title.value : this.title,
       description: data.description.present
           ? data.description.value
           : this.description,
@@ -724,8 +783,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('id: $id, ')
           ..write('accountId: $accountId, ')
           ..write('type: $type, ')
-          ..write('title: $title, ')
           ..write('amount: $amount, ')
+          ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -734,7 +793,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
   @override
   int get hashCode =>
-      Object.hash(id, accountId, type, title, amount, description, createdAt);
+      Object.hash(id, accountId, type, amount, title, description, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -742,8 +801,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.id == this.id &&
           other.accountId == this.accountId &&
           other.type == this.type &&
-          other.title == this.title &&
           other.amount == this.amount &&
+          other.title == this.title &&
           other.description == this.description &&
           other.createdAt == this.createdAt);
 }
@@ -752,16 +811,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<int> id;
   final Value<int> accountId;
   final Value<int> type;
-  final Value<String> title;
   final Value<int> amount;
+  final Value<String> title;
   final Value<String?> description;
   final Value<DateTime> createdAt;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.accountId = const Value.absent(),
     this.type = const Value.absent(),
-    this.title = const Value.absent(),
     this.amount = const Value.absent(),
+    this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -769,19 +828,19 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.id = const Value.absent(),
     required int accountId,
     this.type = const Value.absent(),
-    required String title,
     required int amount,
+    required String title,
     this.description = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : accountId = Value(accountId),
-       title = Value(title),
-       amount = Value(amount);
+       amount = Value(amount),
+       title = Value(title);
   static Insertable<Transaction> custom({
     Expression<int>? id,
     Expression<int>? accountId,
     Expression<int>? type,
-    Expression<String>? title,
     Expression<int>? amount,
+    Expression<String>? title,
     Expression<String>? description,
     Expression<DateTime>? createdAt,
   }) {
@@ -789,8 +848,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (id != null) 'id': id,
       if (accountId != null) 'account_id': accountId,
       if (type != null) 'type': type,
-      if (title != null) 'title': title,
       if (amount != null) 'amount': amount,
+      if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -800,8 +859,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<int>? id,
     Value<int>? accountId,
     Value<int>? type,
-    Value<String>? title,
     Value<int>? amount,
+    Value<String>? title,
     Value<String?>? description,
     Value<DateTime>? createdAt,
   }) {
@@ -809,8 +868,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       id: id ?? this.id,
       accountId: accountId ?? this.accountId,
       type: type ?? this.type,
-      title: title ?? this.title,
       amount: amount ?? this.amount,
+      title: title ?? this.title,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -828,11 +887,11 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (type.present) {
       map['type'] = Variable<int>(type.value);
     }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
@@ -849,8 +908,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('id: $id, ')
           ..write('accountId: $accountId, ')
           ..write('type: $type, ')
-          ..write('title: $title, ')
           ..write('amount: $amount, ')
+          ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -876,6 +935,7 @@ typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
   Value<String?> description,
   Value<int> color,
   Value<DateTime> createdAt,
+  Value<bool> isolatedAccount,
 });
 typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<int> id,
@@ -883,6 +943,7 @@ typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<String?> description,
   Value<int> color,
   Value<DateTime> createdAt,
+  Value<bool> isolatedAccount,
 });
 
 final class $$AccountsTableReferences
@@ -939,6 +1000,11 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isolatedAccount => $composableBuilder(
+    column: $table.isolatedAccount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1001,6 +1067,11 @@ class $$AccountsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isolatedAccount => $composableBuilder(
+    column: $table.isolatedAccount,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AccountsTableAnnotationComposer
@@ -1028,6 +1099,11 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isolatedAccount => $composableBuilder(
+    column: $table.isolatedAccount,
+    builder: (column) => column,
+  );
 
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
@@ -1088,12 +1164,14 @@ class $$AccountsTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<int> color = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isolatedAccount = const Value.absent(),
               }) => AccountsCompanion(
                 id: id,
                 title: title,
                 description: description,
                 color: color,
                 createdAt: createdAt,
+                isolatedAccount: isolatedAccount,
               ),
           createCompanionCallback:
               ({
@@ -1102,12 +1180,14 @@ class $$AccountsTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<int> color = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isolatedAccount = const Value.absent(),
               }) => AccountsCompanion.insert(
                 id: id,
                 title: title,
                 description: description,
                 color: color,
                 createdAt: createdAt,
+                isolatedAccount: isolatedAccount,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1169,8 +1249,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<int> id,
       required int accountId,
       Value<int> type,
-      required String title,
       required int amount,
+      required String title,
       Value<String?> description,
       Value<DateTime> createdAt,
     });
@@ -1179,8 +1259,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> accountId,
       Value<int> type,
-      Value<String> title,
       Value<int> amount,
+      Value<String> title,
       Value<String?> description,
       Value<DateTime> createdAt,
     });
@@ -1226,13 +1306,13 @@ class $$TransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get amount => $composableBuilder(
-    column: $table.amount,
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1289,13 +1369,13 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get amount => $composableBuilder(
-    column: $table.amount,
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1348,11 +1428,11 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<int> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
   GeneratedColumn<int> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
     column: $table.description,
@@ -1417,16 +1497,16 @@ class $$TransactionsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> accountId = const Value.absent(),
                 Value<int> type = const Value.absent(),
-                Value<String> title = const Value.absent(),
                 Value<int> amount = const Value.absent(),
+                Value<String> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 accountId: accountId,
                 type: type,
-                title: title,
                 amount: amount,
+                title: title,
                 description: description,
                 createdAt: createdAt,
               ),
@@ -1435,16 +1515,16 @@ class $$TransactionsTableTableManager
                 Value<int> id = const Value.absent(),
                 required int accountId,
                 Value<int> type = const Value.absent(),
-                required String title,
                 required int amount,
+                required String title,
                 Value<String?> description = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 accountId: accountId,
                 type: type,
-                title: title,
                 amount: amount,
+                title: title,
                 description: description,
                 createdAt: createdAt,
               ),

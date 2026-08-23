@@ -11,36 +11,82 @@ class TransactionRepository {
   Stream<int> watchBalance(int? accountId) {
     final sum = db.transactions.amount.sum();
 
-    var query = db.selectOnly(db.transactions)
-                    ..addColumns([sum]);
-
     if (accountId != null) {
-      query = query..where(db.transactions.accountId.equals(accountId));
+      final query = db.selectOnly(db.transactions)
+        ..addColumns([sum])
+        ..where(
+          db.transactions.accountId.equals(accountId),
+        );
+
+      return query.map((row) => row.read(sum) ?? 0).watchSingle();
     }
 
-    return query.map((row) => row.read(sum)!).watchSingle();
+    final query = db.selectOnly(db.transactions).join([
+      innerJoin(
+        db.accounts,
+        db.accounts.id.equalsExp(
+          db.transactions.accountId,
+        ),
+      ),
+    ])
+      ..addColumns([sum])
+      ..where(
+        db.accounts.isolatedAccount.equals(false),
+      );
+
+    return query.map((row) => row.read(sum) ?? 0).watchSingle();
   }
 
-  /// Streams the list of all transactions associated to a specific account.
-  /// 
-  /// This uses Drift's watch and streams the transactions once the underlying
-  /// accounts data changes.
-  Stream<List<Transaction>> watchTransactions(int? accountId, int? limit) {
-    var query = db.select(db.transactions);
-
+  /// Streams the list of transactions.
+  ///
+  /// If [accountId] is provided, returns transactions for that account.
+  /// If [accountId] is null, returns transactions from non-isolated accounts.
+  Stream<List<Transaction>> watchTransactions(
+    int? accountId,
+    int? limit,
+  ) {
     if (accountId != null) {
-      query = query..where((t) => t.accountId.equals(accountId));
+      var query = db.select(db.transactions)
+        ..where((t) => t.accountId.equals(accountId));
+
+      if (limit != null) {
+        query = query..limit(limit);
+      }
+
+      query = query
+        ..orderBy([
+          (t) => OrderingTerm(
+            expression: t.createdAt,
+            mode: OrderingMode.desc,
+          ),
+        ]);
+
+      return query.watch();
     }
+
+    final query = db.select(db.transactions).join([
+      innerJoin(
+        db.accounts,
+        db.accounts.id.equalsExp(db.transactions.accountId),
+      ),
+    ])
+      ..where(
+        db.accounts.isolatedAccount.equals(false),
+      )
+      ..orderBy([
+        OrderingTerm(
+          expression: db.transactions.createdAt,
+          mode: OrderingMode.desc,
+        ),
+      ]);
 
     if (limit != null) {
-      query = query..limit(limit);
+      query.limit(limit);
     }
 
-    query = query..orderBy([
-      (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
-    ]);
-
-    return query.watch();
+    return query.watch().map(
+      (rows) => rows.map((row) => row.readTable(db.transactions)).toList(),
+    );
   }
 
   /// Gets a transaction from its ID.

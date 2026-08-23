@@ -28,7 +28,14 @@ class AccountRepository {
   /// Creates a new account with given details.
   /// 
   /// Returns the ID of created account.
-  Future<int> createAccount(String title, {String? description, AccountColor color = .slate}) async {
+  Future<int> createAccount(
+    String title,
+    {
+      String? description,
+      AccountColor color = .slate,
+      bool isolatedAccount = false,
+    }
+  ) async {
     // Account.id is an integer with auto-increment and insert() returns rowid
     // which will be equivalent to Account.id in this case.
     // This will need to be changed if in future, Account.id uses some other scheme
@@ -37,15 +44,25 @@ class AccountRepository {
       title: title,
       description: Value(description),
       color: Value(color.id),
+      isolatedAccount: Value(isolatedAccount),
     ));
   }
 
   /// Updates an account.
-  Future<void> updateAccount(int id, {String? title, String? description, AccountColor? color}) async {
+  Future<void> updateAccount(
+    int id,
+    {
+      String? title,
+      String? description,
+      AccountColor? color,
+      bool? isolatedAccount,
+    }
+  ) async {
     await (db.update(db.accounts)..where((a) => a.id.equals(id))).write(AccountsCompanion(
       title: title != null ? Value(title) : Value.absent(),
       description: description != null ? Value(description) : Value.absent(),
       color: color != null ? Value(color.id) : Value.absent(),
+      isolatedAccount: isolatedAccount != null ? Value(isolatedAccount) : Value.absent(),
     ));
   }
 
