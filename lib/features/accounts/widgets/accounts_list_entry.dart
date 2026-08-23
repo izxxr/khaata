@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/features/accounts/widgets/account_colors.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountsListEntry extends StatelessWidget {
   const new({super.key, required this.data});
@@ -16,6 +18,26 @@ class AccountsListEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final description = data.description ?? "";
+    final balanceStream = StreamBuilder(
+      stream: context.read<TransactionRepository>().watchBalance(data.id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        return Text(
+          ((snapshot.data ?? 0) / 100).toStringAsFixed(2),
+          style: Theme.of(context)
+                       .textTheme
+                       .titleMedium
+                      ?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).hintColor,
+                        ),
+        );
+      }
+    );
+
     List<Widget> children = [];
 
     if (description.isEmpty) {
@@ -24,10 +46,7 @@ class AccountsListEntry extends StatelessWidget {
           children: [
             Text(data.title, style: Theme.of(context).textTheme.titleMedium),
             Spacer(),
-            IconButton(
-              icon: Icon(Icons.arrow_right_alt),
-              onPressed: () => _onTap(context),
-            )
+            balanceStream
           ]
         ),
       ];
@@ -39,7 +58,7 @@ class AccountsListEntry extends StatelessWidget {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2,
               child: Text(
-                description,
+                description.length > 100 ? "${description.substring(0, 100)}..." : description,
                 style: Theme.of(context)
                             .textTheme
                             .bodySmall
@@ -47,10 +66,7 @@ class AccountsListEntry extends StatelessWidget {
               ),
             ),
             Spacer(),
-            IconButton(
-              icon: Icon(Icons.arrow_right_alt),
-              onPressed: () => _onTap(context),
-            )
+            balanceStream
           ]
         ),
       ];
