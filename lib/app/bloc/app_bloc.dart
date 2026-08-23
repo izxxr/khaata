@@ -10,6 +10,7 @@ import 'package:khaata/app/bloc/app_state.dart';
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc(super.initialState){
     on<ThemeModeUpdated>(_onThemeModeUpdated);
+    on<TimeFormatUpdated>(_onTimeFormatUpdated);
     on<UsernameUpdated>(_onUsernameUpdated);
     on<OnboardingCompleted>(_onOnboardingCompleted);
     on<StateReset>(_onStateReset);
@@ -23,6 +24,16 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     prefs.setString("themeMode", event.newThemeMode.name);
 
     emit(state.copyWith(themeMode: event.newThemeMode));
+  }
+
+  Future<void> _onTimeFormatUpdated(
+    TimeFormatUpdated event,
+    Emitter<AppState> emit,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("timeFormatIs24Hours", event.is24HoursFormat);
+
+    emit(state.copyWith(timeFormatIs24Hours: event.is24HoursFormat));
   }
 
   Future<void> _onUsernameUpdated(

@@ -9,12 +9,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppState {
   const AppState({
     required this.themeMode,
+    required this.timeFormatIs24Hours,
     required this.username,
     required this.onboardingComplete,
   });
 
   /// The app's current theme mode.
   final ThemeMode themeMode;
+
+  /// The app's current theme mode.
+  final bool timeFormatIs24Hours;
 
   /// The username displayed in app.
   final String? username;
@@ -27,6 +31,7 @@ class AppState {
     final now = DateTime.now();
 
     String dateFmt = "";
+    String timeFmt = timeFormatIs24Hours ? "HH:mm" : "hh:mm a";
 
     if (shorten && dt.month == now.month && dt.year == now.year) {
       int delta = now.day - dt.day;
@@ -39,17 +44,19 @@ class AppState {
       dateFmt = "dd MMM yyy";
     }
 
-    return DateFormat("$dateFmt, hh:mm a").format(dt);
+    return DateFormat("$dateFmt, $timeFmt").format(dt);
   }
 
   /// Copy the app state with provided overrides.
   AppState copyWith({
     ThemeMode? themeMode,
+    bool? timeFormatIs24Hours,
     String? username,
     bool? onboardingComplete,
   }) {
     return AppState(
       themeMode: themeMode ?? this.themeMode,
+      timeFormatIs24Hours: timeFormatIs24Hours ?? this.timeFormatIs24Hours,
       username: username ?? this.username,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
@@ -60,6 +67,7 @@ class AppState {
     final prefs = await SharedPreferences.getInstance();
 
     final themeName = prefs.getString('themeMode');
+    final timeFormatIs24Hours = prefs.getBool('timeFormatIs24Hours') ?? false;
     final username = prefs.getString('username');
     final onboardingComplete = prefs.getBool('onboardingComplete') ?? false;
 
@@ -71,6 +79,7 @@ class AppState {
 
     return AppState(
       themeMode: themeMode,
+      timeFormatIs24Hours: timeFormatIs24Hours,
       username: username,
       onboardingComplete: onboardingComplete
     );

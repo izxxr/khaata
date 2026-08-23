@@ -54,6 +54,22 @@ class Settings extends StatelessWidget {
           )
         ),
         SettingsEntry(
+          label: "Time Format",
+          description: "24-hours: 14:29, 12-hours: 02:29 PM",
+          controlWidget: DropdownMenu(
+            initialSelection: context.read<AppBloc>().state.timeFormatIs24Hours ? 1 : 0,
+            dropdownMenuEntries: [
+              DropdownMenuEntry(value: 1, label: "24 hours"),
+              DropdownMenuEntry(value: 0, label: "12 hours"),
+            ],
+            onSelected: (value) {
+              context.read<AppBloc>().add(
+                TimeFormatUpdated(is24HoursFormat: value == 1 ? true : false)
+              );
+            },
+          )
+        ),
+        SettingsEntry(
           label: "Shared Preferences",
           description: "Reset application shared preferences.\n\nThis will clear app settings (username, theme, etc.) only. Accounts data and transactions remain unchanged.\n\nFor debugging purposes only.",
           controlWidget: ElevatedButton.icon(

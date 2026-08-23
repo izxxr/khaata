@@ -12,6 +12,14 @@ final class ThemeModeUpdated extends AppEvent {
   final ThemeMode newThemeMode;
 }
 
+/// Event invoked when user updates the time format from settings.
+final class TimeFormatUpdated extends AppEvent {
+  TimeFormatUpdated({required this.is24HoursFormat});
+
+  /// The updated theme mode.
+  final bool is24HoursFormat;
+}
+
 /// Event invoked when a user updates their username.
 final class UsernameUpdated extends AppEvent {
   UsernameUpdated({required this.newUsername});
