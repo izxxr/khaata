@@ -18,7 +18,7 @@ class Insights extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.sm),
         Text(
-          "Visualize your finances with detailed summary and plots",
+          "Visualize your finances with detailed insights",
           style: Theme.of(context)
                       .textTheme
                       .titleSmall
