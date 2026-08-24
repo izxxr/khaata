@@ -26,11 +26,12 @@ class Dashboard extends StatelessWidget {
                         "Recent Transactions",
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      Spacer(),
-                      TextButton.icon(
-                        onPressed: () {},
-                        label: Text("View all"),
-                      )
+                      // TODO: reveal this after insights page implemented
+                      // Spacer(),
+                      // TextButton.icon(
+                      //   onPressed: () {},
+                      //   label: Text("View all"),
+                      // ),
                     ]
                   ),
                   SizedBox(height: AppSpacing.sm),
