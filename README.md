@@ -12,7 +12,7 @@ Simple cross platform finance tracker app.
 - Real-time balance tracking across accounts
 - Transactions logging with time and description
 - Isolated accounts for separated transactions e.g. savings
-- Focused around flexibility and [customization](#customization)
+- Focused around flexibility and customization
 - Sleek, user friendly, and modern interface
 - ... and [much more](#features-documentation--roadmap)
 
