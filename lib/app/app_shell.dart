@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 /// Shell widget to wrap application top level pages.
 /// 
 /// This widget provides common navigation bar layout for the
-/// top level pages i.e. dashboard, accounts list, goals, and settings.
+/// top level pages i.e. dashboard, accounts list, insights, and settings.
 class AppShell extends StatelessWidget {
   const AppShell({
     super.key,
@@ -38,9 +38,9 @@ class AppShell extends StatelessWidget {
               label: 'Accounts',
             ),
             NavigationDestination(
-              icon: Icon(Icons.flag_outlined),
+              icon: Icon(Icons.insights),
               selectedIcon: Icon(Icons.flag),
-              label: 'Goals',
+              label: 'Insights',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings_outlined),

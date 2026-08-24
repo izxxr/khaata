@@ -8,7 +8,7 @@ import 'package:khaata/features/onboarding/pages/setup.dart';
 import 'package:khaata/features/onboarding/pages/final.dart';
 import 'package:khaata/features/accounts/pages/accounts_list.dart';
 import 'package:khaata/features/accounts/pages/account_view.dart';
-import 'package:khaata/features/goals/pages/goals.dart';
+import 'package:khaata/features/insights/pages/insights.dart';
 import 'package:khaata/features/settings/pages/settings.dart';
 
 
@@ -86,8 +86,8 @@ GoRouter createRouter(AppBloc appBloc) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/goals',
-                builder: (context, state) => const Goals(),
+                path: '/insights',
+                builder: (context, state) => const Insights(),
               ),
             ],
           ),

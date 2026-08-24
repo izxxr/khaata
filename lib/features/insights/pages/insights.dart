@@ -3,8 +3,8 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/widgets/default_screen.dart';
 
 
-/// Widget for the "Goals" section.
-class Goals extends StatelessWidget {
+/// Widget for the "Insights" section.
+class Insights extends StatelessWidget {
   const new({super.key});
 
   @override
@@ -13,12 +13,12 @@ class Goals extends StatelessWidget {
       padding: EdgeInsets.all(AppSpacing.globalPadding),
       children: [
         Text(
-          "Goals",
+          "Insights",
           style: Theme.of(context).textTheme.titleLarge
         ),
         SizedBox(height: AppSpacing.sm),
         Text(
-          "Set and track fund collection goals",
+          "Visualize your finances with detailed summary and plots",
           style: Theme.of(context)
                       .textTheme
                       .titleSmall
