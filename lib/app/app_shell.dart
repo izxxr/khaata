@@ -38,8 +38,8 @@ class AppShell extends StatelessWidget {
               label: 'Accounts',
             ),
             NavigationDestination(
-              icon: Icon(Icons.insights),
-              selectedIcon: Icon(Icons.flag),
+              icon: Icon(Icons.insights_outlined),
+              selectedIcon: Icon(Icons.insights),
               label: 'Insights',
             ),
             NavigationDestination(
