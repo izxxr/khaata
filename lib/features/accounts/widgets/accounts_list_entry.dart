@@ -60,6 +60,7 @@ class AccountsListEntry extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(data.title, style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(width: AppSpacing.sm),

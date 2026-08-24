@@ -61,6 +61,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                   ),
                   SizedBox(height: AppSpacing.sm),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       child,
                       SizedBox(width: AppSpacing.md),
