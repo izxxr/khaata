@@ -89,7 +89,7 @@ class AppTheme {
       surface: Color(0xFF141218),
       onSurface: Color(0xFFE6E1E9),
       surfaceContainerHigh: Color(0xFF262528),
-      surfaceContainerHighest: Color.fromARGB(255, 50, 49, 52),
+      surfaceContainerHighest: Color(0xFF323134),
       onSurfaceVariant: Color(0xFFCAC4D0),
 
       outline: Color(0xFF938F99),
