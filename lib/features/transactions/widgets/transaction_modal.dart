@@ -232,7 +232,7 @@ Future showTransactionModal(
                       ),
                     ),
                     Flexible(
-                      flex: 4,
+                      flex: 3,
                       child: TextFormField(
                         decoration: InputDecoration(
                           label: Text("Amount"),
