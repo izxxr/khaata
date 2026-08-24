@@ -40,8 +40,8 @@ class _OnboardingSetupState extends State<OnboardingSetup> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: AppSpacing.md),
-              SizedBox(
-                width: 360,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.globalPadding),
                 child: Text(
                   "This name will be used to refer to you in transactions and various places in the app.",
                   style: Theme.of(context)
