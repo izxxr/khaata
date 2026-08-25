@@ -14,7 +14,12 @@ class TransactionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: context.read<TransactionRepository>().watchTransactions(account?.id, limit),
+      stream: context.read<TransactionRepository>().watchTransactions(
+        account?.id,
+        limit,
+        fetchCategory: true,
+        fetchAccount: account == null,
+      ),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(

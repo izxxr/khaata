@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Enum describing the color of an account.
-enum AccountColor {
+enum KhaataColors {
   slate(0, Color(0xFF64748B)),
   blue(1, Color(0xFF3B82F6)),
   sky(2, Color(0xFF0EA5E9)),
@@ -15,12 +15,12 @@ enum AccountColor {
   fuchsia(10, Color(0xFFD946EF)),
   teal(11, Color(0xFF14B8A6));
 
-  const AccountColor(this.id, this.color);
+  const KhaataColors(this.id, this.color);
 
   final int id;
   final Color color;
 
-  static AccountColor fromId(int id) {
+  static KhaataColors fromId(int id) {
     return values.firstWhere((color) => color.id == id);
   }
 }

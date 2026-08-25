@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:khaata/database/tables/account.dart';
+import 'package:khaata/database/tables/category.dart';
 
 
 /// Represents a transaction.
@@ -46,4 +47,18 @@ class Transactions extends Table {
 
   /// The time when this transaction was performed.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// The category's ID that this transaction is assigned to, if any.
+  /// The ID of account that this transaction belongs to.
+  /// 
+  /// This is the account that **created** this transaction or the
+  /// "source account".
+  /// 
+  /// In future, if we may add _additional_ transfer type, we may add
+  /// destinationAccountId or other fields which must be distinguished
+  /// from this.
+  IntColumn get categoryId => integer()
+    .nullable()
+    .withDefault(const Constant(null))
+    .references(Categories, #id, onDelete: KeyAction.setDefault)();
 }

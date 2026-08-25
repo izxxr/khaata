@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
-import 'package:khaata/features/accounts/widgets/account_colors.dart';
 
 
 /// Repository for managing accounts stored in SQLite database
@@ -34,7 +34,7 @@ class AccountRepository {
     String title,
     {
       String? description,
-      AccountColor color = .slate,
+      KhaataColors color = .slate,
       bool isolatedAccount = false,
     }
   ) async {
@@ -56,7 +56,7 @@ class AccountRepository {
     {
       String? title,
       String? description,
-      AccountColor? color,
+      KhaataColors? color,
       bool? isolatedAccount,
     }
   ) async {

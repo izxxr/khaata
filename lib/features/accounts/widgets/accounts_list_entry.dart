@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:khaata/database/database.dart';
 import 'package:khaata/app/style.dart';
-import 'package:khaata/features/accounts/widgets/account_colors.dart';
+import 'package:khaata/common/khaata_colors.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountsListEntry extends StatelessWidget {
@@ -50,7 +50,7 @@ class AccountsListEntry extends StatelessWidget {
             gradient: LinearGradient(colors: [Theme.of(context).colorScheme.surfaceContainerHighest, Theme.of(context).colorScheme.surfaceContainerHigh]),
             border: Border(
               left: BorderSide(
-                color: AccountColor.fromId(data.color).color,
+                color: KhaataColors.fromId(data.color).color,
                 width: 4,
               ),
             ),

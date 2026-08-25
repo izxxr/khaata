@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
-import 'package:khaata/features/accounts/widgets/account_colors.dart';
 import 'package:khaata/features/accounts/widgets/account_modal.dart';
 import 'package:khaata/features/accounts/widgets/account_overview_card.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
@@ -24,7 +24,6 @@ class _AccountViewState extends State<AccountView> {
   late Stream<Account> _accountWatcher;
 
   final _editAccountFormKey = GlobalKey<FormState>();
-  final _addTransactionFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -49,7 +48,7 @@ class _AccountViewState extends State<AccountView> {
         return Scaffold(
           appBar: AppBar(
             title: Text(account.title),
-            backgroundColor: AccountColor.fromId(account.color).color,
+            backgroundColor: KhaataColors.fromId(account.color).color,
             actions: [
               IconButton(
                 icon: Icon(Icons.edit),
@@ -94,7 +93,7 @@ class _AccountViewState extends State<AccountView> {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => showTransactionModal(context, _addTransactionFormKey, account.id, null),
+            onPressed: () => TransactionModal.show(context, account.id, null),
             child: Icon(Icons.add),
           ),
         );

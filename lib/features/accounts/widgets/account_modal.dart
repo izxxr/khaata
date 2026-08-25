@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/widgets/color_dropdown_menu.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
-import 'package:khaata/features/accounts/widgets/account_colors.dart';
 
+
+// TODO: wrap modal content in a stateful widget like TransactionModal
 Future showAccountCreationModal(
   BuildContext context,
   GlobalKey<FormState> formKey,
@@ -15,7 +18,7 @@ Future showAccountCreationModal(
   String title = account?.title ?? '';
   String description = account?.description ?? '';
   bool isolatedAccount = account?.isolatedAccount ?? false;
-  AccountColor color = account != null ? AccountColor.fromId(account.color) : AccountColor.slate;
+  KhaataColors color = account != null ? KhaataColors.fromId(account.color) : KhaataColors.slate;
 
   await showModalBottomSheet(
     context: context,
@@ -151,25 +154,10 @@ Future showAccountCreationModal(
                   },
                 ),
                 SizedBox(height: AppSpacing.md),
-                DropdownMenuFormField<int>(
-                  label: Text("Color"),
-                  menuHeight: 300,
-                  width: MediaQuery.of(context).size.width,
-                  dropdownMenuEntries: [
-                    for (var entry in AccountColor.values)
-                      DropdownMenuEntry(
-                        label: entry.name,
-                        value: entry.id,
-                        leadingIcon: Icon(Icons.circle, color: entry.color),
-                      )
-                  ],
-                  initialSelection: account?.color,
-                  onSaved: (newValue) {
-                    if (newValue == null) {
-                      color = AccountColor.slate;
-                    } else {
-                      color = AccountColor.fromId(newValue);
-                    }
+                ColorDropdownMenu(
+                  initialSelection: KhaataColors.fromId(account?.color ?? 0),
+                  onSelected: (newValue) {
+                    color = newValue;
                   },
                 ),
                 SizedBox(height: AppSpacing.md),

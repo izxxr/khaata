@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:khaata/database/database.dart';
 
-/// Repository for managing transactions stored in SQLite database
+/// Repository for managing transactions and associated information
+/// stored in SQLite database
 class TransactionRepository {
   const new({required this.db});
 
@@ -41,57 +42,29 @@ class TransactionRepository {
   ///
   /// If [accountId] is provided, returns transactions for that account.
   /// If [accountId] is null, returns transactions from non-isolated accounts.
-  Stream<List<Transaction>> watchTransactions(
+  Stream<List<(Transaction, $$TransactionsTableReferences)>> watchTransactions(
     int? accountId,
     int? limit,
-  ) {
-    if (accountId != null) {
-      var query = db.select(db.transactions)
-        ..where((t) => t.accountId.equals(accountId));
-
-      if (limit != null) {
-        query = query..limit(limit);
-      }
-
-      query = query
-        ..orderBy([
-          (t) => OrderingTerm(
-            expression: t.createdAt,
-            mode: OrderingMode.desc,
-          ),
-        ]);
-
-      return query.watch();
+    {
+      bool fetchAccount = false,
+      bool fetchCategory = false,
     }
+  ) {
+    var manager = db.managers.transactions;
+    var query =
+      accountId != null ?
+        manager.filter((f) => f.accountId.id(accountId))
+      : manager.filter((f) => f.accountId.isolatedAccount(false));
 
-    final query = db.select(db.transactions).join([
-      innerJoin(
-        db.accounts,
-        db.accounts.id.equalsExp(db.transactions.accountId),
-      ),
-    ])
-      ..where(
-        db.accounts.isolatedAccount.equals(false),
-      )
-      ..orderBy([
-        OrderingTerm(
-          expression: db.transactions.createdAt,
-          mode: OrderingMode.desc,
-        ),
-      ]);
+    query = query.orderBy((o) => o.createdAt.desc());
 
     if (limit != null) {
-      query.limit(limit);
+      query = query.limit(limit);
     }
 
-    return query.watch().map(
-      (rows) => rows.map((row) => row.readTable(db.transactions)).toList(),
-    );
-  }
-
-  /// Gets a transaction from its ID.
-  Stream<Transaction> getTransaction(int id) {
-    return (db.select(db.transactions)..where((t) => t.id.equals(id))).watchSingle();
+    return query.withReferences(
+      (pf) => pf(accountId: fetchAccount, categoryId: fetchCategory)
+    ).watch();
   }
 
   /// Creates a new transaction with given details.
@@ -103,7 +76,8 @@ class TransactionRepository {
     int amount,
     {
       String? description,
-      DateTime? createdAt
+      DateTime? createdAt,
+      int? categoryId,
     }
   ) async {
     return await db.into(db.transactions).insert(TransactionsCompanion.insert(
@@ -112,6 +86,7 @@ class TransactionRepository {
       amount: amount,
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
       description: Value(description),
+      categoryId: Value(categoryId),
     ));
   }
 
@@ -123,6 +98,7 @@ class TransactionRepository {
       int? amount,
       String? description,
       DateTime? createdAt,
+      Value<int?>? categoryId,
     }
   ) async {
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(TransactionsCompanion(
@@ -130,6 +106,7 @@ class TransactionRepository {
       amount: amount != null ? Value(amount) : Value.absent(),
       description: description != null ? Value(description) : Value.absent(),
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
+      categoryId: categoryId ?? Value.absent(),
     ));
   }
 
