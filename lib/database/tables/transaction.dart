@@ -60,5 +60,5 @@ class Transactions extends Table {
   IntColumn get categoryId => integer()
     .nullable()
     .withDefault(const Constant(null))
-    .references(Categories, #id, onDelete: KeyAction.setDefault)();
+    .references(Categories, #id, onDelete: KeyAction.setNull)();
 }

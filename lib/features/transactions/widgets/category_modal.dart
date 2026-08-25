@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/widgets/color_dropdown_menu.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
 
 class CategoryModal extends StatefulWidget {
-  const new({super.key});
+  const new({super.key, this.category});
 
-  static Future<int?> show(BuildContext context) async {
+  final Category? category;
+
+  static Future<int?> show(BuildContext context, Category? category) async {
     final result = await showDialog<int?>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => CategoryModal(),
+      builder: (context) => CategoryModal(category: category),
     );
     return result; // Returns false if user taps outside
   }
@@ -28,9 +31,40 @@ class _CategoryModalState extends State<CategoryModal> {
   KhaataColors categoryColor = KhaataColors.slate;
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.category != null) {
+      categoryColor = KhaataColors.fromId(widget.category!.color);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Create new category...", style: Theme.of(context).textTheme.titleLarge),
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "${widget.category == null ? 'Create' : 'Edit'} category...",
+            style: Theme.of(context).textTheme.titleLarge
+          ),
+          Spacer(),
+          widget.category != null ?
+            IconButton(
+              onPressed: () async {
+                await context.read<CategoryRepository>().deleteCategory(widget.category!.id);
+
+                if (!context.mounted) return;
+
+                Navigator.pop(context, null);
+              },
+              icon: Icon(Icons.delete, size: 26, color: Colors.red.shade500)
+            )
+          : SizedBox()
+        ]
+      ),
       content: Form(
         key: _formKey,
         child: Column(
@@ -42,6 +76,7 @@ class _CategoryModalState extends State<CategoryModal> {
               onSaved: (v) {
                 categoryName = v!.trim();
               },
+              initialValue: widget.category?.name,
               decoration: InputDecoration(
                 label: Text("Name"),
               ),
@@ -53,6 +88,7 @@ class _CategoryModalState extends State<CategoryModal> {
               },
             ),
             ColorDropdownMenu(
+              initialSelection: widget.category != null ? KhaataColors.fromId(widget.category!.color) : null,
               onSelected: (newValue) {
                 categoryColor = newValue;
               }
@@ -77,16 +113,26 @@ class _CategoryModalState extends State<CategoryModal> {
               return;
             }
 
-            final id = await context.read<CategoryRepository>().createCategory(
-              categoryName!,
-              color: categoryColor,
-            );
+            int? categoryId = widget.category?.id;
+
+            if (categoryId == null) {
+              categoryId = await context.read<CategoryRepository>().createCategory(
+                categoryName!,
+                color: categoryColor,
+              );
+            } else {
+              await context.read<CategoryRepository>().updateCategory(
+                categoryId,
+                name: categoryName,
+                color: categoryColor,
+              );
+            }
 
             if (!context.mounted) return;
 
-            Navigator.pop(context, id);
+            Navigator.pop(context, categoryId);
           },
-          child: const Text('Create')
+          child: Text(widget.category != null ? "Update" : "Create")
         ),
       ],
     );

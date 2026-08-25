@@ -279,7 +279,7 @@ class _TransactionModalState extends State<TransactionModal> {
                     initialValue:  categoryId,
                     onChanged: (v) async {
                       if (v == -1) {
-                        final newId = await CategoryModal.show(context);
+                        final newId = await CategoryModal.show(context, null);
 
                         return setState(() {
                           categoryId = newId;

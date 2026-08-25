@@ -10,6 +10,7 @@ import 'package:khaata/features/accounts/pages/accounts_list.dart';
 import 'package:khaata/features/accounts/pages/account_view.dart';
 import 'package:khaata/features/insights/pages/insights.dart';
 import 'package:khaata/features/settings/pages/settings.dart';
+import 'package:khaata/features/transactions/pages/categories.dart';
 
 
 /// Build the application router.
@@ -58,6 +59,12 @@ GoRouter createRouter(AppBloc appBloc) {
               GoRoute(
                 path: '/',
                 builder: (context, state) => const Dashboard(),
+                routes: [
+                  GoRoute(
+                    path: '/categories',
+                    builder: (context, state) => const Categories(),
+                  ),
+                ]
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/features/dashboard/widgets/overview_card.dart';
+import 'package:khaata/features/dashboard/widgets/quick_actions.dart';
 import 'package:khaata/features/transactions/widgets/transactions_list.dart';
 
 
@@ -14,6 +15,8 @@ class Dashboard extends StatelessWidget {
       body: Column(
         children: [
           OverviewCard(),
+          SizedBox(height: AppSpacing.lg),
+          QuickActions(),
           Expanded(
             child: Padding(
               padding: EdgeInsetsGeometry.all(AppSpacing.globalPadding),
