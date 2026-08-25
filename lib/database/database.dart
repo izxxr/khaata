@@ -24,4 +24,12 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      // Enable foreign key constraints in SQLite
+      await customStatement('PRAGMA foreign_keys = ON;');
+    },
+  );
 }

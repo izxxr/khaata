@@ -58,7 +58,7 @@ class Transactions extends Table {
   /// destinationAccountId or other fields which must be distinguished
   /// from this.
   IntColumn get categoryId => integer()
-    .nullable()
+    .references(Categories, #id, onDelete: KeyAction.setNull)
     .withDefault(const Constant(null))
-    .references(Categories, #id, onDelete: KeyAction.setNull)();
+    .nullable()();
 }
