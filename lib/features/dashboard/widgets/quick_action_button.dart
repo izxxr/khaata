@@ -24,7 +24,13 @@ class QuickActionButton extends StatelessWidget {
             spacing: AppSpacing.sm,
             children: [
               Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
-              Text(label, style: Theme.of(context).textTheme.labelMedium)
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis, // Adds '...' at the end
+              )
             ],
           ),
         ),
