@@ -18,13 +18,13 @@ class QuickActionButton extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(8),
           ),
-          padding: EdgeInsets.all(AppSpacing.md),
+          padding: EdgeInsets.all(AppSpacing.sm + 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: AppSpacing.sm,
             children: [
               Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
-              Text(label)
+              Text(label, style: Theme.of(context).textTheme.labelMedium)
             ],
           ),
         ),
