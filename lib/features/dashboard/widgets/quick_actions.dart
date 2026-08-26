@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/features/dashboard/widgets/quick_action_button.dart';
+import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
 
 class QuickActions extends StatelessWidget {
   const new({super.key});
@@ -23,7 +24,7 @@ class QuickActions extends StatelessWidget {
             QuickActionButton(
               icon: Icons.add,
               label: "Transaction",
-              onTap: () {}
+              onTap: () => TransactionModal.show(context, null, null)
             ),
         ],
       )

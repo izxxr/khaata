@@ -6,6 +6,7 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/widgets/datetime_picker.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
@@ -16,11 +17,11 @@ class TransactionModal extends StatefulWidget {
   const new({super.key, this.transaction, required this.accountId});
 
   final Transaction? transaction;
-  final int accountId;
+  final int? accountId;
 
   static Future show(
     BuildContext context,
-    int accountId,
+    int? accountId,
     Transaction? transaction,
   ) async {
     await showModalBottomSheet(
@@ -50,7 +51,8 @@ class _TransactionModalState extends State<TransactionModal> {
   DateTime createdAt = DateTime.now();
   int amount = 0;
   int sign = 1;
-  int? categoryId = null;
+  int? categoryId;
+  int? accountId;
 
   late TextEditingController datetimeController;
 
@@ -69,6 +71,7 @@ class _TransactionModalState extends State<TransactionModal> {
 
     categoryId = widget.transaction?.categoryId;
     createdAt = widget.transaction?.createdAt ?? DateTime.now();
+    accountId = widget.accountId;
     datetimeController = TextEditingController(
       text: context.read<AppBloc>().state.formatDateTime(createdAt)
     );
@@ -139,6 +142,8 @@ class _TransactionModalState extends State<TransactionModal> {
 
                       _formKey.currentState!.save();
 
+                      if (accountId == null) return;
+
                       if (widget.transaction != null) {
                         await context.read<TransactionRepository>().updateTransaction(
                           widget.transaction!.id,
@@ -150,7 +155,7 @@ class _TransactionModalState extends State<TransactionModal> {
                         );
                       } else {
                         await context.read<TransactionRepository>().createTransaction(
-                          widget.accountId,
+                          accountId!,
                           title,
                           amount,
                           description: description,
@@ -171,6 +176,60 @@ class _TransactionModalState extends State<TransactionModal> {
                 ],
               ),
               SizedBox(height: AppSpacing.xl),
+              widget.accountId == null ?
+                StreamBuilder(
+                  stream: context.read<AccountRepository>().watchAccounts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
+                      return DropdownButtonFormField(
+                        hint: Text("Loading..."),
+                        items: [],
+                        onChanged: (v) {},
+                        decoration: InputDecoration(
+                          enabled: false
+                        ),
+                      );
+                    }
+
+                    final accounts = snapshot.data!.map(
+                      (a) => DropdownMenuItem(
+                        value: a.id,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance,
+                              color: KhaataColors.fromId(a.color).color
+                            ),
+                            SizedBox(width: AppSpacing.md), // Gives space between icon and text
+                            Text(a.title),
+                          ]
+                        ),
+                      )
+                    ).toList();
+
+                    return DropdownButtonFormField(
+                      items: accounts,
+                      initialValue: accountId,
+                      validator: (value) {
+                        if (value == null) {
+                          return "Select an account to log transaction";
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        accountId = value;
+                      },
+                      onSaved: (newValue) {
+                        accountId = newValue;
+                      },
+                      decoration: InputDecoration(
+                        label: Text("Account"),
+                      ),
+                    );
+                  }
+                )
+              : SizedBox(),
+              SizedBox(height: AppSpacing.md),
               TextFormField(
                 decoration: InputDecoration(
                   label: Text("Title"),

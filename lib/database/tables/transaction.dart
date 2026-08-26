@@ -16,7 +16,8 @@ class Transactions extends Table {
   /// In future, if we may add _additional_ transfer type, we may add
   /// destinationAccountId or other fields which must be distinguished
   /// from this.
-  IntColumn get accountId => integer().references(Accounts, #id)();
+  IntColumn get accountId => integer()
+    .references(Accounts, #id, onDelete: KeyAction.cascade)();
 
   /// The type of this transaction.
   /// 
