@@ -69,9 +69,6 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
           DropdownMenuItem<U>(value: widget.noSelectionValue, child: Text("None"))
         );
 
-        print(_currentSelection);
-        print(entries.map((c) => c.value).toList());
-
         return DropdownButtonFormField(
           decoration: InputDecoration(
             label: Text(widget.labelText),
