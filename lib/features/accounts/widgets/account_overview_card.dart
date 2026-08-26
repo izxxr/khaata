@@ -41,10 +41,10 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
             child = CircularProgressIndicator();
           }
           else if (snapshot.hasError || snapshot.data == null) {
-            child = Text("0.00", style: Theme.of(context).textTheme.displaySmall);
+            child = Text("0.00", style: Theme.of(context).textTheme.headlineLarge);
           }
           else {
-            child = Text((snapshot.data! / 100).toStringAsFixed(2), style: Theme.of(context).textTheme.displaySmall);
+            child = Text((snapshot.data! / 100).toStringAsFixed(2), style: Theme.of(context).textTheme.headlineLarge);
           }
 
           return Row(
