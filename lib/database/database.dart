@@ -4,17 +4,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:khaata/database/tables/account.dart';
 import 'package:khaata/database/tables/transaction.dart';
 import 'package:khaata/database/tables/category.dart';
+import 'package:khaata/database/tables/counterparty.dart';
 
 part 'database.g.dart';
 
 
 /// The Drift application database.
-@DriftDatabase(tables: [Accounts, Transactions, Categories])
+@DriftDatabase(tables: [Accounts, Transactions, Categories, Counterparties])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

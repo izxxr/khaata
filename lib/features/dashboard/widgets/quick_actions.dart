@@ -22,6 +22,11 @@ class QuickActions extends StatelessWidget {
               onTap: () => context.go("/categories")
             ),
             QuickActionButton(
+              icon: Icons.people,
+              label: "Counterparties",
+              onTap: () => context.go("/counterparties")
+            ),
+            QuickActionButton(
               icon: Icons.add,
               label: "Transaction",
               onTap: () => TransactionModal.show(context, null, null)

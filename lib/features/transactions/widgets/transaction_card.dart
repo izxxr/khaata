@@ -20,6 +20,7 @@ class TransactionCard extends StatelessWidget {
     this.amountColor,
     this.description,
     this.category,
+    this.counterparty,
   });
 
   final String title;
@@ -32,6 +33,7 @@ class TransactionCard extends StatelessWidget {
   final Color? amountColor;
   final String? description;
   final Category? category;
+  final Counterparty? counterparty;
 
   static Widget fromTransaction(
     BuildContext context,
@@ -77,6 +79,7 @@ class TransactionCard extends StatelessWidget {
         amountColor: transaction.amount > 0 ? Colors.green.shade500 : Colors.redAccent,
         account: transactionRefs.accountId.prefetchedData?.first,
         category: transactionRefs.categoryId?.prefetchedData?.first,
+        counterparty: transactionRefs.counterpartyId?.prefetchedData?.first,
       );
     }
 
@@ -89,14 +92,17 @@ class TransactionCard extends StatelessWidget {
       backgroundColor: color,
       onTap: onTap,
       category: transactionRefs.categoryId?.prefetchedData?.first,
+      counterparty: transactionRefs.counterpartyId?.prefetchedData?.first,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> descriptionWidgets = [];
-    List<Widget> accountWidgets = [];
-    List<Widget> categoryWidgets = [];
+    List<Widget> footerLeftWidgets = [];
+    List<Widget> footerRightWidgets = [
+      Spacer(),
+    ];
 
     if ((description ?? "").isNotEmpty) {
       descriptionWidgets = [
@@ -106,7 +112,7 @@ class TransactionCard extends StatelessWidget {
     }
 
     if (account != null) {
-      accountWidgets = [
+      footerLeftWidgets = [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -125,8 +131,7 @@ class TransactionCard extends StatelessWidget {
     }
 
     if (category != null) {
-      categoryWidgets = [
-        Spacer(),
+      footerRightWidgets.add(
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -144,7 +149,29 @@ class TransactionCard extends StatelessWidget {
             ),
           ],
         ),
-      ];
+      );
+    }
+
+    if (counterparty != null) {
+      footerRightWidgets.addAll([
+        SizedBox(width: AppSpacing.md),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.people,
+              size: 16
+            ),
+            SizedBox(width: AppSpacing.sm),
+            Text(
+              counterparty!.name,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).hintColor
+              )
+            ),
+          ],
+        )
+      ]);
     }
  
     return Container(
@@ -193,12 +220,12 @@ class TransactionCard extends StatelessWidget {
                 ],
               ),
               ...descriptionWidgets,
-              (accountWidgets.length + categoryWidgets.length) > 0 ?
+              (footerLeftWidgets.length + footerRightWidgets.length) > 1 ?
                 SizedBox(height: AppSpacing.md)
               : SizedBox(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [...accountWidgets, ...categoryWidgets],
+                children: [...footerLeftWidgets, ...footerRightWidgets],
               ),
             ]
           ),

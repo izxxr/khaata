@@ -17,8 +17,9 @@ class TransactionsList extends StatelessWidget {
       stream: context.read<TransactionRepository>().watchTransactions(
         account?.id,
         limit,
-        fetchCategory: true,
         fetchAccount: account == null,
+        fetchCategory: true,
+        fetchCounterparty: true,
       ),
       builder: (context, snapshot) {
         if (snapshot.hasError) {

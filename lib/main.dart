@@ -6,6 +6,7 @@ import 'package:khaata/app/app.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_state.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/counterparty_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
 
@@ -28,6 +29,9 @@ void main() async {
         ),
         RepositoryProvider(
           create: (_) => CategoryRepository(db: database)
+        ),
+        RepositoryProvider(
+          create: (_) => CounterpartyRepository(db: database)
         ),
       ],
       child: BlocProvider.value(

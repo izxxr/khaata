@@ -48,6 +48,7 @@ class TransactionRepository {
     {
       bool fetchAccount = false,
       bool fetchCategory = false,
+      bool fetchCounterparty = false,
     }
   ) {
     var manager = db.managers.transactions;
@@ -63,7 +64,11 @@ class TransactionRepository {
     }
 
     return query.withReferences(
-      (pf) => pf(accountId: fetchAccount, categoryId: fetchCategory)
+      (pf) => pf(
+        accountId: fetchAccount,
+        categoryId: fetchCategory,
+        counterpartyId: fetchCounterparty
+      )
     ).watch();
   }
 
@@ -78,6 +83,7 @@ class TransactionRepository {
       String? description,
       DateTime? createdAt,
       int? categoryId,
+      int? counterpartyId,
     }
   ) async {
     return await db.into(db.transactions).insert(TransactionsCompanion.insert(
@@ -87,6 +93,7 @@ class TransactionRepository {
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
       description: Value(description),
       categoryId: Value(categoryId),
+      counterpartyId: Value(counterpartyId),
     ));
   }
 
@@ -99,6 +106,7 @@ class TransactionRepository {
       String? description,
       DateTime? createdAt,
       Value<int?>? categoryId,
+      Value<int?>? counterpartyId,
     }
   ) async {
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(TransactionsCompanion(
@@ -107,6 +115,7 @@ class TransactionRepository {
       description: description != null ? Value(description) : Value.absent(),
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
       categoryId: categoryId ?? Value.absent(),
+      counterpartyId: counterpartyId ?? Value.absent(),
     ));
   }
 

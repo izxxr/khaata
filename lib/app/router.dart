@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
-import 'package:khaata/helpers/go_router_refreshable_stream.dart';
 import 'package:khaata/app/app_shell.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
+import 'package:khaata/helpers/go_router_refreshable_stream.dart';
 import 'package:khaata/features/dashboard/pages/dashboard.dart';
 import 'package:khaata/features/onboarding/pages/intro.dart';
 import 'package:khaata/features/onboarding/pages/setup.dart';
@@ -11,7 +11,7 @@ import 'package:khaata/features/accounts/pages/account_view.dart';
 import 'package:khaata/features/insights/pages/insights.dart';
 import 'package:khaata/features/settings/pages/settings.dart';
 import 'package:khaata/features/transactions/pages/categories.dart';
-
+import 'package:khaata/features/transactions/pages/counterparties.dart';
 
 /// Build the application router.
 /// 
@@ -63,6 +63,10 @@ GoRouter createRouter(AppBloc appBloc) {
                   GoRoute(
                     path: '/categories',
                     builder: (context, state) => const Categories(),
+                  ),
+                  GoRoute(
+                    path: '/counterparties',
+                    builder: (context, state) => const Counterparties(),
                   ),
                 ]
               ),

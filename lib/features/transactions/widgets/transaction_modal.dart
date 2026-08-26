@@ -7,11 +7,14 @@ import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/counterparty_repository.dart';
+import 'package:khaata/features/transactions/widgets/counterparty_modal.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/widgets/datetime_picker.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/category_modal.dart';
+import 'package:khaata/widgets/dropdown_with_action.dart';
 
 class TransactionModal extends StatefulWidget {
   const new({super.key, this.transaction, required this.accountId});
@@ -51,8 +54,9 @@ class _TransactionModalState extends State<TransactionModal> {
   DateTime createdAt = DateTime.now();
   int amount = 0;
   int sign = 1;
-  int? categoryId;
   int? accountId;
+  int? categoryId;
+  int? counterpartyId;
 
   late TextEditingController datetimeController;
 
@@ -69,9 +73,14 @@ class _TransactionModalState extends State<TransactionModal> {
   void initState() {
     super.initState();
 
-    categoryId = widget.transaction?.categoryId;
+    title = widget.transaction?.title ?? "";
+    description = widget.transaction?.description ?? "";
     createdAt = widget.transaction?.createdAt ?? DateTime.now();
+    amount = widget.transaction?.amount ?? 0;
+    sign = amount >= 0 ? 1 : -1;
     accountId = widget.accountId;
+    categoryId = widget.transaction?.categoryId;
+    counterpartyId = widget.transaction?.counterpartyId;
     datetimeController = TextEditingController(
       text: context.read<AppBloc>().state.formatDateTime(createdAt)
     );
@@ -152,6 +161,7 @@ class _TransactionModalState extends State<TransactionModal> {
                           amount: amount,
                           createdAt: createdAt,
                           categoryId: drift.Value(categoryId),
+                          counterpartyId: drift.Value(counterpartyId),
                         );
                       } else {
                         await context.read<TransactionRepository>().createTransaction(
@@ -161,6 +171,7 @@ class _TransactionModalState extends State<TransactionModal> {
                           description: description,
                           createdAt: createdAt,
                           categoryId: categoryId,
+                          counterpartyId: counterpartyId,
                         );
                       }
 
@@ -288,72 +299,6 @@ class _TransactionModalState extends State<TransactionModal> {
                 ),
               ),
               SizedBox(height: AppSpacing.md),
-              StreamBuilder(
-                stream: context.read<CategoryRepository>().watchCategories(),
-                builder: (builder, snapshot) {
-                  if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
-                    return DropdownButtonFormField(
-                      hint: Text("Loading..."),
-                      items: [],
-                      onChanged: (v) {},
-                      decoration: InputDecoration(
-                        enabled: false
-                      ),
-                    );
-                  }
-
-                  final List<Category> categories = snapshot.data!;
-                  final List<DropdownMenuItem<int>> entries = categories.map(
-                    (c) => DropdownMenuItem<int>(
-                      value: c.id,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.category,
-                            color: KhaataColors.fromId(c.color).color
-                          ),
-                          SizedBox(width: AppSpacing.md), // Gives space between icon and text
-                          Text(c.name),
-                        ],
-                      ),
-                    )
-                  ).toList();
-
-                  entries.add(
-                    DropdownMenuItem(
-                      value: -1,
-                      child: Text("Create new...", style: TextStyle(color: Colors.blue)),
-                    )
-                  );
-
-                  entries.insert(
-                    0,
-                    DropdownMenuItem(value: null, child: Text("No category"))
-                  );
-
-                  return DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      label: Text("Category"),
-                    ),
-                    initialValue:  categoryId,
-                    onChanged: (v) async {
-                      if (v == -1) {
-                        final newId = await CategoryModal.show(context, null);
-
-                        return setState(() {
-                          categoryId = newId;
-                        });
-                      }
-
-                      setState(() {
-                        categoryId = v;
-                      });
-                    },
-                    items: entries
-                  ); 
-                }
-              ),
-              SizedBox(height: AppSpacing.md),
               Row(
                 children: [
                   Flexible(
@@ -386,7 +331,9 @@ class _TransactionModalState extends State<TransactionModal> {
                       ],
                       initialValue: widget.transaction != null ? (widget.transaction!.amount > 0 ? 1 : -1) : 1,
                       onChanged: (value) {
-                        sign = value ?? 1;
+                        setState(() {
+                          sign = value ?? 1;
+                        });
                       },
                       onSaved: (newValue) {
                         sign = newValue ?? 1;
@@ -441,6 +388,69 @@ class _TransactionModalState extends State<TransactionModal> {
                     )
                   ),
                 ],
+              ),
+              SizedBox(height: AppSpacing.md),
+              DropdownWithAction<Category, int>(
+                stream: context.read<CategoryRepository>().watchCategories(),
+                itemBuilder: (c) => DropdownMenuItem<int>(
+                  value: c.id,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.category,
+                        color: KhaataColors.fromId(c.color).color
+                      ),
+                      SizedBox(width: AppSpacing.md), // Gives space between icon and text
+                      Text(c.name),
+                    ],
+                  ),
+                ),
+                labelText: "Category",
+                newItemValue: -1,
+                noSelectionValue: null,
+                initialSelection: categoryId,
+                onNewItem: () async {
+                  final newId = await CategoryModal.show(context, null);
+                  
+                  setState(() {
+                    categoryId = newId;
+                  });
+
+                  return newId;
+                },
+                onChanged: (newValue) {
+                  categoryId = newValue;
+                },
+              ),
+              SizedBox(height: AppSpacing.md),
+              DropdownWithAction<Counterparty, int>(
+                stream: context.read<CounterpartyRepository>().watchCounterparties(),
+                itemBuilder: (c) => DropdownMenuItem<int>(
+                  value: c.id,
+                  child: Row(
+                    children: [
+                      Icon(Icons.people),
+                      SizedBox(width: AppSpacing.md), // Gives space between icon and text
+                      Text(c.name),
+                    ],
+                  ),
+                ),
+                labelText: sign == -1 ? "Payee" : "Payer",
+                newItemValue: -1,
+                noSelectionValue: null,
+                initialSelection: counterpartyId,
+                onNewItem: () async {
+                  final newId = await CounterpartyModal.show(context, null);
+                  
+                  setState(() {
+                    counterpartyId = newId;
+                  });
+
+                  return newId;
+                },
+                onChanged: (newValue) {
+                  counterpartyId = newValue;
+                },
               ),
             ],
           )
