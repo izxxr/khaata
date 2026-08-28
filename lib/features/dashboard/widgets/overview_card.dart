@@ -58,14 +58,14 @@ class OverviewCard extends StatelessWidget {
                                   ?.copyWith(color: Theme.of(context).hintColor),
                     ),
                     StreamBuilder(
-                      stream: context.read<TransactionRepository>().watchBalance(null),
+                      stream: context.read<TransactionRepository>().watchAmounts([]),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return CircularProgressIndicator();
                         }
 
                         return Text(
-                          ((snapshot.data ?? 0) / 100).toStringAsFixed(2),
+                          ((snapshot.data ?? (0, 0, 0)).$1 / 100).toStringAsFixed(2),
                           style: Theme.of(context).textTheme.headlineLarge,
                         );
                       }

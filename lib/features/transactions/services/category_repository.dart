@@ -51,4 +51,59 @@ class CategoryRepository {
   Future<void> deleteCategory(int id) async {
     await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
   }
-}
+
+  /// Stream all categories sorted by total amount (computed from transactions)
+  /// in descending order.
+  /// 
+  /// The result is list of (Category, int, int) where last two elements are incoming
+  /// and (absolute value of) outgoing amounts of corresponding category respectively.
+  Stream<List<(Category, int, int)>> watchTopCategories(
+    List<int> accountIds, {
+    bool sortByIncome = true,
+  }) {
+    final incomeSum = db.transactions.amount.sum(
+      filter: db.transactions.amount.isBiggerThanValue(0),
+    );
+
+    final outgoingSum = db.transactions.amount.sum(
+      filter: db.transactions.amount.isSmallerThanValue(0),
+    );
+
+    var query = db.select(db.categories).join([
+      innerJoin(
+        db.transactions,
+        db.transactions.categoryId.equalsExp(db.categories.id),
+      ),
+    ]);
+
+    if (accountIds.isNotEmpty) {
+      query = query..where(db.transactions.accountId.isIn(accountIds));
+    }
+
+    query..addColumns([
+        incomeSum,
+        outgoingSum,
+      ])
+      ..groupBy([db.categories.id])
+      ..orderBy([
+        OrderingTerm(
+          expression: sortByIncome ? incomeSum : outgoingSum,
+          mode: OrderingMode.desc,
+        ),
+      ]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        final category = row.readTable(db.categories);
+
+        final income = row.read(incomeSum) ?? 0;
+        final outgoing = row.read(outgoingSum) ?? 0;
+
+        return (
+          category,
+          income,
+          outgoing.abs(),
+        );
+      }).toList();
+    });
+}}

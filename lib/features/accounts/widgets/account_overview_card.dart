@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
-import 'package:khaata/database/database.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountOverviewCard extends StatefulWidget {
-  const new({super.key, required this.account});
+  const new({super.key, required this.accountIds});
 
-  final Account account;
+  final List<int> accountIds;
 
   @override
   State<AccountOverviewCard> createState() => _AccountOverviewCardState();
 }
 
 class _AccountOverviewCardState extends State<AccountOverviewCard> {
-  late Stream<int> _balanceStream;
+  late Stream<(int, int, int)> _balanceStream;
 
   @override
   void initState() {
     super.initState();
 
-    _balanceStream = context.read<TransactionRepository>().watchBalance(widget.account.id);
+    _balanceStream = context.read<TransactionRepository>().watchAmounts(widget.accountIds);
   }
 
   @override
@@ -40,45 +39,88 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             child = CircularProgressIndicator();
           }
-          else if (snapshot.hasError || snapshot.data == null) {
+          else if (snapshot.data == null || snapshot.hasError) {
             child = Text("0.00", style: Theme.of(context).textTheme.headlineLarge);
           }
           else {
-            child = Text((snapshot.data! / 100).toStringAsFixed(2), style: Theme.of(context).textTheme.headlineLarge);
+            child = Text((snapshot.data!.$1 / 100).toStringAsFixed(2), style: Theme.of(context).textTheme.headlineLarge);
           }
 
-          return Row(
+          return Column(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    "Balance",
-                    style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(color: Theme.of(context).hintColor)
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      child,
-                      SizedBox(width: AppSpacing.md),
-                      widget.account.isolatedAccount ?
-                        Tooltip(
-                          message: "Isolated account",
-                          triggerMode: TooltipTriggerMode.tap,
-                          child: Icon(Icons.money_off, size: 28, color: Colors.orange)
-                        )
-                      : SizedBox(),
+                      Text(
+                        "Balance",
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).hintColor)
+                      ),
+                      SizedBox(height: AppSpacing.sm),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          child,
+                        ]
+                      ),
                     ]
                   ),
-                ]
+                  Spacer(),
+                  IconButton(onPressed: () {}, icon: Icon(Icons.refresh)),
+                ],
               ),
-              Spacer(),
-              IconButton(onPressed: () {}, icon: Icon(Icons.refresh)),
-            ],
+              SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Income",
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).hintColor)
+                      ),
+                      SizedBox(height: AppSpacing.sm),
+                      Text(
+                        ((snapshot.data ?? (0, 0, 0)).$2 / 100).toStringAsFixed(2),
+                        style: Theme.of(context)
+                                     .textTheme
+                                     .headlineSmall
+                                    ?.copyWith(color: Colors.green.shade500)
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Spending",
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Theme.of(context).hintColor)
+                      ),
+                      SizedBox(height: AppSpacing.sm),
+                      Text(
+                        ((snapshot.data ?? (0, 0, 0)).$3 / 100).toStringAsFixed(2),
+                        style: Theme.of(context)
+                                     .textTheme
+                                     .headlineSmall
+                                    ?.copyWith(color: Colors.redAccent)
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                ]
+              )
+            ]
           );
         }
       ),

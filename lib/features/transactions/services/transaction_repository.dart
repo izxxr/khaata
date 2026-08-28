@@ -9,33 +9,39 @@ class TransactionRepository {
   final AppDatabase db;
 
   /// Streams the balance computed from account's transactions.
-  Stream<int> watchBalance(int? accountId) {
-    final sum = db.transactions.amount.sum();
+  Stream<(int, int, int)> watchAmounts(List<int> accountIds) {
+    final balance = db.transactions.amount.sum();
 
-    if (accountId != null) {
-      final query = db.selectOnly(db.transactions)
-        ..addColumns([sum])
-        ..where(
-          db.transactions.accountId.equals(accountId),
-        );
+    final income = db.transactions.amount.sum(
+      filter: db.transactions.amount.isBiggerThanValue(0),
+    );
 
-      return query.map((row) => row.read(sum) ?? 0).watchSingle();
+    final expense = db.transactions.amount.sum(
+      filter: db.transactions.amount.isSmallerThanValue(0),
+    );
+
+    var query = db.selectOnly(db.transactions)
+      ..addColumns([
+        balance,
+        income,
+        expense,
+      ]);
+    
+    if (accountIds.isNotEmpty) {
+      query = query..where(db.transactions.accountId.isIn(accountIds));
     }
 
-    final query = db.selectOnly(db.transactions).join([
-      innerJoin(
-        db.accounts,
-        db.accounts.id.equalsExp(
-          db.transactions.accountId,
-        ),
-      ),
-    ])
-      ..addColumns([sum])
-      ..where(
-        db.accounts.isolatedAccount.equals(false),
-      );
+    return query.watchSingle().map((row) {
+      final totalBalance = row.read(balance) ?? 0;
+      final totalIncome = row.read(income) ?? 0;
+      final totalExpense = row.read(expense)?.abs() ?? 0;
 
-    return query.map((row) => row.read(sum) ?? 0).watchSingle();
+      return (
+        totalBalance,
+        totalIncome,
+        totalExpense,
+      );
+    });
   }
 
   /// Streams the list of transactions.

@@ -71,7 +71,7 @@ class AccountsListEntry extends StatelessWidget {
 
                   Spacer(),
                   StreamBuilder(
-                    stream: context.read<TransactionRepository>().watchBalance(data.id),
+                    stream: context.read<TransactionRepository>().watchAmounts([data.id]),
                     builder: (context, snapshot) {
                       String text = "";
 
@@ -82,7 +82,7 @@ class AccountsListEntry extends StatelessWidget {
                         text = "Error";
                       }
                       if (snapshot.data != null) {
-                        text = (snapshot.data! / 100).toStringAsFixed(2);
+                        text = (snapshot.data!.$1 / 100).toStringAsFixed(2);
                       }
 
                       return Text(

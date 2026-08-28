@@ -68,7 +68,7 @@ class _AccountViewState extends State<AccountView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: AppSpacing.md),
-                    AccountOverviewCard(account: account),
+                    AccountOverviewCard(accountIds: [account.id]),
                   ],
                 ),
                 SizedBox(height: AppSpacing.lg),
