@@ -84,7 +84,8 @@ class _InsightsState extends State<Insights> {
                   Text("Top Categories", style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(height: AppSpacing.md),
                   TransactionsSummaryList(
-                    stream: context.read<CategoryRepository>().watchTopCategories(accountIds),
+                    streamFunction: context.read<CategoryRepository>().watchTopCategories,
+                    accountIds: accountIds,
                     nameBuilder: (c) => Row(
                       children: [
                         Icon(
@@ -100,13 +101,14 @@ class _InsightsState extends State<Insights> {
                           )
                         ),
                       ]
-                    )
+                    ),
                   ),
                   SizedBox(height: AppSpacing.xl),
                   Text("Top Counterparties", style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(height: AppSpacing.md),
                   TransactionsSummaryList(
-                    stream: context.read<CounterpartyRepository>().watchTopCounterparties(accountIds),
+                    streamFunction: context.read<CounterpartyRepository>().watchTopCounterparties,
+                    accountIds: accountIds,
                     nameBuilder: (c) => Row(
                       children: [
                         Icon(
@@ -120,9 +122,9 @@ class _InsightsState extends State<Insights> {
                             overflow: TextOverflow.ellipsis,
                           )
                         ),
-                      ]
-                    )
-                  )
+                      ],
+                    ),
+                  ),
                 ],
               )
             )

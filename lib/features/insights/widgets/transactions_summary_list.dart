@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:khaata/app/style.dart';
 
-class TransactionsSummaryList<T> extends StatelessWidget {
-  const new({super.key, required this.stream, required this.nameBuilder});
+class TransactionsSummaryList<T> extends StatefulWidget {
+  const new({super.key, required this.streamFunction, required this.accountIds, required this.nameBuilder});
 
-  final Stream<List<(T, int, int)>> stream;
+  final Stream<List<(T, int, int)>> Function(List<int>, {bool sortByIncome}) streamFunction;
+  final List<int> accountIds;
   final Widget Function(T) nameBuilder;
+
+  @override
+  State<TransactionsSummaryList<T>> createState() => _TransactionsSummaryListState();
+}
+
+
+class _TransactionsSummaryListState<T> extends State<TransactionsSummaryList<T>> {
+  bool sortedByIncome = false;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +29,7 @@ class TransactionsSummaryList<T> extends StatelessWidget {
           maxHeight: 256,
         ),
         child: StreamBuilder(
-          stream: stream,
+          stream: widget.streamFunction(widget.accountIds, sortByIncome: sortedByIncome),
           builder: (context, snapshot) {
             if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();              
@@ -47,7 +56,7 @@ class TransactionsSummaryList<T> extends StatelessWidget {
             final rows = entries.map((e) =>
               Row(
                 children: [
-                  Expanded(child: nameBuilder(e.$1)),
+                  Expanded(child: widget.nameBuilder(e.$1)),
                   Expanded(child: Text(
                     (e.$2 / 100).toStringAsFixed(2),
                     style: TextStyle(color: Colors.green.shade500, fontWeight: .bold),
@@ -72,16 +81,42 @@ class TransactionsSummaryList<T> extends StatelessWidget {
                       "",
                       style: Theme.of(context).textTheme.labelLarge,
                     )),
-                    Expanded(child: Text(
-                      "Incoming",
-                      style: Theme.of(context).textTheme.labelLarge,
-                      textAlign: TextAlign.end,
+                    Expanded(child: GestureDetector(
+                      onTap: () {
+                        if (!sortedByIncome) setState(() { sortedByIncome = true; });
+                      },
+                      child: Text(
+                        "Incoming",
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      decoration: sortedByIncome ? .underline : null,
+                                      color: sortedByIncome ?
+                                              Theme.of(context).colorScheme.primary
+                                            : null
+                                    ),
+                        textAlign: TextAlign.end,
+                      )
                     )),
-                    Expanded(child: Text(
-                      "Outgoing",
-                      style: Theme.of(context).textTheme.labelLarge,
-                      textAlign: TextAlign.end,
-                    ))
+                    Expanded(child: GestureDetector(
+                      onTap: () {
+                        if (sortedByIncome) setState(() { sortedByIncome = false; });
+                      },
+                      child: Text(
+                        "Outgoing",
+                        style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      decoration: !sortedByIncome ? .underline : null,
+                                      color: !sortedByIncome ?
+                                              Theme.of(context).colorScheme.primary
+                                            : null
+                                    ),
+                        textAlign: TextAlign.end,
+                      )
+                    )),
                   ],
                 ),
                 ...rows
