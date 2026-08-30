@@ -91,7 +91,7 @@ class Settings extends StatelessWidget {
         ),
         SettingsEntry(
           label: "App Info",
-          description: "Khaata version 1.0 - developed with ❤️ by Izhar Ahmad\n\n"
+          description: "Khaata version 2.0a1 - developed with ❤️ by Izhar Ahmad\n\n"
                        "This app is open source and welcomes contributions.\nView code and report issues on GitHub repository.",
           controlWidget: TextButton.icon(
             onPressed: () async {
