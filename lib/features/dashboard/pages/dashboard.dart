@@ -15,11 +15,11 @@ class Dashboard extends StatelessWidget {
       body: Column(
         children: [
           OverviewCard(),
-          SizedBox(height: AppSpacing.lg),
+          SizedBox(height: AppSpacing.sm),
           QuickActions(),
           Expanded(
             child: Padding(
-              padding: EdgeInsetsGeometry.all(AppSpacing.globalPadding),
+              padding: EdgeInsetsGeometry.symmetric(horizontal: AppSpacing.globalPadding),
               child: Column(
                 children: [
                   Row(
@@ -39,7 +39,6 @@ class Dashboard extends StatelessWidget {
                   ),
                   SizedBox(height: AppSpacing.sm),
                   Flexible(child: TransactionsList(limit: 4)),
-                  SizedBox(height: AppSpacing.lg),
                 ],
               ),
             ),
