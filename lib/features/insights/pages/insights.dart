@@ -81,7 +81,7 @@ class _InsightsState extends State<Insights> {
                   SizedBox(height: AppSpacing.xl),
                   AccountOverviewCard(accountIds: accountIds),
                   SizedBox(height: AppSpacing.xl),
-                  Text("Top Categories", style: Theme.of(context).textTheme.titleMedium),
+                  Text("Categories", style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(height: AppSpacing.md),
                   TransactionsSummaryList(
                     streamFunction: context.read<CategoryRepository>().watchTopCategories,
@@ -104,7 +104,7 @@ class _InsightsState extends State<Insights> {
                     ),
                   ),
                   SizedBox(height: AppSpacing.xl),
-                  Text("Top Counterparties", style: Theme.of(context).textTheme.titleMedium),
+                  Text("Counterparties", style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(height: AppSpacing.md),
                   TransactionsSummaryList(
                     streamFunction: context.read<CounterpartyRepository>().watchTopCounterparties,
