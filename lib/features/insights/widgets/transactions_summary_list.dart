@@ -2,11 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:khaata/app/style.dart';
 
 class TransactionsSummaryList<T> extends StatefulWidget {
-  const new({super.key, required this.streamFunction, required this.accountIds, required this.nameBuilder});
+  const new({
+    super.key,
+    required this.streamFunction,
+    required this.accountIds,
+    required this.nameBuilder,
+    this.before,
+    this.after,
+  });
 
-  final Stream<List<(T, int, int)>> Function(List<int>, {bool sortByIncome}) streamFunction;
+  final Stream<List<(T, int, int)>> Function(
+    List<int>, {
+      bool sortByIncome,
+      DateTime? after,
+      DateTime? before,
+    }
+  ) streamFunction;
   final List<int> accountIds;
   final Widget Function(T) nameBuilder;
+  final DateTime? before;
+  final DateTime? after;
 
   @override
   State<TransactionsSummaryList<T>> createState() => _TransactionsSummaryListState();
@@ -29,7 +44,12 @@ class _TransactionsSummaryListState<T> extends State<TransactionsSummaryList<T>>
           maxHeight: 256,
         ),
         child: StreamBuilder(
-          stream: widget.streamFunction(widget.accountIds, sortByIncome: sortedByIncome),
+          stream: widget.streamFunction(
+            widget.accountIds,
+            sortByIncome: sortedByIncome,
+            before: widget.before,
+            after: widget.after,
+          ),
           builder: (context, snapshot) {
             if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();              

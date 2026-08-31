@@ -42,6 +42,7 @@ class _InsightsState extends State<Insights> {
         filter = filter ?? Filters.getDefault(snapshot.data!);
 
         final accountIds = filter!.accounts.map((a) => a.id).toList();
+        final rangeLabel = Filters.getRangeLabel(filter!.before, filter!.after);
 
         return Scaffold(
           floatingActionButton: FloatingActionButton(
@@ -72,20 +73,26 @@ class _InsightsState extends State<Insights> {
                   ),
                   SizedBox(height: AppSpacing.sm),
                   Text(
-                    "Visualize your finances with detailed insights",
+                    "Showing information for ${accountIds.length} of ${snapshot.data!.length} accounts (${rangeLabel ?? 'all time'})",
                     style: Theme.of(context)
                                 .textTheme
                                 .titleSmall
                                 ?.copyWith(color: Theme.of(context).hintColor),
                   ),
                   SizedBox(height: AppSpacing.xl),
-                  AccountOverviewCard(accountIds: accountIds),
+                  AccountOverviewCard(
+                    accountIds: accountIds,
+                    before: filter!.before,
+                    after: filter!.after,
+                  ),
                   SizedBox(height: AppSpacing.xl),
                   Text("Categories", style: Theme.of(context).textTheme.titleMedium),
                   SizedBox(height: AppSpacing.md),
                   TransactionsSummaryList(
                     streamFunction: context.read<CategoryRepository>().watchTopCategories,
                     accountIds: accountIds,
+                    before: filter!.before,
+                    after: filter!.after,
                     nameBuilder: (c) => Row(
                       children: [
                         Icon(
@@ -100,7 +107,7 @@ class _InsightsState extends State<Insights> {
                             overflow: TextOverflow.ellipsis,
                           )
                         ),
-                      ]
+                      ],
                     ),
                   ),
                   SizedBox(height: AppSpacing.xl),
@@ -109,6 +116,8 @@ class _InsightsState extends State<Insights> {
                   TransactionsSummaryList(
                     streamFunction: context.read<CounterpartyRepository>().watchTopCounterparties,
                     accountIds: accountIds,
+                    before: filter!.before,
+                    after: filter!.after,
                     nameBuilder: (c) => Row(
                       children: [
                         Icon(

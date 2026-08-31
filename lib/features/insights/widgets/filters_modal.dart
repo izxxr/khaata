@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dropdown_button/flutter_dropdown_button.dart';
+import 'package:intl/intl.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
 
@@ -7,15 +8,30 @@ import 'package:khaata/database/database.dart';
 class Filters {
   const new({
     required this.accounts,
+    this.before,
+    this.after,
   });
 
   final Set<Account> accounts;
+  final DateTime? before;
+  final DateTime? after;
 
   static Filters getDefault(List<Account> accounts) {
     final selectedAccounts = accounts.toSet();
     selectedAccounts.removeWhere((a) => a.isolatedAccount);
 
     return Filters(accounts: selectedAccounts);
+  }
+
+  static String? getRangeLabel(DateTime? before, DateTime? after) {
+    if (before == null && after == null) return null;
+
+    final formatter = DateFormat("dd/MM/yyyy");
+
+    final beforeLabel = formatter.format(before ?? DateTime.now());
+    final afterLabel = formatter.format(after ?? DateTime.now());
+
+    return "$afterLabel - $beforeLabel";
   }
 }
 
@@ -52,16 +68,22 @@ class FiltersModal extends StatefulWidget {
 
 class _FiltersModalState extends State<FiltersModal> {
   late Set<Account> selectedAccounts;
+  late DateTime? before;
+  late DateTime? after;
 
   @override
   void initState() {
     super.initState();
 
     selectedAccounts = widget.filter.accounts;
+    before = widget.filter.before;
+    after = widget.filter.after;
   }
 
   @override
   Widget build(BuildContext context) {
+    final rangeLabel = Filters.getRangeLabel(before, after);
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.globalPadding),
@@ -98,7 +120,14 @@ class _FiltersModalState extends State<FiltersModal> {
                 SizedBox(width: AppSpacing.sm),
                 IconButton(
                   onPressed: () async {
-                    Navigator.pop(context, Filters(accounts: selectedAccounts));
+                    Navigator.pop(
+                      context,
+                      Filters(
+                        accounts: selectedAccounts,
+                        before: before,
+                        after: after,
+                      )
+                    );
                   },
                   icon: Icon(Icons.done),
                   style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primaryContainer),
@@ -137,6 +166,57 @@ class _FiltersModalState extends State<FiltersModal> {
               },
               label: (item) => item.title,
             ),
+            SizedBox(height: AppSpacing.md),
+            DropdownMenu(
+              width: double.infinity,
+              label: Text(rangeLabel ?? "Date range"),
+              dropdownMenuEntries: [
+                DropdownMenuEntry(value: 0, label: "This month"),
+                DropdownMenuEntry(value: 1, label: "This week"),
+                DropdownMenuEntry(value: 2, label: "Today"),
+                DropdownMenuEntry(value: 3, label: "Last 30 days"),
+                DropdownMenuEntry(value: 4, label: "Last 7 days"),
+                DropdownMenuEntry(value: 5, label: "Last 24 hours"),
+                DropdownMenuEntry(value: 6, label: "Custom...", style: ElevatedButton.styleFrom(foregroundColor: Colors.blue)),
+              ],
+              onSelected: (value) async {
+                final now = DateTime.now();
+                final today = DateTime(now.year, now.month, now.day);
+
+                DateTime? newBefore;
+                DateTime? newAfter;
+
+                if (value == 0) {
+                  newAfter  = today.copyWith(day: 1);
+                } else if (value == 1) {
+                  newAfter = today.subtract(Duration(days: now.weekday - 1));
+                } else if (value == 2) {
+                  newAfter = today;
+                } else if (value == 3) {
+                  newAfter = today.subtract(Duration(days: 30));
+                } else if (value == 4) {
+                  newAfter = today.subtract(Duration(days: 7));
+                } else if (value == 5) {
+                  newAfter = today.subtract(Duration(hours: 24));
+                } else {
+                  final range = await showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (range == null) return;
+
+                  newAfter = range.start;
+                  newBefore = range.end;
+                }
+
+                setState(() {
+                  before = newBefore;
+                  after = newAfter;
+                });
+              },
+            )
           ]
         )
       )

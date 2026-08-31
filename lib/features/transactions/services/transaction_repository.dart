@@ -9,7 +9,12 @@ class TransactionRepository {
   final AppDatabase db;
 
   /// Streams the balance computed from account's transactions.
-  Stream<(int, int, int)> watchAmounts(List<int> accountIds) {
+  Stream<(int, int, int)> watchAmounts(
+    List<int> accountIds, {
+      DateTime? after,
+      DateTime? before,
+    }
+  ) {
     final balance = db.transactions.amount.sum();
 
     final income = db.transactions.amount.sum(
@@ -29,6 +34,14 @@ class TransactionRepository {
     
     if (accountIds.isNotEmpty) {
       query = query..where(db.transactions.accountId.isIn(accountIds));
+    }
+
+    if (after != null) {
+      query = query..where(db.transactions.createdAt.isBiggerOrEqualValue(after));
+    }
+
+    if (before != null) {
+      query = query..where(db.transactions.createdAt.isSmallerOrEqualValue(before));
     }
 
     return query.watchSingle().map((row) {

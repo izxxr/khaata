@@ -60,6 +60,8 @@ class CategoryRepository {
   Stream<List<(Category, int, int)>> watchTopCategories(
     List<int> accountIds, {
     bool sortByIncome = true,
+    DateTime? after,
+    DateTime? before,
   }) {
     final incomeSum = db.transactions.amount.sum(
       filter: db.transactions.amount.isBiggerThanValue(0),
@@ -78,6 +80,14 @@ class CategoryRepository {
 
     if (accountIds.isNotEmpty) {
       query = query..where(db.transactions.accountId.isIn(accountIds));
+    }
+
+    if (after != null) {
+      query = query..where(db.transactions.createdAt.isBiggerOrEqualValue(after));
+    }
+
+    if (before != null) {
+      query = query..where(db.transactions.createdAt.isSmallerOrEqualValue(before));
     }
 
     query..addColumns([

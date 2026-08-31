@@ -4,9 +4,11 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountOverviewCard extends StatefulWidget {
-  const new({super.key, required this.accountIds});
+  const new({super.key, required this.accountIds, this.before, this.after});
 
   final List<int> accountIds;
+  final DateTime? before;
+  final DateTime? after;
 
   @override
   State<AccountOverviewCard> createState() => _AccountOverviewCardState();
@@ -19,7 +21,11 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
   void initState() {
     super.initState();
 
-    _balanceStream = context.read<TransactionRepository>().watchAmounts(widget.accountIds);
+    _balanceStream = context.read<TransactionRepository>().watchAmounts(
+      widget.accountIds,
+      before: widget.before,
+      after: widget.after,
+    );
   }
 
   @override
