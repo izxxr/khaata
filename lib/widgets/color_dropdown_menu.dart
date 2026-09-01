@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:khaata/common/khaata_colors.dart';
 
+
+/// Dropdown for selecting generic colors defined by KhaataColors.
 class ColorDropdownMenu extends StatelessWidget {
   const new({super.key, required this.onSelected, this.initialSelection});
 

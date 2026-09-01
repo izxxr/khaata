@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:khaata/app/style.dart';
 
+
+/// Generic default screen with representative icon and some text.
+/// 
+/// This is used for representing "empty" screens.
 class DefaultScreen extends StatelessWidget {
   const new({super.key, required this.icon, required this.title, required this.subtitle});
 

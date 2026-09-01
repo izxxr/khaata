@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 
+
+/// Helper to chain Flutter's showDatePicker and showTimePicker.
+/// 
+/// Returns complete DateTime object with both date and time information.
+/// 
+/// If the user closes modal without choosing time, the chosen date is returned
+/// with 00:00 time.
+/// 
+/// If the user closes without choosing date, returns initialDate (which could be
+/// null if not provided).
 Future<DateTime?> showDateTimePickerModal(
   BuildContext context,
   {
@@ -29,30 +39,4 @@ Future<DateTime?> showDateTimePickerModal(
       pickedTime.hour,
       pickedTime.minute,
     );
-}
-
-
-Future<(DateTime, DateTime)?> showDateRangePicker(BuildContext context) async {
-  final DateTime? start = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2100),
-    helpText: "Pick starting date"
-  );
-
-  if (start == null || !context.mounted) return null;
-
-  final DateTime? end = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2100),
-    selectableDayPredicate: (day) => day.isAfter(start),
-    helpText: "Pick ending date"
-  );
-
-  if (end == null) return (start, DateTime.now()); // User canceled
-
-  return (start, end);
 }

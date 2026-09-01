@@ -1,5 +1,29 @@
 import 'package:flutter/material.dart';
 
+
+/// Dropdown with "Add New" action.
+/// 
+/// This widget allows listing existing elements like categories or counterparties
+/// and provide option to create new element integrated into dropdown.
+/// 
+/// Dropdown is populated by provided [stream] and requires [itemBuilder] for serializing
+/// stream result into dropdown widget. [labelText] is the dropdown's label.
+/// 
+/// For default or no selection case, [noSelectionValue] is the value to represent the
+/// "nothing selected" case.
+/// 
+/// [newItemValue] is the value of generic type [U] to represent value when "Create new..."
+/// entry is selected. This value should be unique and a sentinel to avoid conflicts with
+/// actual dropdown entries.
+/// 
+/// [onNewItem] callback is called when a new item is to be created. It should return the
+/// new entry's value or [noSelectionValue] if no entry was created (e.g. if user canceled
+/// the operation).
+/// 
+/// [onChanged] callback is called when dropdown's state changes (except when new item button
+/// is clicked).
+/// 
+/// [initialSelection] is the initially selected value.
 class DropdownWithAction<T, U> extends StatefulWidget {
   const new({
     super.key,

@@ -10,6 +10,7 @@ import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
 import 'package:khaata/features/transactions/widgets/transactions_list.dart';
 
 
+/// View of an account showing balance and transactions from the account.
 class AccountView extends StatefulWidget {
   const new({super.key, required this.accountId});
 

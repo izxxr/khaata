@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+
+/// Shows a Cancel/Confirm dialog.
+/// 
+/// Returns true if the user taps confirm and false if cancel is tapped or
+/// the dialog is closed.
 Future<bool> showConfirmDialog(
   BuildContext context, {
   required String title,

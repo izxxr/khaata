@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Enum describing the color of an account.
+
+/// Enum describing the generic colors used across the app for coloring
+/// entities like accounts and categories
 enum KhaataColors {
   slate(0, Color(0xFF64748B)),
   blue(1, Color(0xFF3B82F6)),
