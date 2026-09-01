@@ -24,7 +24,7 @@ Khaata is written in Flutter and is available as cross platform app.
 For now, pre-built installation binary is only available for Android
 and can be downloaded from the following link:
 
-[**Khaata v2.0a1 - Android APK**](https://github.com/izxxr/khaata/releases/download/2.0a1/khaata-v2-0-a1-release-2026-08-24.apk)
+[**Khaata v2.0 - Android APK**](https://github.com/izxxr/khaata/releases/download/2.0/khaata-v2-0-release-2026-09-01.apk)
 
 ### Manual Build for iOS/Windows/Linux/MacOS
 For manually building binary for your platform, proceed
