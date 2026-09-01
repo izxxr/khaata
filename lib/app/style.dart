@@ -8,6 +8,73 @@ import 'package:google_fonts/google_fonts.dart';
 /// composing nice looking color palletes. Some colors are a bit off for that
 /// reason.
 class AppTheme {
+  static final text = TextTheme(
+    headlineLarge: GoogleFonts.plusJakartaSans(
+      fontSize: 32,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.5,
+    ),
+
+    headlineMedium: GoogleFonts.plusJakartaSans(
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.4,
+    ),
+
+    headlineSmall: GoogleFonts.plusJakartaSans(
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+    ),
+
+    titleLarge: GoogleFonts.plusJakartaSans(
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+    ),
+
+    titleMedium: GoogleFonts.plusJakartaSans(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+
+    titleSmall: GoogleFonts.plusJakartaSans(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
+
+    bodyLarge: GoogleFonts.plusJakartaSans(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      height: 1.5,
+    ),
+
+    bodyMedium: GoogleFonts.plusJakartaSans(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      height: 1.45,
+    ),
+
+    bodySmall: GoogleFonts.plusJakartaSans(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      height: 1.4,
+    ),
+
+    labelLarge: GoogleFonts.plusJakartaSans(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
+
+    labelMedium: GoogleFonts.plusJakartaSans(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    ),
+
+    labelSmall: GoogleFonts.plusJakartaSans(
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+    ),
+  );
+
   static final light = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -58,6 +125,8 @@ class AppTheme {
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),
     ),
+
+    textTheme: text,
   );
 
   static final dark = ThemeData(
@@ -111,72 +180,7 @@ class AppTheme {
       border: OutlineInputBorder(),
     ),
 
-    textTheme: TextTheme(
-      headlineLarge: GoogleFonts.plusJakartaSans(
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
-      ),
-
-      headlineMedium: GoogleFonts.plusJakartaSans(
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
-      ),
-
-      headlineSmall: GoogleFonts.plusJakartaSans(
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
-      ),
-
-      titleLarge: GoogleFonts.plusJakartaSans(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-      ),
-
-      titleMedium: GoogleFonts.plusJakartaSans(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-      ),
-
-      titleSmall: GoogleFonts.plusJakartaSans(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-
-      bodyLarge: GoogleFonts.plusJakartaSans(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        height: 1.5,
-      ),
-
-      bodyMedium: GoogleFonts.plusJakartaSans(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.45,
-      ),
-
-      bodySmall: GoogleFonts.plusJakartaSans(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        height: 1.4,
-      ),
-
-      labelLarge: GoogleFonts.plusJakartaSans(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-
-      labelMedium: GoogleFonts.plusJakartaSans(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-
-      labelSmall: GoogleFonts.plusJakartaSans(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-      ),
-    )
+    textTheme: text,
   );
 }
 
