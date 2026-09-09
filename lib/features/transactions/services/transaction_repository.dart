@@ -34,6 +34,13 @@ class TransactionRepository {
     
     if (accountIds.isNotEmpty) {
       query = query..where(db.transactions.accountId.isIn(accountIds));
+    } else {
+      query = query..join([
+        innerJoin(
+          db.accounts,
+          db.accounts.id.equalsExp(db.transactions.accountId),
+        ),
+      ])..where(db.accounts.isolatedAccount.equals(false));
     }
 
     if (after != null) {
