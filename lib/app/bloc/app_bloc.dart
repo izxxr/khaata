@@ -11,6 +11,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc(super.initialState){
     on<ThemeModeUpdated>(_onThemeModeUpdated);
     on<TimeFormatUpdated>(_onTimeFormatUpdated);
+    on<DefaultAccountUpdated>(_onDefaultAccountUpdated);
     on<UsernameUpdated>(_onUsernameUpdated);
     on<OnboardingCompleted>(_onOnboardingCompleted);
     on<StateReset>(_onStateReset);
@@ -34,6 +35,21 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     prefs.setBool("timeFormatIs24Hours", event.is24HoursFormat);
 
     emit(state.copyWith(timeFormatIs24Hours: event.is24HoursFormat));
+  }
+
+  Future<void> _onDefaultAccountUpdated(
+    DefaultAccountUpdated event,
+    Emitter<AppState> emit,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (event.accountId == null) {
+      prefs.remove("defaultAccountId");
+    } else {
+      prefs.setInt("defaultAccountId", event.accountId!);
+    }
+
+    emit(state.copyWith(defaultAccountId: event.accountId));
   }
 
   Future<void> _onUsernameUpdated(

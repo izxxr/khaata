@@ -5,6 +5,7 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_event.dart';
 import 'package:khaata/features/settings/widgets/settings_entry.dart';
+import 'package:khaata/features/accounts/widgets/accounts_dropdown.dart';
 
 
 /// Main widget for the "Settings" section.
@@ -35,6 +36,7 @@ class Settings extends StatelessWidget {
           description: "To use device's default theme, set to System",
           controlWidget: DropdownMenu(
             initialSelection: context.read<AppBloc>().state.themeMode.name,
+            width: double.infinity,
             dropdownMenuEntries: [
               DropdownMenuEntry(value: "system", label: "System"),
               DropdownMenuEntry(value: "light", label: "Light"),
@@ -58,6 +60,41 @@ class Settings extends StatelessWidget {
           description: "24-hours: 14:29, 12-hours: 02:29 PM",
           controlWidget: DropdownMenu(
             initialSelection: context.read<AppBloc>().state.timeFormatIs24Hours ? 1 : 0,
+            dropdownMenuEntries: [
+              DropdownMenuEntry(value: 1, label: "24 hours"),
+              DropdownMenuEntry(value: 0, label: "12 hours"),
+            ],
+            width: double.infinity,
+            onSelected: (value) {
+              context.read<AppBloc>().add(
+                TimeFormatUpdated(is24HoursFormat: value == 1 ? true : false)
+              );
+            },
+          )
+        ),
+        SettingsEntry(
+          label: "Default Account",
+          description: "The account automatically chosen when adding transaction from dashboard",
+          controlWidget: AccountsDropdown(
+            accountId: context.read<AppBloc>().state.defaultAccountId,
+            onChanged: (v) {
+              context.read<AppBloc>().add(
+                DefaultAccountUpdated(accountId: v)
+              );
+            },
+            onSaved: (v) {
+              context.read<AppBloc>().add(
+                DefaultAccountUpdated(accountId: v)
+              );
+            }
+          ),
+        ),
+        SettingsEntry(
+          label: "Time Format",
+          description: "24-hours: 14:29, 12-hours: 02:29 PM",
+          controlWidget: DropdownMenu(
+            initialSelection: context.read<AppBloc>().state.timeFormatIs24Hours ? 1 : 0,
+            width: double.infinity,
             dropdownMenuEntries: [
               DropdownMenuEntry(value: 1, label: "24 hours"),
               DropdownMenuEntry(value: 0, label: "12 hours"),

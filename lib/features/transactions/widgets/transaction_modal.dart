@@ -6,7 +6,7 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
-import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/accounts/widgets/accounts_dropdown.dart';
 import 'package:khaata/features/transactions/services/counterparty_repository.dart';
 import 'package:khaata/features/transactions/widgets/counterparty_modal.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
@@ -78,7 +78,7 @@ class _TransactionModalState extends State<TransactionModal> {
     createdAt = widget.transaction?.createdAt ?? DateTime.now();
     amount = widget.transaction?.amount ?? 0;
     sign = amount >= 0 ? 1 : -1;
-    accountId = widget.accountId;
+    accountId = widget.accountId ?? context.read<AppBloc>().state.defaultAccountId;
     categoryId = widget.transaction?.categoryId;
     counterpartyId = widget.transaction?.counterpartyId;
     datetimeController = TextEditingController(
@@ -188,55 +188,13 @@ class _TransactionModalState extends State<TransactionModal> {
               ),
               SizedBox(height: AppSpacing.xl),
               widget.accountId == null ?
-                StreamBuilder(
-                  stream: context.read<AccountRepository>().watchAccounts(),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
-                      return DropdownButtonFormField(
-                        hint: Text("Loading..."),
-                        items: [],
-                        onChanged: (v) {},
-                        decoration: InputDecoration(
-                          enabled: false
-                        ),
-                      );
-                    }
-
-                    final accounts = snapshot.data!.map(
-                      (a) => DropdownMenuItem(
-                        value: a.id,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.account_balance,
-                              color: KhaataColors.fromId(a.color).color
-                            ),
-                            SizedBox(width: AppSpacing.md), // Gives space between icon and text
-                            Text(a.title),
-                          ]
-                        ),
-                      )
-                    ).toList();
-
-                    return DropdownButtonFormField(
-                      items: accounts,
-                      initialValue: accountId,
-                      validator: (value) {
-                        if (value == null) {
-                          return "Select an account to log transaction";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        accountId = value;
-                      },
-                      onSaved: (newValue) {
-                        accountId = newValue;
-                      },
-                      decoration: InputDecoration(
-                        label: Text("Account"),
-                      ),
-                    );
+                AccountsDropdown(
+                  accountId: accountId,
+                  onChanged: (newValue) {
+                    accountId = newValue;
+                  },
+                  onSaved: (newValue) {
+                    accountId = newValue;
                   }
                 )
               : SizedBox(),

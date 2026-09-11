@@ -10,6 +10,7 @@ class AppState {
   const AppState({
     required this.themeMode,
     required this.timeFormatIs24Hours,
+    required this.defaultAccountId,
     required this.username,
     required this.onboardingComplete,
   });
@@ -19,6 +20,9 @@ class AppState {
 
   /// The app's current theme mode.
   final bool timeFormatIs24Hours;
+
+  /// The app's current theme mode.
+  final int? defaultAccountId;
 
   /// The username displayed in app.
   final String? username;
@@ -51,12 +55,14 @@ class AppState {
   AppState copyWith({
     ThemeMode? themeMode,
     bool? timeFormatIs24Hours,
+    int? defaultAccountId = -1,  // null indicates unset
     String? username,
     bool? onboardingComplete,
   }) {
     return AppState(
       themeMode: themeMode ?? this.themeMode,
       timeFormatIs24Hours: timeFormatIs24Hours ?? this.timeFormatIs24Hours,
+      defaultAccountId: defaultAccountId != -1 ? defaultAccountId : this.defaultAccountId,
       username: username ?? this.username,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     );
@@ -68,6 +74,7 @@ class AppState {
 
     final themeName = prefs.getString('themeMode');
     final timeFormatIs24Hours = prefs.getBool('timeFormatIs24Hours') ?? false;
+    final defaultAccountId = prefs.getInt("defaultAccountId");
     final username = prefs.getString('username');
     final onboardingComplete = prefs.getBool('onboardingComplete') ?? false;
 
@@ -80,6 +87,7 @@ class AppState {
     return AppState(
       themeMode: themeMode,
       timeFormatIs24Hours: timeFormatIs24Hours,
+      defaultAccountId: defaultAccountId,
       username: username,
       onboardingComplete: onboardingComplete
     );
