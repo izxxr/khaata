@@ -48,6 +48,7 @@ class TransactionModal extends StatefulWidget {
 
 class _TransactionModalState extends State<TransactionModal> {
   final _formKey = GlobalKey<FormState>();
+  final _amountFocusNode = FocusNode();
 
   String title = "";
   String description = "";
@@ -187,125 +188,39 @@ class _TransactionModalState extends State<TransactionModal> {
                 ],
               ),
               SizedBox(height: AppSpacing.xl),
-              widget.accountId == null ?
-                AccountsDropdown(
-                  accountId: accountId,
-                  onChanged: (newValue) {
-                    accountId = newValue;
-                  },
-                  onSaved: (newValue) {
-                    accountId = newValue;
-                  }
-                )
-              : SizedBox(),
-              SizedBox(height: AppSpacing.md),
-              TextFormField(
-                decoration: InputDecoration(
-                  label: Text("Title"),
-                  hint: Text("Food, groceries, salary, etc."),
-                ),
-                initialValue: widget.transaction?.title,
-                validator: (value) {
-                  if (value == null) {
-                    return 'Transaction title is required.';
-                  }
-
-                  if (value.isEmpty) {
-                    return 'Transaction title is required.';
-                  }
-
-                  if (value.length < 2) {
-                    return 'Transaction title must be at least 2 characters.';
-                  }
-
-                  return null;
-                },
-                onSaved: (newValue) {
-                  title = newValue ?? '';
-                },
-              ),
-              SizedBox(height: AppSpacing.md),
-              TextFormField(
-                decoration: InputDecoration(
-                  label: Text("Description (optional)"),
-                ),
-                initialValue: widget.transaction?.description,
-                onSaved: (newValue) {
-                  description = newValue ?? '';
-                },
-              ),
-              SizedBox(height: AppSpacing.md),
-              TextFormField(
-                controller: datetimeController,
-                readOnly: true,
-                onTap: () async {
-                  createdAt = await showDateTimePickerModal(
-                    context,
-                    initialDateTime: createdAt
-                  ) ?? DateTime.now();
-
-                  if (!context.mounted) return;
-
-                  datetimeController.value = TextEditingValue(
-                    text: context.read<AppBloc>().state.formatDateTime(createdAt)
-                  );
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Time',
-                  suffixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: AppSpacing.md),
               Row(
                 children: [
-                  Flexible(
-                    flex: 1,
-                    child: DropdownButtonFormField(
-                      isExpanded: true,
-                      items: [
-                        DropdownMenuItem(
-                          value: 1,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "+",
-                            style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                        ?.copyWith(color: Colors.green),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: -1,
-                          alignment: Alignment.center,
-                          child: Text(
-                            "-",
-                            style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                        ?.copyWith(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                      initialValue: widget.transaction != null ? (widget.transaction!.amount > 0 ? 1 : -1) : 1,
-                      onChanged: (value) {
-                        setState(() {
-                          sign = value ?? 1;
-                        });
-                      },
-                      onSaved: (newValue) {
-                        sign = newValue ?? 1;
-                      },
-                    ),
+                  IconButton(
+                    icon: Icon(sign == 1 ? Icons.add : Icons.remove),
+                    color: sign == 1 ? Colors.green : Colors.red,
+                    onPressed: () {
+                      setState(() {
+                        sign = -sign;
+                        _amountFocusNode.requestFocus();
+                      });
+                    },
                   ),
-                  Flexible(
-                    flex: 3,
+                  SizedBox(width: AppSpacing.sm),
+                  Expanded(
                     child: TextFormField(
                       decoration: InputDecoration(
-                        label: Text("Amount"),
-                        hint: Text("Currency e.g. 43.10 or 43"),
-                        suffixIcon: Icon(Icons.money)
+                        hint: Text(
+                          "Amount...",
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: Theme.of(context).hintColor
+                          )
+                        ),
+                        suffixIcon: Icon(Icons.money),
+                        border: UnderlineInputBorder(),
                       ),
+                      style: TextStyle(
+                        color: sign == 1 ? Colors.green : Colors.red,
+                        fontSize: 22
+                      ),
+                      autofocus: true,
+                      focusNode: _amountFocusNode,
+                      textInputAction: TextInputAction.next,
                       initialValue: widget.transaction != null ? (widget.transaction!.amount / 100).abs().toString() : "",
                       keyboardType: TextInputType.number, // Shows numeric keyboard
                       inputFormatters: <TextInputFormatter>[
@@ -346,6 +261,79 @@ class _TransactionModalState extends State<TransactionModal> {
                     )
                   ),
                 ],
+              ),
+              SizedBox(height: AppSpacing.lg),
+              widget.accountId == null ?
+                AccountsDropdown(
+                  accountId: accountId,
+                  onChanged: (newValue) {
+                    accountId = newValue;
+                  },
+                  onSaved: (newValue) {
+                    accountId = newValue;
+                  }
+                )
+              : SizedBox(),
+              SizedBox(height: AppSpacing.md),
+              TextFormField(
+                decoration: InputDecoration(
+                  label: Text("Title"),
+                  hint: Text("Food, groceries, salary, etc."),
+                ),
+                initialValue: widget.transaction?.title,
+                validator: (value) {
+                  if (value == null) {
+                    return 'Transaction title is required.';
+                  }
+
+                  if (value.isEmpty) {
+                    return 'Transaction title is required.';
+                  }
+
+                  if (value.length < 2) {
+                    return 'Transaction title must be at least 2 characters.';
+                  }
+
+                  return null;
+                },
+                onSaved: (newValue) {
+                  title = newValue ?? '';
+                },
+                textInputAction: TextInputAction.next,
+              ),
+              SizedBox(height: AppSpacing.md),
+              TextFormField(
+                decoration: InputDecoration(
+                  label: Text("Description (optional)"),
+                ),
+                initialValue: widget.transaction?.description,
+                onSaved: (newValue) {
+                  description = newValue ?? '';
+                },
+                textInputAction: TextInputAction.next,
+              ),
+              SizedBox(height: AppSpacing.md),
+              TextFormField(
+                controller: datetimeController,
+                readOnly: true,
+                onTap: () async {
+                  createdAt = await showDateTimePickerModal(
+                    context,
+                    initialDateTime: createdAt
+                  ) ?? DateTime.now();
+
+                  if (!context.mounted) return;
+
+                  datetimeController.value = TextEditingValue(
+                    text: context.read<AppBloc>().state.formatDateTime(createdAt)
+                  );
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Time',
+                  suffixIcon: Icon(Icons.calendar_today),
+                  border: OutlineInputBorder(),
+                ),
+                textInputAction: TextInputAction.next,
               ),
               SizedBox(height: AppSpacing.md),
               DropdownWithAction<Category, int>(

@@ -35,6 +35,7 @@ class DropdownWithAction<T, U> extends StatefulWidget {
     required this.onNewItem,
     required this.onChanged,
     this.initialSelection,
+    this.focusNode,
   });
 
   final Stream<List<T>> stream;
@@ -45,6 +46,7 @@ class DropdownWithAction<T, U> extends StatefulWidget {
   final Future<U?> Function() onNewItem;
   final void Function(U?) onChanged;
   final U? initialSelection;
+  final FocusNode? focusNode;
 
   @override
   State<DropdownWithAction<T, U>> createState() => _DropdownWithActionState<T, U>();
@@ -97,6 +99,7 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
           decoration: InputDecoration(
             label: Text(widget.labelText),
           ),
+          focusNode: widget.focusNode,
           initialValue: _currentSelection,
           onChanged: (v) async {
             if (v == widget.newItemValue) {
@@ -112,7 +115,7 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
             setState(() {
               _currentSelection = v;
             });
-         },
+          },
           items: entries
         ); 
       }
