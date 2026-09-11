@@ -338,17 +338,12 @@ class _TransactionModalState extends State<TransactionModal> {
               SizedBox(height: AppSpacing.md),
               DropdownWithAction<Category, int>(
                 stream: context.read<CategoryRepository>().watchCategories(),
-                itemBuilder: (c) => DropdownMenuItem<int>(
+                itemBuilder: (c) => DropdownMenuEntry<int>(
                   value: c.id,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.category,
-                        color: KhaataColors.fromId(c.color).color
-                      ),
-                      SizedBox(width: AppSpacing.md), // Gives space between icon and text
-                      Text(c.name),
-                    ],
+                  label: c.name,
+                  leadingIcon: Icon(
+                    Icons.category,
+                    color: KhaataColors.fromId(c.color).color
                   ),
                 ),
                 labelText: "Category",
@@ -371,15 +366,10 @@ class _TransactionModalState extends State<TransactionModal> {
               SizedBox(height: AppSpacing.md),
               DropdownWithAction<Counterparty, int>(
                 stream: context.read<CounterpartyRepository>().watchCounterparties(),
-                itemBuilder: (c) => DropdownMenuItem<int>(
+                itemBuilder: (c) => DropdownMenuEntry<int>(
                   value: c.id,
-                  child: Row(
-                    children: [
-                      Icon(Icons.people),
-                      SizedBox(width: AppSpacing.md), // Gives space between icon and text
-                      Text(c.name),
-                    ],
-                  ),
+                  label: c.name,
+                  leadingIcon: Icon(Icons.people),
                 ),
                 labelText: sign == -1 ? "Payee" : "Payer",
                 newItemValue: -1,

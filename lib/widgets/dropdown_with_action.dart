@@ -39,7 +39,7 @@ class DropdownWithAction<T, U> extends StatefulWidget {
   });
 
   final Stream<List<T>> stream;
-  final DropdownMenuItem<U> Function(T) itemBuilder;
+  final DropdownMenuEntry<U?> Function(T) itemBuilder;
   final String labelText;
   final U? noSelectionValue;
   final U newItemValue;
@@ -79,29 +79,24 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
           );
         }
 
-        List<DropdownMenuItem<U>> entries = snapshot.data!.map(
+        List<DropdownMenuEntry<U?>> entries = snapshot.data!.map(
           widget.itemBuilder
         ).toList();
 
         entries.add(
-          DropdownMenuItem<U>(
+          DropdownMenuEntry<U>(
             value: widget.newItemValue,
-            child: Text("Create new...", style: TextStyle(color: Colors.blue)),
+            label: "Create new...",
+            labelWidget: Text("Create new...", style: TextStyle(color: Colors.blue)),
           )
         );
 
-        entries.insert(
-          0,
-          DropdownMenuItem<U>(value: widget.noSelectionValue, child: Text("None"))
-        );
-
-        return DropdownButtonFormField(
-          decoration: InputDecoration(
-            label: Text(widget.labelText),
-          ),
+        return DropdownMenuFormField(
+          label: Text(widget.labelText),
           focusNode: widget.focusNode,
-          initialValue: _currentSelection,
-          onChanged: (v) async {
+          width: double.infinity,
+          initialSelection: _currentSelection,
+          onSelected: (v) async {
             if (v == widget.newItemValue) {
               final newValue = await widget.onNewItem();
 
@@ -116,7 +111,7 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
               _currentSelection = v;
             });
           },
-          items: entries
+          dropdownMenuEntries: entries
         ); 
       }
     );
