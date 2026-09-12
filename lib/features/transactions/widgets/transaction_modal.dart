@@ -49,6 +49,7 @@ class TransactionModal extends StatefulWidget {
 class _TransactionModalState extends State<TransactionModal> {
   final _formKey = GlobalKey<FormState>();
   final _amountFocusNode = FocusNode();
+  final _timeFocusNode = FocusNode();
 
   String title = "";
   String description = "";
@@ -85,6 +86,14 @@ class _TransactionModalState extends State<TransactionModal> {
     datetimeController = TextEditingController(
       text: context.read<AppBloc>().state.formatDateTime(createdAt)
     );
+  }
+
+  @override
+  void dispose() {
+    _timeFocusNode.dispose();
+    _amountFocusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -299,18 +308,20 @@ class _TransactionModalState extends State<TransactionModal> {
                 onSaved: (newValue) {
                   title = newValue ?? '';
                 },
-                textInputAction: TextInputAction.next,
+                onEditingComplete: () => FocusScope.of(context).requestFocus(_timeFocusNode),
               ),
               SizedBox(height: AppSpacing.md),
               TextFormField(
                 decoration: InputDecoration(
                   label: Text("Description (optional)"),
                 ),
+                keyboardType: TextInputType.multiline,
+                minLines: 1,
+                maxLines: null,
                 initialValue: widget.transaction?.description,
                 onSaved: (newValue) {
                   description = newValue ?? '';
                 },
-                textInputAction: TextInputAction.next,
               ),
               SizedBox(height: AppSpacing.md),
               TextFormField(
@@ -334,6 +345,7 @@ class _TransactionModalState extends State<TransactionModal> {
                   border: OutlineInputBorder(),
                 ),
                 textInputAction: TextInputAction.next,
+                focusNode: _timeFocusNode,
               ),
               SizedBox(height: AppSpacing.md),
               DropdownWithAction<Category, int>(
