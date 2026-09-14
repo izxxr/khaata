@@ -69,7 +69,7 @@ class TransactionCard extends StatelessWidget {
 
     if (basic) {
       return TransactionCard(
-        title: transaction.title,
+        title: transaction.getTitle(),
         time: time,
         amount: amount,
         description: description,
@@ -84,7 +84,7 @@ class TransactionCard extends StatelessWidget {
     }
 
     return TransactionCard(
-      title: transaction.title,
+      title: transaction.getTitle(),
       time: time,
       amount: amount,
       description: description,
@@ -198,7 +198,10 @@ class TransactionCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium
+                  ),
                   Spacer(),
                   Text(
                     amount,

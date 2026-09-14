@@ -42,7 +42,10 @@ class Transactions extends Table {
   IntColumn get amount => integer()();
 
   /// The transaction's title.
-  TextColumn get title => text().withLength(min: 2, max: 32)();
+  TextColumn get title => text()
+    .withLength(min: 0, max: 32)
+    .nullable()
+    .withDefault(const Constant(null))();
 
   /// The transaction's optional description.
   TextColumn get description => text().nullable().withLength(min: 0, max: 128)();

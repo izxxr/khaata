@@ -103,9 +103,9 @@ class TransactionRepository {
   /// Returns the ID of created transaction.
   Future<int> createTransaction(
     int accountId,
-    String title,
     int amount,
     {
+      String? title,
       String? description,
       DateTime? createdAt,
       int? categoryId,
@@ -114,9 +114,9 @@ class TransactionRepository {
   ) async {
     return await db.into(db.transactions).insert(TransactionsCompanion.insert(
       accountId: accountId,
-      title: title,
       amount: amount,
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
+      title: Value(title),
       description: Value(description),
       categoryId: Value(categoryId),
       counterpartyId: Value(counterpartyId),

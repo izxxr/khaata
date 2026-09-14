@@ -1002,13 +1002,14 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
     'title',
     aliasedName,
-    false,
+    true,
     additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 2,
+      minTextLength: 0,
       maxTextLength: 32,
     ),
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(null),
   );
   static const VerificationMeta _descriptionMeta = const VerificationMeta(
     'description',
@@ -1121,8 +1122,6 @@ class $TransactionsTable extends Transactions
         _titleMeta,
         title.isAcceptableOrUnknown(data['title']!, _titleMeta),
       );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -1182,7 +1181,7 @@ class $TransactionsTable extends Transactions
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}title'],
-      )!,
+      ),
       description: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}description'],
@@ -1244,7 +1243,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final int amount;
 
   /// The transaction's title.
-  final String title;
+  final String? title;
 
   /// The transaction's optional description.
   final String? description;
@@ -1262,7 +1261,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.accountId,
     required this.type,
     required this.amount,
-    required this.title,
+    this.title,
     this.description,
     required this.createdAt,
     this.categoryId,
@@ -1275,7 +1274,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     map['account_id'] = Variable<int>(accountId);
     map['type'] = Variable<int>(type);
     map['amount'] = Variable<int>(amount);
-    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
@@ -1295,7 +1296,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       accountId: Value(accountId),
       type: Value(type),
       amount: Value(amount),
-      title: Value(title),
+      title: title == null && nullToAbsent
+          ? const Value.absent()
+          : Value(title),
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
@@ -1319,7 +1322,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       accountId: serializer.fromJson<int>(json['accountId']),
       type: serializer.fromJson<int>(json['type']),
       amount: serializer.fromJson<int>(json['amount']),
-      title: serializer.fromJson<String>(json['title']),
+      title: serializer.fromJson<String?>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
@@ -1334,7 +1337,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'accountId': serializer.toJson<int>(accountId),
       'type': serializer.toJson<int>(type),
       'amount': serializer.toJson<int>(amount),
-      'title': serializer.toJson<String>(title),
+      'title': serializer.toJson<String?>(title),
       'description': serializer.toJson<String?>(description),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'categoryId': serializer.toJson<int?>(categoryId),
@@ -1347,7 +1350,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     int? accountId,
     int? type,
     int? amount,
-    String? title,
+    Value<String?> title = const Value.absent(),
     Value<String?> description = const Value.absent(),
     DateTime? createdAt,
     Value<int?> categoryId = const Value.absent(),
@@ -1357,7 +1360,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     accountId: accountId ?? this.accountId,
     type: type ?? this.type,
     amount: amount ?? this.amount,
-    title: title ?? this.title,
+    title: title.present ? title.value : this.title,
     description: description.present ? description.value : this.description,
     createdAt: createdAt ?? this.createdAt,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
@@ -1433,7 +1436,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<int> accountId;
   final Value<int> type;
   final Value<int> amount;
-  final Value<String> title;
+  final Value<String?> title;
   final Value<String?> description;
   final Value<DateTime> createdAt;
   final Value<int?> categoryId;
@@ -1454,14 +1457,13 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     required int accountId,
     this.type = const Value.absent(),
     required int amount,
-    required String title,
+    this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.counterpartyId = const Value.absent(),
   }) : accountId = Value(accountId),
-       amount = Value(amount),
-       title = Value(title);
+       amount = Value(amount);
   static Insertable<Transaction> custom({
     Expression<int>? id,
     Expression<int>? accountId,
@@ -1491,7 +1493,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<int>? accountId,
     Value<int>? type,
     Value<int>? amount,
-    Value<String>? title,
+    Value<String?>? title,
     Value<String?>? description,
     Value<DateTime>? createdAt,
     Value<int?>? categoryId,
@@ -2436,7 +2438,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required int accountId,
       Value<int> type,
       required int amount,
-      required String title,
+      Value<String?> title,
       Value<String?> description,
       Value<DateTime> createdAt,
       Value<int?> categoryId,
@@ -2448,7 +2450,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<int> accountId,
       Value<int> type,
       Value<int> amount,
-      Value<String> title,
+      Value<String?> title,
       Value<String?> description,
       Value<DateTime> createdAt,
       Value<int?> categoryId,
@@ -2865,7 +2867,7 @@ class $$TransactionsTableTableManager
                 Value<int> accountId = const Value.absent(),
                 Value<int> type = const Value.absent(),
                 Value<int> amount = const Value.absent(),
-                Value<String> title = const Value.absent(),
+                Value<String?> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
@@ -2887,7 +2889,7 @@ class $$TransactionsTableTableManager
                 required int accountId,
                 Value<int> type = const Value.absent(),
                 required int amount,
-                required String title,
+                Value<String?> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),

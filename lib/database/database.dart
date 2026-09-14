@@ -106,4 +106,20 @@ extension TransactionExtension on Transaction {
   String parseAmount({ bool stripSign = false }) {
     return parseTransactionAmount(amount, stripSign: stripSign);
   }
+
+  /// Gets the title for this transaction.
+  /// 
+  /// This returns a default title if the transaction has no
+  /// user defined title.
+  String getTitle() {
+    if (title != null && title!.isNotEmpty) {
+      return title!;
+    }
+
+    if (amount > 0) {
+      return "Incoming transaction";
+    }
+
+    return "Outgoing transaction";
+  }
 }

@@ -51,7 +51,7 @@ class _TransactionModalState extends State<TransactionModal> {
   final _amountFocusNode = FocusNode();
   final _timeFocusNode = FocusNode();
 
-  String title = "";
+  String? title;
   String description = "";
   DateTime createdAt = DateTime.now();
   int amount = 0;
@@ -66,7 +66,7 @@ class _TransactionModalState extends State<TransactionModal> {
   void initState() {
     super.initState();
 
-    title = widget.transaction?.title ?? "";
+    title = widget.transaction?.title;
     description = widget.transaction?.description ?? "";
     createdAt = widget.transaction?.createdAt ?? DateTime.now();
     amount = widget.transaction?.amount ?? 0;
@@ -167,8 +167,8 @@ class _TransactionModalState extends State<TransactionModal> {
                       } else {
                         await context.read<TransactionRepository>().createTransaction(
                           accountId!,
-                          title,
                           amount,
+                          title: title,
                           description: description,
                           createdAt: createdAt,
                           categoryId: categoryId,
@@ -215,23 +215,8 @@ class _TransactionModalState extends State<TransactionModal> {
                   hint: Text("Food, groceries, salary, etc."),
                 ),
                 initialValue: widget.transaction?.title,
-                validator: (value) {
-                  if (value == null) {
-                    return 'Transaction title is required.';
-                  }
-
-                  if (value.isEmpty) {
-                    return 'Transaction title is required.';
-                  }
-
-                  if (value.length < 2) {
-                    return 'Transaction title must be at least 2 characters.';
-                  }
-
-                  return null;
-                },
                 onSaved: (newValue) {
-                  title = newValue ?? '';
+                  title = newValue;
                 },
                 onEditingComplete: () => FocusScope.of(context).requestFocus(_timeFocusNode),
               ),
