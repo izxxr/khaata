@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
@@ -8,13 +7,14 @@ import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/widgets/accounts_dropdown.dart';
 import 'package:khaata/features/transactions/services/counterparty_repository.dart';
+import 'package:khaata/features/transactions/widgets/amount_entry.dart';
 import 'package:khaata/features/transactions/widgets/counterparty_modal.dart';
-import 'package:khaata/widgets/confirm_dialog.dart';
-import 'package:khaata/widgets/datetime_picker.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/category_modal.dart';
 import 'package:khaata/widgets/dropdown_with_action.dart';
+import 'package:khaata/widgets/confirm_dialog.dart';
+import 'package:khaata/widgets/datetime_picker.dart';
 
 class TransactionModal extends StatefulWidget {
   const new({super.key, this.transaction, required this.accountId});
@@ -61,15 +61,6 @@ class _TransactionModalState extends State<TransactionModal> {
   int? counterpartyId;
 
   late TextEditingController datetimeController;
-
-  int _parseAmount(String raw, int sign) {
-    final parts = raw.split('.');
-
-    final whole = int.parse(parts[0]);
-    final frac = parts.length == 1 ? 0 : int.parse(parts[1].padRight(2, '0'));
-
-    return sign * (whole * 100 + frac);
-  }
 
   @override
   void initState() {
@@ -197,79 +188,13 @@ class _TransactionModalState extends State<TransactionModal> {
                 ],
               ),
               SizedBox(height: AppSpacing.xl),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(sign == 1 ? Icons.add : Icons.remove),
-                    color: sign == 1 ? Colors.green : Colors.red,
-                    onPressed: () {
-                      setState(() {
-                        sign = -sign;
-                        _amountFocusNode.requestFocus();
-                      });
-                    },
-                  ),
-                  SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hint: Text(
-                          "Amount...",
-                          style: TextStyle(
-                            fontSize: 22,
-                            color: Theme.of(context).hintColor
-                          )
-                        ),
-                        suffixIcon: Icon(Icons.money),
-                        border: UnderlineInputBorder(),
-                      ),
-                      style: TextStyle(
-                        color: sign == 1 ? Colors.green : Colors.red,
-                        fontSize: 22
-                      ),
-                      autofocus: true,
-                      focusNode: _amountFocusNode,
-                      textInputAction: TextInputAction.next,
-                      initialValue: widget.transaction != null ? (widget.transaction!.amount / 100).abs().toString() : "",
-                      keyboardType: TextInputType.number, // Shows numeric keyboard
-                      inputFormatters: <TextInputFormatter>[
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          final value = newValue.text;
+              AmountEntry(
+                transaction: widget.transaction,
+                onSaved: (newValue) {
+                  if (newValue == null) return;
 
-                          if (value.isEmpty) {
-                            return newValue;
-                          }
-
-                          if (RegExp(r'^\d+(?:\.\d{0,2})?$').hasMatch(value)) {
-                            return newValue;
-                          }
-
-                          return oldValue;
-                        })
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Enter an amount';
-                        }
-
-                        if (!RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(value)) {
-                          return 'Invalid amount';
-                        }
-
-                        if (_parseAmount(value, sign) == 0) {
-                          return 'Amount cannot be zero';
-                        }
-
-                        return null;
-                      },
-                      onSaved: (newValue) {
-                        if (newValue == null || newValue.isEmpty) return;
-
-                        amount = _parseAmount(newValue, sign);
-                      },
-                    )
-                  ),
-                ],
+                  amount = newValue;
+                },
               ),
               SizedBox(height: AppSpacing.lg),
               widget.accountId == null ?
