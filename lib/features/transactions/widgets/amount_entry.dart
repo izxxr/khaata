@@ -69,7 +69,7 @@ class _AmountEntryState extends State<AmountEntry> {
               border: UnderlineInputBorder(),
             ),
             style: TextStyle(
-              color: sign == 1 ? Colors.green : Colors.red,
+              color: sign == 1 ? Colors.green.shade500 : Colors.red,
               fontSize: 22
             ),
             autofocus: true,
