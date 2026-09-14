@@ -63,7 +63,7 @@ class TransactionCard extends StatelessWidget {
       );
     }
 
-    final amount = (transaction.amount / 100).toStringAsFixed(2);
+    final amount = transaction.parseAmount();
     final description = transaction.description;
     final time = context.read<AppBloc>().state.formatDateTime(transaction.createdAt);
 

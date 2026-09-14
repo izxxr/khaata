@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountOverviewCard extends StatefulWidget {
@@ -49,8 +50,10 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
             child = Text("0.00", style: Theme.of(context).textTheme.headlineLarge);
           }
           else {
-            child = Text((snapshot.data!.$1 / 100).toStringAsFixed(2), style: Theme.of(context).textTheme.headlineLarge);
+            child = Text(parseTransactionAmount(snapshot.data!.$1), style: Theme.of(context).textTheme.headlineLarge);
           }
+
+          final data = snapshot.data ?? (0, 0, 0);
 
           return Column(
             children: [
@@ -94,7 +97,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
-                        ((snapshot.data ?? (0, 0, 0)).$2 / 100).toStringAsFixed(2),
+                        parseTransactionAmount(data.$2),
                         style: Theme.of(context)
                                      .textTheme
                                      .headlineSmall
@@ -115,7 +118,7 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
-                        ((snapshot.data ?? (0, 0, 0)).$3 / 100).toStringAsFixed(2),
+                        parseTransactionAmount(data.$3),
                         style: Theme.of(context)
                                      .textTheme
                                      .headlineSmall

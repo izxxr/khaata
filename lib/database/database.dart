@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/database/tables/account.dart';
 import 'package:khaata/database/tables/transaction.dart';
 import 'package:khaata/database/tables/category.dart';
@@ -96,4 +97,13 @@ extension Migrations on GeneratedDatabase {
       ''');
     },
   );
+}
+
+// ----
+
+extension TransactionExtension on Transaction {
+  /// Parses the transaction amount using [helpers.parseTransactionAmount] function.
+  String parseAmount({ bool stripSign = false }) {
+    return parseTransactionAmount(amount, stripSign: stripSign);
+  }
 }

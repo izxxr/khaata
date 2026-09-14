@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
@@ -82,7 +83,7 @@ class AccountsListEntry extends StatelessWidget {
                         text = "Error";
                       }
                       if (snapshot.data != null) {
-                        text = (snapshot.data!.$1 / 100).toStringAsFixed(2);
+                        text = parseTransactionAmount(snapshot.data!.$1);
                       }
 
                       return Text(

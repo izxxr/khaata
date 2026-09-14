@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 
@@ -65,7 +66,7 @@ class OverviewCard extends StatelessWidget {
                         }
 
                         return Text(
-                          ((snapshot.data ?? (0, 0, 0)).$1 / 100).toStringAsFixed(2),
+                          parseTransactionAmount((snapshot.data ?? (0, 0, 0)).$1),
                           style: Theme.of(context).textTheme.headlineLarge,
                         );
                       }

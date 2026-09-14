@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/helpers.dart';
 
 class TransactionsSummaryList<T> extends StatefulWidget {
   const new({
@@ -78,12 +79,12 @@ class _TransactionsSummaryListState<T> extends State<TransactionsSummaryList<T>>
                 children: [
                   Expanded(child: widget.nameBuilder(e.$1)),
                   Expanded(child: Text(
-                    (e.$2 / 100).toStringAsFixed(2),
+                    parseTransactionAmount(e.$2),
                     style: TextStyle(color: Colors.green.shade500, fontWeight: .bold),
                     textAlign: TextAlign.end,
                   )),
                   Expanded(child: Text(
-                    (e.$3 / 100).toStringAsFixed(2),
+                    parseTransactionAmount(e.$3),
                     style: TextStyle(color: Colors.redAccent, fontWeight: .bold),
                     textAlign: TextAlign.end,
                   ))

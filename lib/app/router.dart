@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/app_shell.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
-import 'package:khaata/helpers/go_router_refreshable_stream.dart';
+import 'package:khaata/common/go_router_refreshable_stream.dart';
 import 'package:khaata/features/dashboard/pages/dashboard.dart';
 import 'package:khaata/features/onboarding/pages/intro.dart';
 import 'package:khaata/features/onboarding/pages/setup.dart';
