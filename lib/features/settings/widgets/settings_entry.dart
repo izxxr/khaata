@@ -30,10 +30,9 @@ class SettingsEntry extends StatelessWidget {
         ),
         Text(
           description,
-          style: Theme.of(context)
-                       .textTheme
-                       .bodySmall
-                      ?.copyWith(color: Theme.of(context).hintColor),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).hintColor
+          ),
         ),
         SizedBox(height: AppSpacing.sm),
         controlWidget,

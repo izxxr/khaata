@@ -35,10 +35,9 @@ class _AccountsListState extends State<AccountsList> {
             SizedBox(height: AppSpacing.sm),
             Text(
               "Categorize your transactions using accounts",
-              style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(color: Theme.of(context).hintColor),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).hintColor
+              ),
             ),
             SizedBox(height: AppSpacing.lg),
             StreamBuilder(

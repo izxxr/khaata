@@ -5,8 +5,6 @@ import 'package:khaata/app/bloc/app_state.dart';
 
 
 /// Bloc for managing the global application state
-/// 
-/// For now, this bloc only manages the app theme mode.
 class AppBloc extends Bloc<AppEvent, AppState> {
   AppBloc(super.initialState){
     on<ThemeModeUpdated>(_onThemeModeUpdated);

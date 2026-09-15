@@ -30,10 +30,9 @@ class AccountsListEntry extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 2,
               child: Text(
                 description.length > 100 ? "${description.substring(0, 100)}..." : description,
-                style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Theme.of(context).hintColor)
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).hintColor
+                )
               ),
             ),
           ]
@@ -88,13 +87,10 @@ class AccountsListEntry extends StatelessWidget {
 
                       return Text(
                         text,
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).hintColor,
-                                      ),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).hintColor,
+                        ),
                       );
                     }
                   ),

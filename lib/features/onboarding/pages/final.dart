@@ -33,12 +33,9 @@ class OnboardingFinal extends StatelessWidget {
                 width: 360,
                 child: Text(
                   "Enjoy using Khaata for managing your finances!",
-                  style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context).hintColor,
-                                ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),

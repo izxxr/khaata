@@ -111,10 +111,9 @@ class _TransactionModalState extends State<TransactionModal> {
                       SizedBox(height: AppSpacing.sm),
                       Text(
                         "${widget.transaction != null ? 'Edit' : 'Enter'} the transaction details",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor)
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).hintColor
+                        )
                       ),
                     ],
                   ),

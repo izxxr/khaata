@@ -48,10 +48,9 @@ Future showAccountCreationModal(
                         SizedBox(height: AppSpacing.sm),
                         Text(
                           "${(account != null) ? 'Modify' : 'Enter'} the account details",
-                          style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(color: Theme.of(context).hintColor)
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).hintColor
+                          )
                         ),
                       ],
                     ),

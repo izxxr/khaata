@@ -108,15 +108,12 @@ class _TransactionsSummaryListState<T> extends State<TransactionsSummaryList<T>>
                       },
                       child: Text(
                         "Incoming",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      decoration: sortedByIncome ? .underline : null,
-                                      color: sortedByIncome ?
-                                              Theme.of(context).colorScheme.primary
-                                            : null
-                                    ),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          decoration: sortedByIncome ? .underline : null,
+                          color: sortedByIncome ?
+                                  Theme.of(context).colorScheme.primary
+                                : null
+                        ),
                         textAlign: TextAlign.end,
                       )
                     )),
@@ -126,15 +123,12 @@ class _TransactionsSummaryListState<T> extends State<TransactionsSummaryList<T>>
                       },
                       child: Text(
                         "Outgoing",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      decoration: !sortedByIncome ? .underline : null,
-                                      color: !sortedByIncome ?
-                                              Theme.of(context).colorScheme.primary
-                                            : null
-                                    ),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          decoration: !sortedByIncome ? .underline : null,
+                          color: !sortedByIncome ?
+                                  Theme.of(context).colorScheme.primary
+                                : null
+                        ),
                         textAlign: TextAlign.end,
                       )
                     )),

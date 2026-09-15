@@ -64,10 +64,9 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                     children: [
                       Text(
                         "Balance",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor)
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).hintColor
+                        )
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Row(
@@ -90,18 +89,16 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                     children: [
                       Text(
                         "Income",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor)
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).hintColor
+                        )
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
                         parseTransactionAmount(data.$2),
-                        style: Theme.of(context)
-                                     .textTheme
-                                     .headlineSmall
-                                    ?.copyWith(color: Colors.green.shade500)
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.green.shade500
+                        )
                       ),
                     ],
                   ),
@@ -111,18 +108,16 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                     children: [
                       Text(
                         "Spending",
-                        style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: Theme.of(context).hintColor)
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).hintColor
+                        )
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
                         parseTransactionAmount(data.$3),
-                        style: Theme.of(context)
-                                     .textTheme
-                                     .headlineSmall
-                                    ?.copyWith(color: Colors.redAccent)
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.redAccent
+                        )
                       ),
                     ],
                   ),

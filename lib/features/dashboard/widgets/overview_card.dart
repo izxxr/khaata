@@ -25,17 +25,15 @@ class OverviewCard extends StatelessWidget {
           children: [
             Text(
               "Welcome back,",
-              style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                          ?.copyWith(color: Theme.of(context).disabledColor)
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: Theme.of(context).disabledColor
+              )
             ),
             Text(
               context.read<AppBloc>().state.username?.toUpperCase() ?? "DEFAULT USER",
-              style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold)
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold
+              )
             ),
             Spacer(),
             Row(
@@ -53,10 +51,9 @@ class OverviewCard extends StatelessWidget {
                   children: [
                     Text(
                       "Total Balance",
-                      style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(color: Theme.of(context).hintColor),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).hintColor
+                      ),
                     ),
                     StreamBuilder(
                       stream: context.read<TransactionRepository>().watchAmounts([]),

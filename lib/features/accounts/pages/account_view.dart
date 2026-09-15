@@ -80,12 +80,6 @@ class _AccountViewState extends State<AccountView> {
                       "Transactions",
                       style: Theme.of(context).textTheme.titleMedium
                     ),
-                    // TODO: reveal this button after insights page implemented.
-                    // Spacer(),
-                    // TextButton.icon(
-                    //   onPressed: () {},
-                    //   label: Text("View History"),
-                    // )
                   ]
                 ),
                 SizedBox(height: AppSpacing.sm),

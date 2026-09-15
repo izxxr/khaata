@@ -22,11 +22,6 @@ class AccountRepository {
     return (db.select(db.accounts)..where((a) => a.id.equals(id))).watchSingle();
   }
 
-  /// Get a single account from its ID.
-  Future<Account> getAccount(int id) {
-    return (db.select(db.accounts)..where((a) => a.id.equals(id))).getSingle();
-  }
-
   /// Creates a new account with given details.
   /// 
   /// Returns the ID of created account.

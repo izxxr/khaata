@@ -25,12 +25,9 @@ class OnboardingIntro extends StatelessWidget {
               SizedBox(height: AppSpacing.lg),
               Text(
                 "We will quickly setup the app for first use",
-                style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(
-                                color: Theme.of(context).hintColor,
-                              ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 2 * AppSpacing.lg),

@@ -44,12 +44,9 @@ class _OnboardingSetupState extends State<OnboardingSetup> {
                 padding: EdgeInsets.symmetric(horizontal: AppSpacing.globalPadding),
                 child: Text(
                   "This name will be used to refer to you in transactions and various places in the app.",
-                  style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context).hintColor,
-                                ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -101,10 +98,9 @@ class _OnboardingSetupState extends State<OnboardingSetup> {
               SizedBox(height: AppSpacing.xl),
               Text(
                 "You can always change this later.",
-                style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: Theme.of(context).hintColor,),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
               ),
             ],
           )

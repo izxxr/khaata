@@ -26,10 +26,9 @@ class Settings extends StatelessWidget {
         SizedBox(height: AppSpacing.sm),
         Text(
           "Customize Khaata the way you like it",
-          style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(color: Theme.of(context).hintColor),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Theme.of(context).hintColor
+          ),
         ),
         SettingsEntry(
           label: "Theme",
@@ -115,10 +114,9 @@ class Settings extends StatelessWidget {
             },
             label: Text(
               "Clear",
-              style: Theme.of(context)
-                           .textTheme
-                           .labelLarge
-                          ?.copyWith(color: Theme.of(context).colorScheme.onErrorContainer)
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onErrorContainer
+              )
             ),
             icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.onErrorContainer),
             style: ElevatedButton.styleFrom(

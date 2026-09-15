@@ -74,10 +74,9 @@ class _InsightsState extends State<Insights> {
                   SizedBox(height: AppSpacing.sm),
                   Text(
                     "Showing information for ${accountIds.length} of ${snapshot.data!.length} accounts (${rangeLabel ?? 'all time'})",
-                    style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(color: Theme.of(context).hintColor),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).hintColor
+                    ),
                   ),
                   SizedBox(height: AppSpacing.xl),
                   AccountOverviewCard(

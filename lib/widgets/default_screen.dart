@@ -30,10 +30,9 @@ class DefaultScreen extends StatelessWidget {
             ),
             Text(
               subtitle,
-              style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: Theme.of(context).hintColor),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).hintColor
+              ),
             ),
           ]
         )

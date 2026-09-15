@@ -24,10 +24,9 @@ class OnboardingBanner extends StatelessWidget {
             SizedBox(height: AppSpacing.md),
             Text(
               "Khaata",
-              style: Theme.of(context)
-                           .textTheme
-                           .displaySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.bold
+              )
             ),
             Spacer(),
           ],
