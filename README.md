@@ -71,3 +71,5 @@ with the following steps:
   - [x] Time format (24h / 12h)
   - [ ] Custom color schemes
   - [ ] Custom currency decimal (for transaction amounts: see [minor units format](https://docs.adyen.com/development-resources/currency-codes), global and account level)
+
+Specific features that are planned for near future can be viewed in the [project kanban](https://github.com/users/izxxr/projects/10/views/1).
