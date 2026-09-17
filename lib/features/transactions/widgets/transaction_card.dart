@@ -43,7 +43,6 @@ class TransactionCard extends StatelessWidget {
   ) {
     final (transaction, transactionRefs) = transactionData;
 
-    GestureTapCallback onTap;
     Color color;
 
     if (Theme.brightnessOf(context) == Brightness.light) {
@@ -52,15 +51,14 @@ class TransactionCard extends StatelessWidget {
       color = transaction.amount > 0 ? TransactionColors.incomeDark : TransactionColors.expenseDark;
     }
 
-    if (basic) {
-      onTap = () => TransactionModal.show(
-        context,
-        transaction.accountId,
-        transaction,
-      );
-    } else {
-      onTap = () {};
-    }
+    // ignore: prefer_function_declarations_over_variables
+    GestureTapCallback onTap = () => TransactionModal.show(
+      context,
+      transaction.accountId,
+      transaction,
+      showAccountDropdown: basic,
+      isNew: false,
+    );
 
     final amount = transaction.parseAmount();
     final description = transaction.description;

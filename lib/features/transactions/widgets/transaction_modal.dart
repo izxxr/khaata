@@ -17,15 +17,27 @@ import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/widgets/datetime_picker.dart';
 
 class TransactionModal extends StatefulWidget {
-  const new({super.key, this.transaction, required this.accountId});
+  const new({
+    super.key,
+    required this.accountId,
+    this.transaction,
+    this.showAccountDropdown = false,
+    this.isNew = false,
+  });
 
   final Transaction? transaction;
   final int? accountId;
+  final bool showAccountDropdown;
+  final bool isNew;
 
   static Future show(
     BuildContext context,
     int? accountId,
     Transaction? transaction,
+    {
+      bool showAccountDropdown = false,
+      bool isNew = false
+    }
   ) async {
     await showModalBottomSheet(
       context: context,
@@ -36,6 +48,8 @@ class TransactionModal extends StatefulWidget {
         return TransactionModal(
           accountId: accountId,
           transaction: transaction,
+          showAccountDropdown: showAccountDropdown,
+          isNew: isNew || transaction == null,
         );
       },
     );
@@ -68,12 +82,18 @@ class _TransactionModalState extends State<TransactionModal> {
 
     title = widget.transaction?.title;
     description = widget.transaction?.description ?? "";
-    createdAt = widget.transaction?.createdAt ?? DateTime.now();
     amount = widget.transaction?.amount ?? 0;
     sign = amount >= 0 ? 1 : -1;
     accountId = widget.accountId ?? context.read<AppBloc>().state.defaultAccountId;
     categoryId = widget.transaction?.categoryId;
     counterpartyId = widget.transaction?.counterpartyId;
+
+    if (widget.isNew) {
+      createdAt = DateTime.now();
+    } else {
+      createdAt = widget.transaction?.createdAt ?? DateTime.now();
+    }
+
     datetimeController = TextEditingController(
       text: context.read<AppBloc>().state.formatDateTime(createdAt)
     );
@@ -105,12 +125,12 @@ class _TransactionModalState extends State<TransactionModal> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${widget.transaction != null ? 'Modify' : 'Log'} Transaction",
+                        "${(widget.transaction != null && !widget.isNew) ? 'Modify' : 'Log'} Transaction",
                         style: Theme.of(context).textTheme.titleMedium
                       ),
                       SizedBox(height: AppSpacing.sm),
                       Text(
-                        "${widget.transaction != null ? 'Edit' : 'Enter'} the transaction details",
+                        "${(widget.transaction != null && !widget.isNew) ? 'Edit' : 'Enter'} the transaction details",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).hintColor
                         )
@@ -118,7 +138,27 @@ class _TransactionModalState extends State<TransactionModal> {
                     ],
                   ),
                   Spacer(),
-                  (widget.transaction != null) ?
+                  (widget.transaction != null && !widget.isNew) ?
+                    IconButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+
+                        TransactionModal.show(
+                          context,
+                          accountId,
+                          widget.transaction,
+                          showAccountDropdown: true,
+                          isNew: true,
+                        );
+                      },
+                      icon: Icon(Icons.copy),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                      ),
+                    )
+                  : SizedBox(),
+                  SizedBox(width: AppSpacing.md),
+                  (widget.transaction != null && !widget.isNew) ?
                     IconButton(
                       onPressed: () async {
                         final confirmed = await showConfirmDialog(
@@ -142,7 +182,7 @@ class _TransactionModalState extends State<TransactionModal> {
                       ),
                     )
                   : SizedBox(),
-                  SizedBox(width: AppSpacing.sm),
+                  SizedBox(width: AppSpacing.md),
                   IconButton(
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) {
@@ -153,7 +193,7 @@ class _TransactionModalState extends State<TransactionModal> {
 
                       if (accountId == null) return;
 
-                      if (widget.transaction != null) {
+                      if (widget.transaction != null && !widget.isNew) {
                         await context.read<TransactionRepository>().updateTransaction(
                           widget.transaction!.id,
                           title: title,
@@ -196,7 +236,7 @@ class _TransactionModalState extends State<TransactionModal> {
                 },
               ),
               SizedBox(height: AppSpacing.lg),
-              widget.accountId == null ?
+              widget.showAccountDropdown ?
                 AccountsDropdown(
                   accountId: accountId,
                   onChanged: (newValue) {

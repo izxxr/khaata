@@ -29,7 +29,7 @@ class QuickActions extends StatelessWidget {
             QuickActionButton(
               icon: Icons.add,
               label: "Transaction",
-              onTap: () => TransactionModal.show(context, null, null)
+              onTap: () => TransactionModal.show(context, null, null, showAccountDropdown: true)
             ),
         ],
       )
