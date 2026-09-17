@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
@@ -54,13 +53,13 @@ class TransactionCard extends StatelessWidget {
     }
 
     if (basic) {
-      onTap = () => context.go("/accounts/${transaction.accountId}");
-    } else {
       onTap = () => TransactionModal.show(
         context,
         transaction.accountId,
         transaction,
       );
+    } else {
+      onTap = () {};
     }
 
     final amount = transaction.parseAmount();

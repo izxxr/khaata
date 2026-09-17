@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/features/dashboard/widgets/overview_card.dart';
 import 'package:khaata/features/dashboard/widgets/quick_actions.dart';
@@ -29,16 +30,16 @@ class Dashboard extends StatelessWidget {
                         "Recent Transactions",
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      // TODO: reveal this after insights page implemented
-                      // Spacer(),
-                      // TextButton.icon(
-                      //   onPressed: () {},
-                      //   label: Text("View all"),
-                      // ),
+                      Spacer(),
+                      TextButton.icon(
+                        onPressed: () => context.go("/history"),
+                        icon: Icon(Icons.history),
+                        label: Text("History")
+                      ),
                     ]
                   ),
                   SizedBox(height: AppSpacing.sm),
-                  Flexible(child: TransactionsList(limit: 4)),
+                  Flexible(child: TransactionsList(infinite: false, basic: true)),
                 ],
               ),
             ),

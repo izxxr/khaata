@@ -1,26 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dropdown_button/flutter_dropdown_button.dart';
 import 'package:intl/intl.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/features/accounts/services/account_repository.dart';
+import 'package:khaata/features/transactions/services/category_repository.dart';
+import 'package:khaata/features/transactions/services/counterparty_repository.dart';
 
 
 class Filters {
   const new({
     required this.accounts,
+    this.categories,
+    this.counterparties,
     this.before,
     this.after,
   });
 
-  final Set<Account> accounts;
   final DateTime? before;
   final DateTime? after;
+  final Set<Account> accounts;
+  final Set<Category>? categories;
+  final Set<Counterparty>? counterparties;
 
-  static Filters getDefault(List<Account> accounts) {
+  static Filters getDefault(
+    List<Account> accounts,
+    {
+      List<Category>? categories,
+      List<Counterparty>? counterparties,
+    }
+  ) {
     final selectedAccounts = accounts.toSet();
     selectedAccounts.removeWhere((a) => a.isolatedAccount);
 
-    return Filters(accounts: selectedAccounts);
+    return Filters(
+      accounts: selectedAccounts,
+      categories: categories?.toSet() ?? {},
+      counterparties: counterparties?.toSet() ?? {},
+    );
   }
 
   static String? getRangeLabel(DateTime? before, DateTime? after) {
@@ -37,16 +55,44 @@ class Filters {
 
 
 class FiltersModal extends StatefulWidget {
-  const new({super.key, required this.filter, required this.accounts});
+  const new({
+    super.key,
+    required this.filter,
+    required this.accounts,
+    this.categories,
+    this.counterparties,
+  });
 
   final Filters filter;
   final List<Account> accounts;
+  final List<Category>? categories;
+  final List<Counterparty>? counterparties;
 
   static Future<Filters?> show(
     BuildContext context,
-    List<Account> accounts,
-    Filters existingFilter,
+    Filters? existingFilter,
+    {
+      List<Account>? accounts,
+      bool additional = false
+    }
   ) async {
+    accounts = accounts ?? await context.read<AccountRepository>().watchAccounts().first;
+
+    if (!context.mounted) return null;
+
+    List<Category>? categories;
+    List<Counterparty>? counterparties;
+
+    if (additional) {
+      categories = await context.read<CategoryRepository>().watchCategories().first;
+
+      if (!context.mounted) return null;
+
+      counterparties = await context.read<CounterpartyRepository>().watchCounterparties().first;
+    }
+
+    if (!context.mounted) return null;
+
     return await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -54,8 +100,14 @@ class FiltersModal extends StatefulWidget {
       ),
       builder: (BuildContext context) {
         return FiltersModal(
-          filter: existingFilter,
-          accounts: accounts,
+          filter: existingFilter ?? Filters.getDefault(
+            accounts!,
+            categories: categories,
+            counterparties: counterparties
+          ),
+          accounts: accounts!,
+          categories: categories,
+          counterparties: counterparties,
         );
       },
     );
@@ -68,21 +120,78 @@ class FiltersModal extends StatefulWidget {
 
 class _FiltersModalState extends State<FiltersModal> {
   late Set<Account> selectedAccounts;
+  late Set<Category>? selectedCategories;
+  late Set<Counterparty>? selectedCounterparties;
   late DateTime? before;
   late DateTime? after;
+  late bool additional = false;
 
   @override
   void initState() {
     super.initState();
 
     selectedAccounts = widget.filter.accounts;
+    selectedCategories = widget.filter.categories;
+    selectedCounterparties = widget.filter.counterparties;
     before = widget.filter.before;
     after = widget.filter.after;
+    additional = widget.categories != null;
   }
 
   @override
   Widget build(BuildContext context) {
     final rangeLabel = Filters.getRangeLabel(before, after);
+
+    List<Widget> additionalWidgets = [];
+
+    if (additional) {
+      additionalWidgets.addAll([
+        FlutterMultiSelectDropdown(
+          items: widget.categories!,
+          selected: selectedCategories ?? widget.categories!.toSet(),
+          width: double.infinity,
+          searchable: true,
+          trailing: Icon(Icons.category),
+          itemLeadingBuilder: (item) => SizedBox(width: AppSpacing.sm),
+          onChanged: (v) {
+            setState(() {
+              selectedCategories = v;
+            });
+          },
+          labelBuilder: (v) {
+            if (v.length == widget.categories!.length) return "All categories selected";
+
+            if (v.length == 1) return "1 category selected";
+
+            return "${v.length} categories selected";
+          },
+          label: (item) => item.name,
+        ),
+        SizedBox(height: AppSpacing.md),
+        FlutterMultiSelectDropdown(
+          items: widget.counterparties!,
+          selected: selectedCounterparties ?? widget.counterparties!.toSet(),
+          width: double.infinity,
+          searchable: true,
+          itemLeadingBuilder: (item) => SizedBox(width: AppSpacing.sm),
+          onChanged: (v) {
+            setState(() {
+              selectedCounterparties = v;
+            });
+          },
+          trailing: Icon(Icons.people),
+          labelBuilder: (v) {
+            if (v.length == widget.counterparties!.length) return "All counterparties selected";
+
+            if (v.length == 1) return "1 counterparty selected";
+
+            return "${v.length} counterparties selected";
+          },
+          label: (item) => item.name,
+        ),
+        SizedBox(height: AppSpacing.md),
+      ]);
+    }
 
     return SingleChildScrollView(
       child: Padding(
@@ -106,7 +215,14 @@ class _FiltersModalState extends State<FiltersModal> {
                 Spacer(),
                 IconButton(
                   onPressed: () async {
-                    Navigator.pop(context, Filters.getDefault(widget.accounts));
+                    Navigator.pop(
+                      context,
+                      Filters.getDefault(
+                        widget.accounts,
+                        categories: widget.categories,
+                        counterparties: widget.counterparties,
+                      )
+                    );
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -124,6 +240,8 @@ class _FiltersModalState extends State<FiltersModal> {
                       context,
                       Filters(
                         accounts: selectedAccounts,
+                        categories: selectedCategories,
+                        counterparties: selectedCounterparties,
                         before: before,
                         after: after,
                       )
@@ -147,6 +265,7 @@ class _FiltersModalState extends State<FiltersModal> {
                     Icon(Icons.money_off, color: Colors.orange)
                   ])
                 : SizedBox(),
+              trailing: Icon(Icons.account_balance),
               onChanged: (v) {
                 if (v.isEmpty) {
                   // don't allow empty selections
@@ -167,9 +286,11 @@ class _FiltersModalState extends State<FiltersModal> {
               label: (item) => item.title,
             ),
             SizedBox(height: AppSpacing.md),
+            ...additionalWidgets,
             DropdownMenu(
               width: double.infinity,
               label: Text(rangeLabel ?? "Date range"),
+              trailingIcon: Icon(Icons.date_range),
               dropdownMenuEntries: [
                 DropdownMenuEntry(value: 0, label: "This month"),
                 DropdownMenuEntry(value: 1, label: "This week"),

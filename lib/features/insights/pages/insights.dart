@@ -49,8 +49,8 @@ class _InsightsState extends State<Insights> {
             onPressed: () async {
               final result = await FiltersModal.show(
                 context,
-                snapshot.data!,
                 filter!,
+                accounts: snapshot.data!,
               );
 
               if (result == null) return;

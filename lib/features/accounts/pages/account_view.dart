@@ -83,7 +83,7 @@ class _AccountViewState extends State<AccountView> {
                   ]
                 ),
                 SizedBox(height: AppSpacing.sm),
-                Expanded(child: TransactionsList(account: account, limit: null)),
+                Expanded(child: TransactionsList(accountIds: [account.id], basic: true)),
               ],
             ),
           ),

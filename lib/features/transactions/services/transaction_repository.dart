@@ -64,24 +64,87 @@ class TransactionRepository {
     });
   }
 
-  /// Streams the list of transactions.
-  ///
-  /// If [accountId] is provided, returns transactions for that account.
-  /// If [accountId] is null, returns transactions from non-isolated accounts.
+  Expression<bool> _composeCategoryCounterpartyConditions(
+    $$TransactionsTableFilterComposer f,
+    List<int>? categoryIds,
+    List<int>? counterpartyIds,
+  ) {
+    Expression<bool> condition = f.categoryId.id.isNull() | f.counterpartyId.id.isNull();
+
+    if (categoryIds != null) {
+      condition |= f.categoryId.id.isIn(categoryIds);
+    }
+
+    if (counterpartyIds != null) {
+      condition |= f.counterpartyId.id.isIn(counterpartyIds);
+    }
+
+    return condition;
+  }
+
+  /// Searches and watches the transactions across multiple accounts.
+  /// 
+  /// If [accountIds] is empty, the transactions across all accounts are
+  /// searched. Otherwise, only the transactions of provided accounts are
+  /// returned.
+  /// 
+  /// [limit] controls the maximum number of returned transactions. By
+  /// default, this is null which indicates no maximum limit.
+  /// 
+  /// [before] and [after] are used to include transactions only in
+  /// or upto specific time.
+  /// 
+  /// [counterpartyIds] and [categoryIds] can be provided with IDs list to
+  /// only include transactions from those categories or counterparties.
+  /// 
+  /// [includeIsolatedAccounts] indicates whether to include transactions
+  /// from isolated accounts. This parameter is disregarded when [accountIds]
+  /// is non-empty. Defaults to false.
+  /// 
+  /// [fetchAccount], [fetchCategory], and [fetchCounterparty] can be used
+  /// to include information of foreign referenced relations with transactions
+  /// data.
   Stream<List<(Transaction, $$TransactionsTableReferences)>> watchTransactions(
-    int? accountId,
-    int? limit,
+    List<int> accountIds,
     {
+      String? searchQuery,
+      int? limit,
+      DateTime? after,
+      DateTime? before,
+      List<int>? categoryIds,
+      List<int>? counterpartyIds,
+      bool includeIsolatedAccounts = false,
       bool fetchAccount = false,
       bool fetchCategory = false,
       bool fetchCounterparty = false,
     }
   ) {
+    searchQuery = (searchQuery ?? "").trim();
+
     var manager = db.managers.transactions;
     var query =
-      accountId != null ?
-        manager.filter((f) => f.accountId.id(accountId))
-      : manager.filter((f) => f.accountId.isolatedAccount(false));
+      accountIds.isNotEmpty ?
+        manager.filter((f) => f.accountId.id.isIn(accountIds))
+      : manager.filter((f) => f.accountId.isolatedAccount(includeIsolatedAccounts));
+
+    if (after != null) {
+      query = query.filter((f) => f.createdAt.isAfter(after));
+    }
+
+    if (before != null) {
+      query = query.filter((f) => f.createdAt.isBefore(before));
+    }
+
+    if (categoryIds != null || counterpartyIds != null) {
+      query = query.filter((f) => _composeCategoryCounterpartyConditions(f, categoryIds, counterpartyIds));
+    }
+
+    if (searchQuery.isNotEmpty) {
+      query = query.filter(
+        (f) => f.title.contains(searchQuery!, caseInsensitive: true)
+             | f.description.contains(searchQuery, caseInsensitive: true)
+      );
+    }
 
     query = query.orderBy((o) => o.createdAt.desc());
 

@@ -12,6 +12,7 @@ import 'package:khaata/features/insights/pages/insights.dart';
 import 'package:khaata/features/settings/pages/settings.dart';
 import 'package:khaata/features/transactions/pages/categories.dart';
 import 'package:khaata/features/transactions/pages/counterparties.dart';
+import 'package:khaata/features/transactions/pages/history.dart';
 
 /// Build the application router.
 /// 
@@ -67,6 +68,10 @@ GoRouter createRouter(AppBloc appBloc) {
                   GoRoute(
                     path: '/counterparties',
                     builder: (context, state) => const Counterparties(),
+                  ),
+                  GoRoute(
+                    path: '/history',
+                    builder: (context, state) => const TransactionsSearch(),
                   ),
                 ]
               ),
