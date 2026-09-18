@@ -140,10 +140,30 @@ class TransactionRepository {
     }
 
     if (searchQuery.isNotEmpty) {
-      query = query.filter(
-        (f) => f.title.contains(searchQuery!, caseInsensitive: true)
-             | f.description.contains(searchQuery, caseInsensitive: true)
-      );
+      final search = searchQuery.toLowerCase();
+
+      query = query.filter((f) {
+        List<Expression<bool>> conditions = [
+          f.title.contains(search, caseInsensitive: true),
+          f.description.contains(search, caseInsensitive: true),
+        ];
+
+        if ('incoming transaction'.contains(search)) {
+          conditions.add((f.title.isNull() | f.title.equals("")) & f.amount.isBiggerThan(0));
+        }
+
+        if ('outgoing transaction'.contains(search)) {
+          conditions.add((f.title.isNull() | f.title.equals("")) & f.amount.isSmallerThan(0));
+        }
+
+        var result = conditions.first;
+
+        for (var c in conditions.skip(1)) {
+          result |= c;
+        }
+
+        return result;
+      });
     }
 
     query = query.orderBy((o) => o.createdAt.desc());
