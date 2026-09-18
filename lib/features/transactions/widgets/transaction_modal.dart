@@ -13,7 +13,6 @@ import 'package:khaata/features/transactions/services/category_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/category_modal.dart';
 import 'package:khaata/widgets/dropdown_with_action.dart';
-import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/widgets/datetime_picker.dart';
 
 class TransactionModal extends StatefulWidget {
@@ -139,12 +138,6 @@ class _TransactionModalState extends State<TransactionModal> {
 
   @override
   Widget build(BuildContext context) {
-    String associatedMessage = "";
-
-    if (widget.transaction != null && widget.transaction?.associatedTransactionId != null) {
-      associatedMessage = "Associated transaction in another account (e.g. transfer source or destination) will also be deleted.";
-    }
-
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.globalPadding),
@@ -174,51 +167,6 @@ class _TransactionModalState extends State<TransactionModal> {
                     ],
                   ),
                   Spacer(),
-                  (widget.transaction != null && !widget.isNew) ?
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-
-                        TransactionModal.show(
-                          context,
-                          accountId,
-                          widget.transaction,
-                          showAccountDropdown: true,
-                          isNew: true,
-                        );
-                      },
-                      icon: Icon(Icons.copy),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                      ),
-                    )
-                  : SizedBox(),
-                  SizedBox(width: AppSpacing.md),
-                  (widget.transaction != null && !widget.isNew) ?
-                    IconButton(
-                      onPressed: () async {
-                        final confirmed = await showConfirmDialog(
-                          context, 
-                          title: 'Delete Transaction', 
-                          message: 'Are you sure? This action is irreversible. $associatedMessage'
-                        );
-
-                        if (!confirmed || !context.mounted) return;
-
-                        await context.read<TransactionRepository>().deleteTransaction(widget.transaction!.id);
-
-                        if (!context.mounted) return;
-
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.delete),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    )
-                  : SizedBox(),
-                  SizedBox(width: AppSpacing.md),
                   IconButton(
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) {

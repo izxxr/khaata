@@ -4,7 +4,9 @@ import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
+import 'package:khaata/widgets/confirm_dialog.dart';
 
 class TransactionCard extends StatelessWidget {
   const new({
@@ -14,6 +16,8 @@ class TransactionCard extends StatelessWidget {
     required this.amount,
     required this.color,
     required this.onTap,
+    required this.onDelete,
+    required this.onDuplicate,
     required this.backgroundColor,
     this.account,
     this.amountColor,
@@ -27,6 +31,8 @@ class TransactionCard extends StatelessWidget {
   final String amount;
   final Color color;
   final GestureTapCallback onTap;
+  final Function onDelete;
+  final Function onDuplicate;
   final Color backgroundColor;
   final Account? account;
   final Color? amountColor;
@@ -51,14 +57,39 @@ class TransactionCard extends StatelessWidget {
       color = transaction.amount > 0 ? TransactionColors.incomeDark : TransactionColors.expenseDark;
     }
 
-    // ignore: prefer_function_declarations_over_variables
-    GestureTapCallback onTap = () => TransactionModal.show(
+    void onTap() => TransactionModal.show(
       context,
       transaction.accountId,
       transaction,
       showAccountDropdown: basic,
       isNew: false,
     );
+
+    void onDuplicate() => TransactionModal.show(
+      context,
+      transaction.accountId,
+      transaction,
+      showAccountDropdown: true,
+      isNew: true,
+    );
+
+    void onDelete() async {
+      String associatedMessage = "";
+
+      if (transaction.associatedTransactionId != null) {
+        associatedMessage = "Associated transaction in another account (e.g. transfer source or destination) will also be deleted.";
+      }
+
+      final confirmed = await showConfirmDialog(
+        context, 
+        title: 'Delete Transaction', 
+        message: 'Are you sure? This action is irreversible. $associatedMessage'
+      );
+
+      if (!confirmed || !context.mounted) return;
+
+      await context.read<TransactionRepository>().deleteTransaction(transaction.id);
+    }
 
     final amount = transaction.parseAmount();
     final description = transaction.description;
@@ -72,6 +103,8 @@ class TransactionCard extends StatelessWidget {
         description: description,
         color: color,
         onTap: onTap,
+        onDuplicate: onDuplicate,
+        onDelete: onDelete,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         amountColor: transaction.amount > 0 ? Colors.green.shade500 : Colors.redAccent,
         account: transactionRefs.accountId.prefetchedData?.first,
@@ -88,6 +121,8 @@ class TransactionCard extends StatelessWidget {
       color: color,
       backgroundColor: color,
       onTap: onTap,
+      onDuplicate: onDuplicate,
+      onDelete: onDelete,
       category: transactionRefs.categoryId?.prefetchedData?.first,
       counterparty: transactionRefs.counterpartyId?.prefetchedData?.first,
     );
@@ -171,66 +206,102 @@ class TransactionCard extends StatelessWidget {
       ]);
     }
  
-    return Container(
-      margin: EdgeInsets.only(top: AppSpacing.sm),
-      child: InkWell(
-        onTap: onTap,
-        child: Ink(
-          padding: EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(5),
-            border: account != null ?
-              Border(
-                left: BorderSide(
-                  color: KhaataColors.fromId(account!.color).color,
-                  width: 4
-                )
-              ) : null
+    return GestureDetector(
+      onLongPressStart: (details) {
+        final position = details.globalPosition;
+
+        showMenu(
+          context: context,
+          position: RelativeRect.fromRect(
+            Rect.fromLTWH(position.dx, position.dy, 0, 0),
+            Offset.zero & MediaQuery.of(context).size,
           ),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium
-                  ),
-                  Spacer(),
-                  Text(
-                    amount,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: amountColor)
-                  ),
-                ]
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    time,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor
-                    )
-                  ),
-                  Spacer(),
-                ],
-              ),
-              ...descriptionWidgets,
-              (footerLeftWidgets.length + footerRightWidgets.length) > 1 ?
-                SizedBox(height: AppSpacing.md)
-              : SizedBox(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [...footerLeftWidgets, ...footerRightWidgets],
-              ),
-            ]
+          items: [
+            const PopupMenuItem<String>(
+              value: 'edit',
+              child: Text('Edit'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Text('Delete'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'duplicate',
+              child: Text('Duplicate'),
+            ),
+          ],
+        ).then((value) {
+          // Handle the selected option
+          if (value == 'edit') {
+            onTap();
+          } else if (value == 'delete') {
+            onDelete();
+          } else if (value == 'duplicate') {
+            onDuplicate();
+          }
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: AppSpacing.sm),
+        child: InkWell(
+          onTap: onTap,
+          child: Ink(
+            padding: EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(5),
+              border: account != null ?
+                Border(
+                  left: BorderSide(
+                    color: KhaataColors.fromId(account!.color).color,
+                    width: 4
+                  )
+                ) : null
+            ),
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium
+                    ),
+                    Spacer(),
+                    Text(
+                      amount,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: amountColor)
+                    ),
+                  ]
+                ),
+                SizedBox(height: AppSpacing.xs),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      time,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).hintColor
+                      )
+                    ),
+                    Spacer(),
+                  ],
+                ),
+                ...descriptionWidgets,
+                (footerLeftWidgets.length + footerRightWidgets.length) > 1 ?
+                  SizedBox(height: AppSpacing.md)
+                : SizedBox(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [...footerLeftWidgets, ...footerRightWidgets],
+                ),
+              ]
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 }
