@@ -92,7 +92,6 @@ class _AmountEntryState extends State<AmountEntry> {
             ),
             autofocus: true,
             focusNode: _amountFocusNode,
-            textInputAction: TextInputAction.next,
             initialValue: widget.transaction != null ? widget.transaction!.parseAmount(stripSign: true) : "",
             keyboardType: TextInputType.number, // Shows numeric keyboard
             inputFormatters: <TextInputFormatter>[

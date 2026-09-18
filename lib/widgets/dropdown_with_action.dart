@@ -103,6 +103,10 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
           label: Text(widget.labelText),
           focusNode: widget.focusNode,
           width: double.infinity,
+          enableSearch: true,
+          enableFilter: true,
+          requestFocusOnTap: true,
+          menuHeight: MediaQuery.of(context).size.height * 0.30,
           initialSelection: _currentSelection,
           onSelected: (v) async {
             if (v == widget.noSelectionValue) {

@@ -103,8 +103,8 @@ class _AccountViewState extends State<AccountView> {
               shape: const CircleBorder(),
             ),
             overlayStyle: ExpandableFabOverlayStyle(
-              blur: 3,
-              color: Theme.of(context).colorScheme.surface.withAlpha(150)
+              // blur: 3,
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.259)
             ),
             children: [
               Row(

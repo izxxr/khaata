@@ -44,6 +44,8 @@ class TransactionModal extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      useSafeArea: true,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return TransactionModal(
           accountId: accountId,
@@ -284,7 +286,6 @@ class _TransactionModalState extends State<TransactionModal> {
                 onSaved: (newValue) {
                   title = newValue;
                 },
-                onEditingComplete: () => FocusScope.of(context).requestFocus(_timeFocusNode),
               ),
               SizedBox(height: AppSpacing.md),
               TextFormField(
@@ -320,8 +321,6 @@ class _TransactionModalState extends State<TransactionModal> {
                   suffixIcon: Icon(Icons.calendar_today),
                   border: OutlineInputBorder(),
                 ),
-                textInputAction: TextInputAction.next,
-                focusNode: _timeFocusNode,
               ),
               SizedBox(height: AppSpacing.md),
               DropdownWithAction<Counterparty, int>(
@@ -349,7 +348,7 @@ class _TransactionModalState extends State<TransactionModal> {
                     try {
                       final cp = data.firstWhere((cp) => cp.id == newValue);
 
-                      if (categoryId == null) {
+                      if (categoryId == null && cp.defaultCategoryId != null) {
                         categoryId = cp.defaultCategoryId;
                         _categoryDropdownKey = UniqueKey();
                       }
