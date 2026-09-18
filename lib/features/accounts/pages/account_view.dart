@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
@@ -8,6 +9,7 @@ import 'package:khaata/features/accounts/widgets/account_modal.dart';
 import 'package:khaata/features/accounts/widgets/account_overview_card.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
 import 'package:khaata/features/transactions/widgets/transactions_list.dart';
+import 'package:khaata/features/transactions/widgets/transfer_modal.dart';
 
 
 /// View of an account showing balance and transactions from the account.
@@ -25,6 +27,7 @@ class _AccountViewState extends State<AccountView> {
   late Stream<Account> _accountWatcher;
 
   final _editAccountFormKey = GlobalKey<FormState>();
+  final _fabKey = GlobalKey<ExpandableFabState>();
 
   @override
   void initState() {
@@ -87,10 +90,53 @@ class _AccountViewState extends State<AccountView> {
               ],
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => TransactionModal.show(context, account.id, null),
-            child: Icon(Icons.add),
-          ),
+          floatingActionButtonLocation: ExpandableFab.location,
+          floatingActionButton: ExpandableFab(
+            key: _fabKey,
+            distance: 70,
+            type: ExpandableFabType.up,
+            childrenAnimation: ExpandableFabAnimation.none,
+            margin: EdgeInsets.all(20),
+            openButtonBuilder: RotateFloatingActionButtonBuilder(
+              child: const Icon(Icons.add),
+              fabSize: ExpandableFabSize.regular,
+              shape: const CircleBorder(),
+            ),
+            overlayStyle: ExpandableFabOverlayStyle(
+              blur: 3,
+              color: Theme.of(context).colorScheme.surface.withAlpha(150)
+            ),
+            children: [
+              Row(
+                children: [
+                  Text('Transaction', style: TextStyle(fontWeight: .bold)),
+                  SizedBox(width: AppSpacing.md),
+                  FloatingActionButton.small(
+                    heroTag: null,
+                    onPressed: () async {
+                      await TransactionModal.show(context, account.id, null);
+                      _fabKey.currentState?.toggle();
+                    },
+                    child: Icon(Icons.add),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text('Transfer', style: TextStyle(fontWeight: .bold)),
+                  SizedBox(width: AppSpacing.md),
+                  FloatingActionButton.small(
+                    heroTag: null,
+                    onPressed: () async {
+                      await TransferModal.show(context, account);
+                      _fabKey.currentState?.toggle();
+                    },
+                    child: Icon(Icons.send),
+                  ),
+                ],
+              ),
+            ]
+          )
         );
       }
     );

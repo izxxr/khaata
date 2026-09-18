@@ -64,4 +64,15 @@ class Transactions extends Table {
     .references(Counterparties, #id, onDelete: KeyAction.setNull)
     .withDefault(const Constant(null))
     .nullable()();
+
+  /// The ID of other transaction that is associated to this.
+  /// 
+  /// This is the ID of transaction that either created this
+  /// transaction or was created by this transaction. For example,
+  /// in the case of transfers, this indicates the corresponding
+  /// transaction in destination account or source account.
+  IntColumn get associatedTransactionId => integer()
+    .references(Transactions, #id, onDelete: KeyAction.cascade)
+    .withDefault(const Constant(null))
+    .nullable()();
 }

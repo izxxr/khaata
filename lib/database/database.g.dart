@@ -1137,6 +1137,21 @@ class $TransactionsTable extends Transactions
     ),
     defaultValue: const Constant(null),
   );
+  static const VerificationMeta _associatedTransactionIdMeta =
+      const VerificationMeta('associatedTransactionId');
+  @override
+  late final GeneratedColumn<int> associatedTransactionId =
+      GeneratedColumn<int>(
+        'associated_transaction_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES transactions (id) ON DELETE CASCADE',
+        ),
+        defaultValue: const Constant(null),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1148,6 +1163,7 @@ class $TransactionsTable extends Transactions
     createdAt,
     categoryId,
     counterpartyId,
+    associatedTransactionId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1222,6 +1238,15 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('associated_transaction_id')) {
+      context.handle(
+        _associatedTransactionIdMeta,
+        associatedTransactionId.isAcceptableOrUnknown(
+          data['associated_transaction_id']!,
+          _associatedTransactionIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1266,6 +1291,10 @@ class $TransactionsTable extends Transactions
       counterpartyId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}counterparty_id'],
+      ),
+      associatedTransactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}associated_transaction_id'],
       ),
     );
   }
@@ -1325,6 +1354,14 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
   /// The ID of counterparty in this transaction.
   final int? counterpartyId;
+
+  /// The ID of other transaction that is associated to this.
+  ///
+  /// This is the ID of transaction that either created this
+  /// transaction or was created by this transaction. For example,
+  /// in the case of transfers, this indicates the corresponding
+  /// transaction in destination account or source account.
+  final int? associatedTransactionId;
   const Transaction({
     required this.id,
     required this.accountId,
@@ -1335,6 +1372,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.createdAt,
     this.categoryId,
     this.counterpartyId,
+    this.associatedTransactionId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1355,6 +1393,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || counterpartyId != null) {
       map['counterparty_id'] = Variable<int>(counterpartyId);
+    }
+    if (!nullToAbsent || associatedTransactionId != null) {
+      map['associated_transaction_id'] = Variable<int>(associatedTransactionId);
     }
     return map;
   }
@@ -1378,6 +1419,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       counterpartyId: counterpartyId == null && nullToAbsent
           ? const Value.absent()
           : Value(counterpartyId),
+      associatedTransactionId: associatedTransactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(associatedTransactionId),
     );
   }
 
@@ -1396,6 +1440,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
       counterpartyId: serializer.fromJson<int?>(json['counterpartyId']),
+      associatedTransactionId: serializer.fromJson<int?>(
+        json['associatedTransactionId'],
+      ),
     );
   }
   @override
@@ -1411,6 +1458,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'categoryId': serializer.toJson<int?>(categoryId),
       'counterpartyId': serializer.toJson<int?>(counterpartyId),
+      'associatedTransactionId': serializer.toJson<int?>(
+        associatedTransactionId,
+      ),
     };
   }
 
@@ -1424,6 +1474,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     DateTime? createdAt,
     Value<int?> categoryId = const Value.absent(),
     Value<int?> counterpartyId = const Value.absent(),
+    Value<int?> associatedTransactionId = const Value.absent(),
   }) => Transaction(
     id: id ?? this.id,
     accountId: accountId ?? this.accountId,
@@ -1436,6 +1487,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     counterpartyId: counterpartyId.present
         ? counterpartyId.value
         : this.counterpartyId,
+    associatedTransactionId: associatedTransactionId.present
+        ? associatedTransactionId.value
+        : this.associatedTransactionId,
   );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -1454,6 +1508,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       counterpartyId: data.counterpartyId.present
           ? data.counterpartyId.value
           : this.counterpartyId,
+      associatedTransactionId: data.associatedTransactionId.present
+          ? data.associatedTransactionId.value
+          : this.associatedTransactionId,
     );
   }
 
@@ -1468,7 +1525,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('description: $description, ')
           ..write('createdAt: $createdAt, ')
           ..write('categoryId: $categoryId, ')
-          ..write('counterpartyId: $counterpartyId')
+          ..write('counterpartyId: $counterpartyId, ')
+          ..write('associatedTransactionId: $associatedTransactionId')
           ..write(')'))
         .toString();
   }
@@ -1484,6 +1542,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     createdAt,
     categoryId,
     counterpartyId,
+    associatedTransactionId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1497,7 +1556,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.description == this.description &&
           other.createdAt == this.createdAt &&
           other.categoryId == this.categoryId &&
-          other.counterpartyId == this.counterpartyId);
+          other.counterpartyId == this.counterpartyId &&
+          other.associatedTransactionId == this.associatedTransactionId);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -1510,6 +1570,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<DateTime> createdAt;
   final Value<int?> categoryId;
   final Value<int?> counterpartyId;
+  final Value<int?> associatedTransactionId;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.accountId = const Value.absent(),
@@ -1520,6 +1581,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.createdAt = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.counterpartyId = const Value.absent(),
+    this.associatedTransactionId = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1531,6 +1593,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.createdAt = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.counterpartyId = const Value.absent(),
+    this.associatedTransactionId = const Value.absent(),
   }) : accountId = Value(accountId),
        amount = Value(amount);
   static Insertable<Transaction> custom({
@@ -1543,6 +1606,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<DateTime>? createdAt,
     Expression<int>? categoryId,
     Expression<int>? counterpartyId,
+    Expression<int>? associatedTransactionId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1554,6 +1618,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (createdAt != null) 'created_at': createdAt,
       if (categoryId != null) 'category_id': categoryId,
       if (counterpartyId != null) 'counterparty_id': counterpartyId,
+      if (associatedTransactionId != null)
+        'associated_transaction_id': associatedTransactionId,
     });
   }
 
@@ -1567,6 +1633,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<DateTime>? createdAt,
     Value<int?>? categoryId,
     Value<int?>? counterpartyId,
+    Value<int?>? associatedTransactionId,
   }) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -1578,6 +1645,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       createdAt: createdAt ?? this.createdAt,
       categoryId: categoryId ?? this.categoryId,
       counterpartyId: counterpartyId ?? this.counterpartyId,
+      associatedTransactionId:
+          associatedTransactionId ?? this.associatedTransactionId,
     );
   }
 
@@ -1611,6 +1680,11 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (counterpartyId.present) {
       map['counterparty_id'] = Variable<int>(counterpartyId.value);
     }
+    if (associatedTransactionId.present) {
+      map['associated_transaction_id'] = Variable<int>(
+        associatedTransactionId.value,
+      );
+    }
     return map;
   }
 
@@ -1625,7 +1699,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('description: $description, ')
           ..write('createdAt: $createdAt, ')
           ..write('categoryId: $categoryId, ')
-          ..write('counterpartyId: $counterpartyId')
+          ..write('counterpartyId: $counterpartyId, ')
+          ..write('associatedTransactionId: $associatedTransactionId')
           ..write(')'))
         .toString();
   }
@@ -1677,6 +1752,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('transactions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'transactions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('transactions', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -2745,6 +2827,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<int?> categoryId,
       Value<int?> counterpartyId,
+      Value<int?> associatedTransactionId,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -2757,6 +2840,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<int?> categoryId,
       Value<int?> counterpartyId,
+      Value<int?> associatedTransactionId,
     });
 
 final class $$TransactionsTableReferences
@@ -2809,6 +2893,27 @@ final class $$TransactionsTableReferences
       $_db.counterparties,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_counterpartyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TransactionsTable _associatedTransactionIdTable(_$AppDatabase db) =>
+      db.transactions.createAlias(
+        'transactions__associated_transaction_id__transactions__id',
+      );
+
+  $$TransactionsTableProcessedTableManager? get associatedTransactionId {
+    final $_column = $_itemColumn<int>('associated_transaction_id');
+    if ($_column == null) return null;
+    final manager = $$TransactionsTableTableManager(
+      $_db,
+      $_db.transactions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _associatedTransactionIdTable($_db),
+    );
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2915,6 +3020,29 @@ class $$TransactionsTableFilterComposer
           }) => $$CounterpartiesTableFilterComposer(
             $db: $db,
             $table: $db.counterparties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TransactionsTableFilterComposer get associatedTransactionId {
+    final $$TransactionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.associatedTransactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableFilterComposer(
+            $db: $db,
+            $table: $db.transactions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3032,6 +3160,29 @@ class $$TransactionsTableOrderingComposer
     );
     return composer;
   }
+
+  $$TransactionsTableOrderingComposer get associatedTransactionId {
+    final $$TransactionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.associatedTransactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -3131,6 +3282,29 @@ class $$TransactionsTableAnnotationComposer
     );
     return composer;
   }
+
+  $$TransactionsTableAnnotationComposer get associatedTransactionId {
+    final $$TransactionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.associatedTransactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TransactionsTableTableManager
@@ -3150,6 +3324,7 @@ class $$TransactionsTableTableManager
             bool accountId,
             bool categoryId,
             bool counterpartyId,
+            bool associatedTransactionId,
           })
         > {
   $$TransactionsTableTableManager(_$AppDatabase db, $TransactionsTable table)
@@ -3174,6 +3349,7 @@ class $$TransactionsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<int?> counterpartyId = const Value.absent(),
+                Value<int?> associatedTransactionId = const Value.absent(),
               }) => TransactionsCompanion(
                 id: id,
                 accountId: accountId,
@@ -3184,6 +3360,7 @@ class $$TransactionsTableTableManager
                 createdAt: createdAt,
                 categoryId: categoryId,
                 counterpartyId: counterpartyId,
+                associatedTransactionId: associatedTransactionId,
               ),
           createCompanionCallback:
               ({
@@ -3196,6 +3373,7 @@ class $$TransactionsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<int?> counterpartyId = const Value.absent(),
+                Value<int?> associatedTransactionId = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 accountId: accountId,
@@ -3206,6 +3384,7 @@ class $$TransactionsTableTableManager
                 createdAt: createdAt,
                 categoryId: categoryId,
                 counterpartyId: counterpartyId,
+                associatedTransactionId: associatedTransactionId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -3220,6 +3399,7 @@ class $$TransactionsTableTableManager
                 accountId = false,
                 categoryId = false,
                 counterpartyId = false,
+                associatedTransactionId = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -3273,6 +3453,17 @@ class $$TransactionsTableTableManager
                                 .id,
                           ) as T;
                         }
+                        if (associatedTransactionId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.associatedTransactionId,
+                            referencedTable: $$TransactionsTableReferences
+                                ._associatedTransactionIdTable(db),
+                            referencedColumn: $$TransactionsTableReferences
+                                ._associatedTransactionIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
                         return state;
                       },
@@ -3301,6 +3492,7 @@ typedef $$TransactionsTableProcessedTableManager =
         bool accountId,
         bool categoryId,
         bool counterpartyId,
+        bool associatedTransactionId,
       })
     >;
 

@@ -5,10 +5,18 @@ import 'package:khaata/database/database.dart';
 
 
 class AmountEntry extends StatefulWidget {
-  const new({super.key, required this.onSaved, this.transaction});
+  const new({
+    super.key,
+    this.onSaved,
+    this.onChanged,
+    this.transaction,
+    this.positiveOnly = false
+  });
 
   final Transaction? transaction;
-  final FormFieldSetter<int?> onSaved;
+  final FormFieldSetter<int?>? onSaved;
+  final FormFieldSetter<int?>? onChanged;
+  final bool positiveOnly;
 
   @override
   State<AmountEntry> createState() => _AmountEntryState();
@@ -37,23 +45,31 @@ class _AmountEntryState extends State<AmountEntry> {
     final whole = int.parse(parts[0]);
     final frac = parts.length == 1 ? 0 : int.parse(parts[1].padRight(2, '0'));
 
-    return sign * (whole * 100 + frac);
+    final calcAmount = (whole * 100 + frac);
+
+    if (widget.positiveOnly) {
+      return calcAmount;
+    }
+
+    return sign * calcAmount;
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          icon: Icon(sign == 1 ? Icons.add : Icons.remove),
-          color: sign == 1 ? Colors.green : Colors.red,
-          onPressed: () {
-            setState(() {
-              sign = -sign;
-              _amountFocusNode.requestFocus();
-            });
-          },
-        ),
+        !widget.positiveOnly ?
+          IconButton(
+            icon: Icon(sign == 1 ? Icons.add : Icons.remove),
+            color: sign == 1 ? Colors.green : Colors.red,
+            onPressed: () {
+              setState(() {
+                sign = -sign;
+                _amountFocusNode.requestFocus();
+              });
+            },
+          )
+        : SizedBox(),
         SizedBox(width: AppSpacing.sm),
         Expanded(
           child: TextFormField(
@@ -69,7 +85,9 @@ class _AmountEntryState extends State<AmountEntry> {
               border: UnderlineInputBorder(),
             ),
             style: TextStyle(
-              color: sign == 1 ? Colors.green.shade500 : Colors.red,
+              color: 
+                widget.positiveOnly ? null :
+                  (sign == 1 ? Colors.green.shade500 : Colors.red),
               fontSize: 22
             ),
             autofocus: true,
@@ -107,7 +125,14 @@ class _AmountEntryState extends State<AmountEntry> {
 
               return null;
             },
-            onSaved: (value) => widget.onSaved(_parseAmount(value, sign)),
+            onSaved: (value) =>
+              widget.onSaved != null ?
+              widget.onSaved!(_parseAmount(value, sign)) :
+              null,
+            onChanged: (value) =>
+              widget.onChanged != null ?
+              widget.onChanged!(_parseAmount(value, sign)) :
+              null,
           )
         ),
       ],

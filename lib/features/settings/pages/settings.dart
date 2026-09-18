@@ -78,12 +78,12 @@ class Settings extends StatelessWidget {
             accountId: context.read<AppBloc>().state.defaultAccountId,
             onChanged: (v) {
               context.read<AppBloc>().add(
-                DefaultAccountUpdated(accountId: v)
+                DefaultAccountUpdated(accountId: v?.id)
               );
             },
             onSaved: (v) {
               context.read<AppBloc>().add(
-                DefaultAccountUpdated(accountId: v)
+                DefaultAccountUpdated(accountId: v?.id)
               );
             }
           ),

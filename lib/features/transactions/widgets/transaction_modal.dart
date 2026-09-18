@@ -110,8 +110,39 @@ class _TransactionModalState extends State<TransactionModal> {
     super.dispose();
   }
 
+  void _updateTransaction(BuildContext context, Transaction transaction) async {
+    final repo = context.read<TransactionRepository>();
+
+    await repo.updateTransaction(
+      transaction.id,
+      title: title,
+      description: description,
+      amount: amount,
+      createdAt: createdAt,
+      categoryId: drift.Value(categoryId),
+      counterpartyId: drift.Value(counterpartyId)
+    );
+
+    if (!context.mounted) return;
+
+    if (transaction.associatedTransactionId != null) {
+      await repo.updateTransaction(
+        transaction.associatedTransactionId!,
+        description: description,
+        amount: -amount,
+        createdAt: createdAt,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String associatedMessage = "";
+
+    if (widget.transaction != null && widget.transaction?.associatedTransactionId != null) {
+      associatedMessage = "Associated transaction in another account (e.g. transfer source or destination) will also be deleted.";
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.globalPadding),
@@ -167,7 +198,7 @@ class _TransactionModalState extends State<TransactionModal> {
                         final confirmed = await showConfirmDialog(
                           context, 
                           title: 'Delete Transaction', 
-                          message: 'Are you sure? This action is irreversible.'
+                          message: 'Are you sure? This action is irreversible. $associatedMessage'
                         );
 
                         if (!confirmed || !context.mounted) return;
@@ -197,15 +228,7 @@ class _TransactionModalState extends State<TransactionModal> {
                       if (accountId == null) return;
 
                       if (widget.transaction != null && !widget.isNew) {
-                        await context.read<TransactionRepository>().updateTransaction(
-                          widget.transaction!.id,
-                          title: title,
-                          description: description,
-                          amount: amount,
-                          createdAt: createdAt,
-                          categoryId: drift.Value(categoryId),
-                          counterpartyId: drift.Value(counterpartyId),
-                        );
+                        _updateTransaction(context, widget.transaction!);
                       } else {
                         await context.read<TransactionRepository>().createTransaction(
                           accountId!,
@@ -244,10 +267,10 @@ class _TransactionModalState extends State<TransactionModal> {
                   key: _accountDropdownKey,
                   accountId: accountId,
                   onChanged: (newValue) {
-                    accountId = newValue;
+                    accountId = newValue?.id;
                   },
                   onSaved: (newValue) {
-                    accountId = newValue;
+                    accountId = newValue?.id;
                   }
                 )
               : SizedBox(),

@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
 
 class AccountsDropdown extends StatefulWidget {
-  const new({super.key, this.accountId, required this.onChanged, required this.onSaved});
+  const new({
+    super.key,
+    required this.onChanged,
+    required this.onSaved,
+    this.accountId,
+    this.exclude,
+    this.labelText = "Account",
+  });
 
   final int? accountId;
-  final void Function(int?) onChanged;
-  final void Function(int?) onSaved;
+  final List<int>? exclude;
+  final String labelText;
+  final void Function(Account?) onChanged;
+  final void Function(Account?) onSaved;
 
   @override
   State<AccountsDropdown> createState() => _AccountsDropdownState();
@@ -42,21 +52,23 @@ class _AccountsDropdownState extends State<AccountsDropdown> {
           );
         }
 
-        var accounts = snapshot.data!.map(
-          (a) => DropdownMenuItem(
-            value: a.id,
-            child: Row(
-              children: [
-                Icon(
-                  Icons.account_balance,
-                  color: KhaataColors.fromId(a.color).color
-                ),
-                SizedBox(width: AppSpacing.md), // Gives space between icon and text
-                Text(a.title),
-              ]
-            ),
-          )
-        ).toList();
+        var accounts = snapshot.data!
+          .where((a) => !(widget.exclude?.contains(a.id) ?? false))
+          .map(
+            (a) => DropdownMenuItem(
+              value: a.id,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.account_balance,
+                    color: KhaataColors.fromId(a.color).color
+                  ),
+                  SizedBox(width: AppSpacing.md), // Gives space between icon and text
+                  Text(a.title),
+                ]
+              ),
+            )
+          ).toList();
 
         accounts = [
           DropdownMenuItem(
@@ -77,10 +89,26 @@ class _AccountsDropdownState extends State<AccountsDropdown> {
             }
             return null;
           },
-          onChanged: (v) => setState(() { widget.onChanged(v); accountId = v; }),
-          onSaved: (v) => setState(() { widget.onSaved(v); accountId = v; }),
+          onChanged: (v) => setState(() {
+            if (v != null) {
+              widget.onChanged(snapshot.data!.firstWhere((a) => a.id == v));
+            } else {
+              widget.onChanged(null);
+            }
+
+            accountId = v;
+          }),
+          onSaved: (v) => (v) => setState(() {
+            if (v != null) {
+              widget.onSaved(snapshot.data!.firstWhere((a) => a.id == v));
+            } else {
+              widget.onSaved(null);
+            }
+
+            accountId = v;
+          }),
           decoration: InputDecoration(
-            label: Text("Account"),
+            label: Text(widget.labelText),
           ),
         );
       }

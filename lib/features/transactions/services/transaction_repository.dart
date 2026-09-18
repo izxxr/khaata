@@ -193,6 +193,7 @@ class TransactionRepository {
       DateTime? createdAt,
       int? categoryId,
       int? counterpartyId,
+      int? associatedTransactionId,
     }
   ) async {
     return await db.into(db.transactions).insert(TransactionsCompanion.insert(
@@ -203,6 +204,7 @@ class TransactionRepository {
       description: Value(description),
       categoryId: Value(categoryId),
       counterpartyId: Value(counterpartyId),
+      associatedTransactionId: Value(associatedTransactionId),
     ));
   }
 
@@ -216,6 +218,7 @@ class TransactionRepository {
       DateTime? createdAt,
       Value<int?>? categoryId,
       Value<int?>? counterpartyId,
+      Value<int?>? associatedTransactionId,
     }
   ) async {
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(TransactionsCompanion(
@@ -225,6 +228,7 @@ class TransactionRepository {
       createdAt: createdAt != null ? Value(createdAt) : Value.absent(),
       categoryId: categoryId ?? Value.absent(),
       counterpartyId: counterpartyId ?? Value.absent(),
+      associatedTransactionId: associatedTransactionId ?? Value.absent()
     ));
   }
 
