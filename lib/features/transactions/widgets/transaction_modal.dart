@@ -322,13 +322,14 @@ class _TransactionModalState extends State<TransactionModal> {
                   return newId;
                 },
                 onChanged: (newValue, data) {
-                  int? newCategoryId = categoryId;
-
                   if (newValue != null) {
                     try {
                       final cp = data.firstWhere((cp) => cp.id == newValue);
 
-                      newCategoryId = categoryId ?? cp.defaultCategoryId;
+                      if (categoryId == null) {
+                        categoryId = cp.defaultCategoryId;
+                        _categoryDropdownKey = UniqueKey();
+                      }
                     } catch (e) {
                       //
                     }
@@ -336,10 +337,6 @@ class _TransactionModalState extends State<TransactionModal> {
 
                   setState(() {
                     counterpartyId = newValue;
-                    categoryId = newCategoryId;
-
-                    // rerender and force refresh of state for category dropdown
-                    _categoryDropdownKey = UniqueKey();
                   });
                 },
               ),
