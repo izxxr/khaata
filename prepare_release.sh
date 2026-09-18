@@ -1,11 +1,20 @@
-rm -rf releases/*
+#!/bin/bash
 
-cp build/app/outputs/flutter-apk/app-release.apk .releases
-cp build/app/outputs/flutter-apk/app-release.apk.sha1 .releases
+rm -rf .releases/*
+mkdir -p .releases
 
-fmt_ver=$(sed 's/\./\-/g' <<< $1)
-
+fmt_ver=$(sed 's/\./\-/g' <<< "$1")
 rl_date=$(date +%Y-%m-%d)
 
-rename app-release khaata-v$fmt_ver-release-$rl_date .releases/app-release.apk
-rename app-release khaata-v$fmt_ver-release-$rl_date .releases/app-release.apk.sha1
+src_dir="build/app/outputs/flutter-apk"
+
+for abi in x86_64 arm64-v8a armeabi-v7a; do
+    apk="app-${abi}-release.apk"
+    sha1="${apk}.sha1"
+
+    mv "$src_dir/$apk" \
+       ".releases/khaata-v${fmt_ver}-release-${rl_date}-${abi}.apk"
+
+    mv "$src_dir/$sha1" \
+       ".releases/khaata-v${fmt_ver}-release-${rl_date}-${abi}.apk.sha1"
+done
