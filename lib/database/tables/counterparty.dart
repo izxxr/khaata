@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-
+import 'package:khaata/database/tables/category.dart';
 
 /// Represents a category that can be assigned to a transaction.
 class Counterparties extends Table {
@@ -14,4 +14,10 @@ class Counterparties extends Table {
     .nullable()
     .withDefault(const Constant(null))
     .withLength(min: 0, max: 256)();
+
+  /// The default category that this counterparty maps to.
+  IntColumn get defaultCategoryId => integer()
+    .references(Categories, #id, onDelete: KeyAction.setNull)
+    .nullable()
+    .withDefault(const Constant(null))();
 }

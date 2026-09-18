@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/features/transactions/services/category_repository.dart';
 import 'package:khaata/features/transactions/services/counterparty_repository.dart';
+import 'package:khaata/features/transactions/widgets/category_modal.dart';
+import 'package:khaata/widgets/dropdown_with_action.dart';
 
 class CounterpartyModal extends StatefulWidget {
   const new({super.key, this.counterparty});
@@ -27,6 +32,14 @@ class _CounterpartyModalState extends State<CounterpartyModal> {
 
   String? counterpartyName;
   String? counterpartyDescription;
+  int? defaultCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    defaultCategoryId = widget.counterparty?.defaultCategoryId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +98,33 @@ class _CounterpartyModalState extends State<CounterpartyModal> {
                 label: Text("Description"),
               ),
             ),
+            DropdownWithAction<Category, int>(
+              stream: context.read<CategoryRepository>().watchCategories(),
+              itemBuilder: (c) => DropdownMenuEntry<int>(
+                value: c.id,
+                label: c.name,
+                leadingIcon: Icon(
+                  Icons.category,
+                  color: KhaataColors.fromId(c.color).color
+                ),
+              ),
+              labelText: "Default Category",
+              newItemValue: -1,
+              noSelectionValue: -2,
+              initialSelection: defaultCategoryId,
+              onNewItem: () async {
+                final newId = await CategoryModal.show(context, null);
+                
+                setState(() {
+                  defaultCategoryId = newId;
+                });
+
+                return newId;
+              },
+              onChanged: (newValue, _) {
+                defaultCategoryId = newValue;
+              },
+            )
           ]
         ),
       ),
@@ -111,12 +151,14 @@ class _CounterpartyModalState extends State<CounterpartyModal> {
               counterpartyId = await context.read<CounterpartyRepository>().createCounterparty(
                 counterpartyName!,
                 description: counterpartyDescription,
+                defaultCategoryId: defaultCategoryId,
               );
             } else {
               await context.read<CounterpartyRepository>().updateCounterparty(
                 counterpartyId,
                 name: counterpartyName,
                 description: counterpartyDescription,
+                defaultCategoryId: drift.Value(defaultCategoryId),
               );
             }
 

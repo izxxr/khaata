@@ -64,6 +64,9 @@ class _TransactionModalState extends State<TransactionModal> {
   final _formKey = GlobalKey<FormState>();
   final _amountFocusNode = FocusNode();
   final _timeFocusNode = FocusNode();
+  final _accountDropdownKey = UniqueKey();
+
+  UniqueKey _categoryDropdownKey = UniqueKey();
 
   String? title;
   String description = "";
@@ -238,6 +241,7 @@ class _TransactionModalState extends State<TransactionModal> {
               SizedBox(height: AppSpacing.lg),
               widget.showAccountDropdown ?
                 AccountsDropdown(
+                  key: _accountDropdownKey,
                   accountId: accountId,
                   onChanged: (newValue) {
                     accountId = newValue;
@@ -297,34 +301,6 @@ class _TransactionModalState extends State<TransactionModal> {
                 focusNode: _timeFocusNode,
               ),
               SizedBox(height: AppSpacing.md),
-              DropdownWithAction<Category, int>(
-                stream: context.read<CategoryRepository>().watchCategories(),
-                itemBuilder: (c) => DropdownMenuEntry<int>(
-                  value: c.id,
-                  label: c.name,
-                  leadingIcon: Icon(
-                    Icons.category,
-                    color: KhaataColors.fromId(c.color).color
-                  ),
-                ),
-                labelText: "Category",
-                newItemValue: -1,
-                noSelectionValue: null,
-                initialSelection: categoryId,
-                onNewItem: () async {
-                  final newId = await CategoryModal.show(context, null);
-                  
-                  setState(() {
-                    categoryId = newId;
-                  });
-
-                  return newId;
-                },
-                onChanged: (newValue) {
-                  categoryId = newValue;
-                },
-              ),
-              SizedBox(height: AppSpacing.md),
               DropdownWithAction<Counterparty, int>(
                 stream: context.read<CounterpartyRepository>().watchCounterparties(),
                 itemBuilder: (c) => DropdownMenuEntry<int>(
@@ -334,7 +310,7 @@ class _TransactionModalState extends State<TransactionModal> {
                 ),
                 labelText: sign == -1 ? "Payee" : "Payer",
                 newItemValue: -1,
-                noSelectionValue: null,
+                noSelectionValue: -2,
                 initialSelection: counterpartyId,
                 onNewItem: () async {
                   final newId = await CounterpartyModal.show(context, null);
@@ -345,8 +321,55 @@ class _TransactionModalState extends State<TransactionModal> {
 
                   return newId;
                 },
-                onChanged: (newValue) {
-                  counterpartyId = newValue;
+                onChanged: (newValue, data) {
+                  int? newCategoryId = categoryId;
+
+                  if (newValue != null) {
+                    try {
+                      final cp = data.firstWhere((cp) => cp.id == newValue);
+
+                      newCategoryId = categoryId ?? cp.defaultCategoryId;
+                    } catch (e) {
+                      //
+                    }
+                  }
+
+                  setState(() {
+                    counterpartyId = newValue;
+                    categoryId = newCategoryId;
+
+                    // rerender and force refresh of state for category dropdown
+                    _categoryDropdownKey = UniqueKey();
+                  });
+                },
+              ),
+              SizedBox(height: AppSpacing.md),
+              DropdownWithAction<Category, int>(
+                stream: context.read<CategoryRepository>().watchCategories(),
+                key: _categoryDropdownKey,
+                itemBuilder: (c) => DropdownMenuEntry<int>(
+                  value: c.id,
+                  label: c.name,
+                  leadingIcon: Icon(
+                    Icons.category,
+                    color: KhaataColors.fromId(c.color).color
+                  ),
+                ),
+                labelText: "Category",
+                newItemValue: -1,
+                noSelectionValue: -2,
+                initialSelection: categoryId,
+                onNewItem: () async {
+                  final newId = await CategoryModal.show(context, null);
+                  
+                  setState(() {
+                    categoryId = newId;
+                  });
+
+                  return newId;
+                },
+                onChanged: (newValue, _) {
+                  categoryId = newValue;
                 },
               ),
             ],

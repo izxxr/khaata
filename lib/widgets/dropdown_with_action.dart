@@ -41,10 +41,10 @@ class DropdownWithAction<T, U> extends StatefulWidget {
   final Stream<List<T>> stream;
   final DropdownMenuEntry<U?> Function(T) itemBuilder;
   final String labelText;
-  final U? noSelectionValue;
+  final U noSelectionValue;
   final U newItemValue;
   final Future<U?> Function() onNewItem;
-  final void Function(U?) onChanged;
+  final void Function(U?, List<T>) onChanged;
   final U? initialSelection;
   final FocusNode? focusNode;
 
@@ -91,12 +91,24 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
           )
         );
 
+        entries.insert(
+          0,
+          DropdownMenuEntry<U>(
+            value: widget.noSelectionValue,
+            label: "None",
+          )
+        );
+
         return DropdownMenuFormField(
           label: Text(widget.labelText),
           focusNode: widget.focusNode,
           width: double.infinity,
           initialSelection: _currentSelection,
           onSelected: (v) async {
+            if (v == widget.noSelectionValue) {
+              v = null;
+            }
+
             if (v == widget.newItemValue) {
               final newValue = await widget.onNewItem();
 
@@ -105,7 +117,7 @@ class _DropdownWithActionState<T, U> extends State<DropdownWithAction<T, U>> {
               });
             }
 
-            widget.onChanged(v);
+            widget.onChanged(v, snapshot.data!);
 
             setState(() {
               _currentSelection = v;

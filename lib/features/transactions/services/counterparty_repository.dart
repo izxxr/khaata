@@ -18,12 +18,14 @@ class CounterpartyRepository {
   Future<int> createCounterparty(
     String name,
     {
-      String? description
+      String? description,
+      int? defaultCategoryId,
     }
   ) async {
     return await db.into(db.counterparties).insert(CounterpartiesCompanion.insert(
       name: name,
       description: Value(description),
+      defaultCategoryId: Value(defaultCategoryId),
     ));
   }
 
@@ -33,11 +35,13 @@ class CounterpartyRepository {
     {
       String? name,
       String? description,
+      Value<int?>? defaultCategoryId,
     }
   ) async {
     await (db.update(db.counterparties)..where((t) => t.id.equals(id))).write(CounterpartiesCompanion(
       name: name != null ? Value(name) : Value.absent(),
       description: description != null ? Value(description) : Value.absent(),
+      defaultCategoryId: defaultCategoryId ?? Value.absent(),
     ));
   }
 
@@ -85,16 +89,16 @@ class CounterpartyRepository {
     }
 
     query..addColumns([
-        incomeSum,
-        outgoingSum,
-      ])
-      ..groupBy([db.counterparties.id])
-      ..orderBy([
-        OrderingTerm(
-          expression: sortByIncome ? incomeSum : outgoingSum,
-          mode: OrderingMode.desc,
-        ),
-      ]);
+      incomeSum,
+      outgoingSum,
+    ])
+    ..groupBy([db.counterparties.id])
+    ..orderBy([
+      OrderingTerm(
+        expression: sortByIncome ? incomeSum : outgoingSum,
+        mode: OrderingMode.desc,
+      ),
+    ]);
 
     return query.watch().map((rows) {
       return rows.map((row) {

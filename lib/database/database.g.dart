@@ -725,8 +725,28 @@ class $CounterpartiesTable extends Counterparties
     requiredDuringInsert: false,
     defaultValue: const Constant(null),
   );
+  static const VerificationMeta _defaultCategoryIdMeta = const VerificationMeta(
+    'defaultCategoryId',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, description];
+  late final GeneratedColumn<int> defaultCategoryId = GeneratedColumn<int>(
+    'default_category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES categories (id) ON DELETE SET NULL',
+    ),
+    defaultValue: const Constant(null),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    description,
+    defaultCategoryId,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -759,6 +779,15 @@ class $CounterpartiesTable extends Counterparties
         ),
       );
     }
+    if (data.containsKey('default_category_id')) {
+      context.handle(
+        _defaultCategoryIdMeta,
+        defaultCategoryId.isAcceptableOrUnknown(
+          data['default_category_id']!,
+          _defaultCategoryIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -780,6 +809,10 @@ class $CounterpartiesTable extends Counterparties
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      defaultCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}default_category_id'],
+      ),
     );
   }
 
@@ -798,7 +831,15 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
 
   /// The counterparty's optional description.
   final String? description;
-  const Counterparty({required this.id, required this.name, this.description});
+
+  /// The default category that this counterparty maps to.
+  final int? defaultCategoryId;
+  const Counterparty({
+    required this.id,
+    required this.name,
+    this.description,
+    this.defaultCategoryId,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -806,6 +847,9 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || defaultCategoryId != null) {
+      map['default_category_id'] = Variable<int>(defaultCategoryId);
     }
     return map;
   }
@@ -817,6 +861,9 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      defaultCategoryId: defaultCategoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultCategoryId),
     );
   }
 
@@ -829,6 +876,7 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
+      defaultCategoryId: serializer.fromJson<int?>(json['defaultCategoryId']),
     );
   }
   @override
@@ -838,6 +886,7 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
+      'defaultCategoryId': serializer.toJson<int?>(defaultCategoryId),
     };
   }
 
@@ -845,10 +894,14 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
     int? id,
     String? name,
     Value<String?> description = const Value.absent(),
+    Value<int?> defaultCategoryId = const Value.absent(),
   }) => Counterparty(
     id: id ?? this.id,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
+    defaultCategoryId: defaultCategoryId.present
+        ? defaultCategoryId.value
+        : this.defaultCategoryId,
   );
   Counterparty copyWithCompanion(CounterpartiesCompanion data) {
     return Counterparty(
@@ -857,6 +910,9 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      defaultCategoryId: data.defaultCategoryId.present
+          ? data.defaultCategoryId.value
+          : this.defaultCategoryId,
     );
   }
 
@@ -865,45 +921,52 @@ class Counterparty extends DataClass implements Insertable<Counterparty> {
     return (StringBuffer('Counterparty(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('defaultCategoryId: $defaultCategoryId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, description);
+  int get hashCode => Object.hash(id, name, description, defaultCategoryId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Counterparty &&
           other.id == this.id &&
           other.name == this.name &&
-          other.description == this.description);
+          other.description == this.description &&
+          other.defaultCategoryId == this.defaultCategoryId);
 }
 
 class CounterpartiesCompanion extends UpdateCompanion<Counterparty> {
   final Value<int> id;
   final Value<String> name;
   final Value<String?> description;
+  final Value<int?> defaultCategoryId;
   const CounterpartiesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
+    this.defaultCategoryId = const Value.absent(),
   });
   CounterpartiesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.description = const Value.absent(),
+    this.defaultCategoryId = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Counterparty> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? description,
+    Expression<int>? defaultCategoryId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
+      if (defaultCategoryId != null) 'default_category_id': defaultCategoryId,
     });
   }
 
@@ -911,11 +974,13 @@ class CounterpartiesCompanion extends UpdateCompanion<Counterparty> {
     Value<int>? id,
     Value<String>? name,
     Value<String?>? description,
+    Value<int?>? defaultCategoryId,
   }) {
     return CounterpartiesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      defaultCategoryId: defaultCategoryId ?? this.defaultCategoryId,
     );
   }
 
@@ -931,6 +996,9 @@ class CounterpartiesCompanion extends UpdateCompanion<Counterparty> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (defaultCategoryId.present) {
+      map['default_category_id'] = Variable<int>(defaultCategoryId.value);
+    }
     return map;
   }
 
@@ -939,7 +1007,8 @@ class CounterpartiesCompanion extends UpdateCompanion<Counterparty> {
     return (StringBuffer('CounterpartiesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('defaultCategoryId: $defaultCategoryId')
           ..write(')'))
         .toString();
   }
@@ -1583,6 +1652,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'categories',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('counterparties', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'accounts',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -1935,6 +2011,24 @@ final class $$CategoriesTableReferences
     extends BaseReferences<_$AppDatabase, $CategoriesTable, Category> {
   $$CategoriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
+  static MultiTypedResultKey<$CounterpartiesTable, List<Counterparty>>
+  _counterpartiesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.counterparties,
+    aliasName: 'categories__id__counterparties__default_category_id',
+  );
+
+  $$CounterpartiesTableProcessedTableManager get counterpartiesRefs {
+    final manager = $$CounterpartiesTableTableManager(
+      $_db,
+      $_db.counterparties,
+    ).filter((f) => f.defaultCategoryId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_counterpartiesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
@@ -1977,6 +2071,31 @@ class $$CategoriesTableFilterComposer
     column: $table.color,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> counterpartiesRefs(
+    Expression<bool> Function($$CounterpartiesTableFilterComposer f) f,
+  ) {
+    final $$CounterpartiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.counterparties,
+      getReferencedColumn: (t) => t.defaultCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CounterpartiesTableFilterComposer(
+            $db: $db,
+            $table: $db.counterparties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> transactionsRefs(
     Expression<bool> Function($$TransactionsTableFilterComposer f) f,
@@ -2047,6 +2166,31 @@ class $$CategoriesTableAnnotationComposer
   GeneratedColumn<int> get color =>
       $composableBuilder(column: $table.color, builder: (column) => column);
 
+  Expression<T> counterpartiesRefs<T extends Object>(
+    Expression<T> Function($$CounterpartiesTableAnnotationComposer a) f,
+  ) {
+    final $$CounterpartiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.counterparties,
+      getReferencedColumn: (t) => t.defaultCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CounterpartiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.counterparties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
   ) {
@@ -2086,7 +2230,10 @@ class $$CategoriesTableTableManager
           $$CategoriesTableUpdateCompanionBuilder,
           (Category, $$CategoriesTableReferences),
           Category,
-          PrefetchHooks Function({bool transactionsRefs})
+          PrefetchHooks Function({
+            bool counterpartiesRefs,
+            bool transactionsRefs,
+          })
         > {
   $$CategoriesTableTableManager(_$AppDatabase db, $CategoriesTable table)
     : super(
@@ -2117,36 +2264,63 @@ class $$CategoriesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({transactionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (transactionsRefs) db.transactions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (transactionsRefs)
-                    await $_getPrefetchedData<
-                      Category,
-                      $CategoriesTable,
-                      Transaction
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CategoriesTableReferences
-                          ._transactionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$CategoriesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.categoryId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({counterpartiesRefs = false, transactionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (counterpartiesRefs) db.counterparties,
+                    if (transactionsRefs) db.transactions,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (counterpartiesRefs)
+                        await $_getPrefetchedData<
+                          Category,
+                          $CategoriesTable,
+                          Counterparty
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._counterpartiesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).counterpartiesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.defaultCategoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (transactionsRefs)
+                        await $_getPrefetchedData<
+                          Category,
+                          $CategoriesTable,
+                          Transaction
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._transactionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).transactionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.categoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2163,19 +2337,21 @@ typedef $$CategoriesTableProcessedTableManager =
       $$CategoriesTableUpdateCompanionBuilder,
       (Category, $$CategoriesTableReferences),
       Category,
-      PrefetchHooks Function({bool transactionsRefs})
+      PrefetchHooks Function({bool counterpartiesRefs, bool transactionsRefs})
     >;
 typedef $$CounterpartiesTableCreateCompanionBuilder =
     CounterpartiesCompanion Function({
       Value<int> id,
       required String name,
       Value<String?> description,
+      Value<int?> defaultCategoryId,
     });
 typedef $$CounterpartiesTableUpdateCompanionBuilder =
     CounterpartiesCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String?> description,
+      Value<int?> defaultCategoryId,
     });
 
 final class $$CounterpartiesTableReferences
@@ -2185,6 +2361,24 @@ final class $$CounterpartiesTableReferences
     super.$_table,
     super.$_typedResult,
   );
+
+  static $CategoriesTable _defaultCategoryIdTable(_$AppDatabase db) => db
+      .categories
+      .createAlias('counterparties__default_category_id__categories__id');
+
+  $$CategoriesTableProcessedTableManager? get defaultCategoryId {
+    final $_column = $_itemColumn<int>('default_category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_defaultCategoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -2228,6 +2422,29 @@ class $$CounterpartiesTableFilterComposer
     column: $table.description,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$CategoriesTableFilterComposer get defaultCategoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> transactionsRefs(
     Expression<bool> Function($$TransactionsTableFilterComposer f) f,
@@ -2278,6 +2495,29 @@ class $$CounterpartiesTableOrderingComposer
     column: $table.description,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$CategoriesTableOrderingComposer get defaultCategoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$CounterpartiesTableAnnotationComposer
@@ -2299,6 +2539,29 @@ class $$CounterpartiesTableAnnotationComposer
     column: $table.description,
     builder: (column) => column,
   );
+
+  $$CategoriesTableAnnotationComposer get defaultCategoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
@@ -2339,7 +2602,10 @@ class $$CounterpartiesTableTableManager
           $$CounterpartiesTableUpdateCompanionBuilder,
           (Counterparty, $$CounterpartiesTableReferences),
           Counterparty,
-          PrefetchHooks Function({bool transactionsRefs})
+          PrefetchHooks Function({
+            bool defaultCategoryId,
+            bool transactionsRefs,
+          })
         > {
   $$CounterpartiesTableTableManager(
     _$AppDatabase db,
@@ -2359,20 +2625,24 @@ class $$CounterpartiesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<int?> defaultCategoryId = const Value.absent(),
               }) => CounterpartiesCompanion(
                 id: id,
                 name: name,
                 description: description,
+                defaultCategoryId: defaultCategoryId,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
                 Value<String?> description = const Value.absent(),
+                Value<int?> defaultCategoryId = const Value.absent(),
               }) => CounterpartiesCompanion.insert(
                 id: id,
                 name: name,
                 description: description,
+                defaultCategoryId: defaultCategoryId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2382,38 +2652,70 @@ class $$CounterpartiesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({transactionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (transactionsRefs) db.transactions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (transactionsRefs)
-                    await $_getPrefetchedData<
-                      Counterparty,
-                      $CounterpartiesTable,
-                      Transaction
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CounterpartiesTableReferences
-                          ._transactionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$CounterpartiesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.counterpartyId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({defaultCategoryId = false, transactionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (transactionsRefs) db.transactions,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (defaultCategoryId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.defaultCategoryId,
+                            referencedTable: $$CounterpartiesTableReferences
+                                ._defaultCategoryIdTable(db),
+                            referencedColumn: $$CounterpartiesTableReferences
+                                ._defaultCategoryIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (transactionsRefs)
+                        await $_getPrefetchedData<
+                          Counterparty,
+                          $CounterpartiesTable,
+                          Transaction
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CounterpartiesTableReferences
+                              ._transactionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CounterpartiesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).transactionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.counterpartyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2430,7 +2732,7 @@ typedef $$CounterpartiesTableProcessedTableManager =
       $$CounterpartiesTableUpdateCompanionBuilder,
       (Counterparty, $$CounterpartiesTableReferences),
       Counterparty,
-      PrefetchHooks Function({bool transactionsRefs})
+      PrefetchHooks Function({bool defaultCategoryId, bool transactionsRefs})
     >;
 typedef $$TransactionsTableCreateCompanionBuilder =
     TransactionsCompanion Function({
