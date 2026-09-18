@@ -21,10 +21,12 @@ Simple cross platform finance tracker app.
 Khaata is written in Flutter and is available as cross platform app.
 
 ### Android
-For now, pre-built installation binary is only available for Android
-and can be downloaded from the following link:
+For now, pre-built installation binary is only available for Android. Download
+the latest APK for your device from the [releases page](https://github.com/izxxr/khaata/releases)
 
-[**Khaata v2.0 - Android APK**](https://github.com/izxxr/khaata/releases/download/2.0/khaata-v2-0-release-2026-09-01.apk)
+> **Don't know which one to download?** Download the APK ending with `*-arm64-v8a.apk` as it is compatible with most modern Android devices.
+>
+> If the installation process shows incompatibility message, download the other APK ending with `*-arm64-v7a.apk`
 
 ### Manual Build for iOS/Windows/Linux/MacOS
 For manually building binary for your platform, proceed
