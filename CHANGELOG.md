@@ -8,7 +8,7 @@
 
 ### Enhancements
 
-- Transaction modal now spans maximum height without to avoid scrolling on
+- Transaction modal now spans maximum height to avoid scrolling on
   most devices
 
 ## v2.1.0
