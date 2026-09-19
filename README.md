@@ -62,12 +62,13 @@ with the following steps:
 - [x] Transactions and balance tracking
 - [x] Transaction categories
 - [x] Counterparties (payeer / payer)
-- [x] Finances insights *(under development)*
+- [x] Income/spending insights and transactions search
 - [ ] Multi-currencies support
 - [ ] Goals for settings and tracking amount targets
-- [ ] Transaction types
+- [x] Transaction types
   - [x] Default transactions
-  - [ ] Account transfers 
+  - [x] Account transfers 
+  - [x] Automatic balance reconcilation
 - [ ] Customization options
   - [x] Themes: dark / light
   - [x] Time format (24h / 12h)
