@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/formatters.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/database/database.dart';
 
 
@@ -35,23 +37,6 @@ class _AmountEntryState extends State<AmountEntry> {
 
     amount = widget.transaction?.amount ?? 0;
     sign = amount >= 0 ? 1 : -1;
-  }
-
-  int? _parseAmount(String? raw, int sign) {
-    if (raw == null || raw.isEmpty) return null;
-
-    final parts = raw.split('.');
-
-    final whole = int.parse(parts[0]);
-    final frac = parts.length == 1 ? 0 : int.parse(parts[1].padRight(2, '0'));
-
-    final calcAmount = (whole * 100 + frac);
-
-    if (widget.positiveOnly) {
-      return calcAmount;
-    }
-
-    return sign * calcAmount;
   }
 
   @override
@@ -95,19 +80,7 @@ class _AmountEntryState extends State<AmountEntry> {
             initialValue: widget.transaction != null ? widget.transaction!.parseAmount(stripSign: true) : "",
             keyboardType: TextInputType.number, // Shows numeric keyboard
             inputFormatters: <TextInputFormatter>[
-              TextInputFormatter.withFunction((oldValue, newValue) {
-                final value = newValue.text;
-
-                if (value.isEmpty) {
-                  return newValue;
-                }
-
-                if (RegExp(r'^\d+(?:\.\d{0,2})?$').hasMatch(value)) {
-                  return newValue;
-                }
-
-                return oldValue;
-              })
+              getAmountFormatter(),
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -118,7 +91,7 @@ class _AmountEntryState extends State<AmountEntry> {
                 return 'Invalid amount';
               }
 
-              if (_parseAmount(value, sign) == 0) {
+              if (parseRawAmount(value, sign) == 0) {
                 return 'Amount cannot be zero';
               }
 
@@ -126,11 +99,11 @@ class _AmountEntryState extends State<AmountEntry> {
             },
             onSaved: (value) =>
               widget.onSaved != null ?
-              widget.onSaved!(_parseAmount(value, sign)) :
+              widget.onSaved!(parseRawAmount(value, widget.positiveOnly ? 1 : sign)) :
               null,
             onChanged: (value) =>
               widget.onChanged != null ?
-              widget.onChanged!(_parseAmount(value, sign)) :
+              widget.onChanged!(parseRawAmount(value, widget.positiveOnly ? 1 : sign)) :
               null,
           )
         ),

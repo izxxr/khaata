@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/helpers.dart';
+import 'package:khaata/features/accounts/widgets/reconcile_modal.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 
 class AccountOverviewCard extends StatefulWidget {
@@ -78,7 +79,30 @@ class _AccountOverviewCardState extends State<AccountOverviewCard> {
                     ]
                   ),
                   Spacer(),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.refresh)),
+                  widget.accountIds.length == 1 ?
+                    IconButton(
+                      onPressed: () async {
+                        final reconcileId = await ReconcileModal.show(context, widget.accountIds.first, data.$1);
+
+                        if (reconcileId == null || !context.mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Account balance reconciled successfully'),
+                            duration: const Duration(seconds: 3),
+                            persist: false,
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () async {
+                                await context.read<TransactionRepository>().deleteTransaction(reconcileId);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.sync_alt)
+                    )
+                  : SizedBox()
                 ],
               ),
               SizedBox(height: AppSpacing.lg),

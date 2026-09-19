@@ -45,6 +45,7 @@ class TransactionModal extends StatefulWidget {
       ),
       useSafeArea: true,
       isScrollControlled: true,
+      constraints: BoxConstraints(maxHeight: double.infinity),
       builder: (BuildContext context) {
         return TransactionModal(
           accountId: accountId,

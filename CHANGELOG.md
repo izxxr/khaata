@@ -1,6 +1,19 @@
-# v2.1.0
+# Changelog
 
-## Additions
+## v2.2.0
+
+### Additions
+
+- Add support for automatically reconciling account balances
+
+### Enhancements
+
+- Transaction modal now spans maximum height without to avoid scrolling on
+  most devices
+
+## v2.1.0
+
+### Additions
 
 - Add default accounts to quickly log transactions without selecting accounts explicitly
 - Add support for multi-line descriptions for transactions
@@ -9,9 +22,9 @@
 - Add default category field for counterparties to automatically map counterparty to category
 - Add native support for amounts transfers across accounts
 
-## Enhancements
+### Enhancements
 
-### Accessibility improvements to transaction logging and management
+#### Accessibility improvements to transaction logging and management
 
 - Amount field stands out as the default and primary field
 - Add natural field focus shifts to seamlessly move to next field
@@ -20,7 +33,7 @@
 - Include option in dropdowns to natively unset categories and counterparties
 - Transaction deletion (and the new duplicate) option is now placed in the pop up menu shown on long pressing a transaction
 
-## Bug fixes
+### Bug fixes
 
 - Fix text and fonts theme not applying when using light mode
 - Fix dashboard balance including balance of isolated accounts
