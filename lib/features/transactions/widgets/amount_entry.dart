@@ -79,9 +79,7 @@ class _AmountEntryState extends State<AmountEntry> {
             focusNode: _amountFocusNode,
             initialValue: widget.transaction != null ? widget.transaction!.parseAmount(stripSign: true) : "",
             keyboardType: TextInputType.number, // Shows numeric keyboard
-            inputFormatters: <TextInputFormatter>[
-              getAmountFormatter(),
-            ],
+            inputFormatters: <TextInputFormatter>[amountFormatter],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Enter an amount';

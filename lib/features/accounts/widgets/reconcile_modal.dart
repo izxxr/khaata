@@ -71,7 +71,7 @@ class _ReconcileModalState extends State<ReconcileModal> {
               suffixIcon: Icon(Icons.account_balance_wallet),
               constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.7)
             ),
-            inputFormatters: [getAmountFormatter()],
+            inputFormatters: [amountFormatter],
             onChanged: (value) {
               final actualBalance = parseRawAmount(value, 1) ?? widget.balance;
 
