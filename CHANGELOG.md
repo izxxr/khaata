@@ -4,6 +4,8 @@
 
 ### Additions
 
+- Add opening balance field at account creation time to automatically
+  create first transaction with initial balance
 - Add support for automatically reconciling account balances
 
 ### Enhancements

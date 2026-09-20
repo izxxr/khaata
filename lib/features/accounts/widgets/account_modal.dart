@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata/app/style.dart';
+import 'package:khaata/common/formatters.dart';
+import 'package:khaata/common/helpers.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/widgets/color_dropdown_menu.dart';
 import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/features/accounts/services/account_repository.dart';
@@ -18,6 +21,8 @@ Future showAccountCreationModal(
   String title = account?.title ?? '';
   String description = account?.description ?? '';
   bool isolatedAccount = account?.isolatedAccount ?? false;
+  int? openingBalance;
+
   KhaataColors color = account != null ? KhaataColors.fromId(account.color) : KhaataColors.slate;
 
   await showModalBottomSheet(
@@ -97,12 +102,21 @@ Future showAccountCreationModal(
                             isolatedAccount: isolatedAccount,
                           );
                         } else {
-                          await context.read<AccountRepository>().createAccount(
+                          final accountId = await context.read<AccountRepository>().createAccount(
                             title,
                             description: description,
                             color: color,
                             isolatedAccount: isolatedAccount,
                           );
+
+                          if (openingBalance != null && context.mounted) {
+                            await context.read<TransactionRepository>().createTransaction(
+                              accountId,
+                              openingBalance!,
+                              title: "Opening Balance",
+                              createdAt: DateTime.now(),
+                            );
+                          }
                         }
 
                         formKey.currentState!.reset();
@@ -160,6 +174,25 @@ Future showAccountCreationModal(
                   },
                 ),
                 SizedBox(height: AppSpacing.md),
+                account == null ?
+                  TextFormField(
+                    decoration: InputDecoration(
+                      label: Text("Opening Balance (optional)"),
+                    ),
+                    inputFormatters: [amountFormatter],
+                    onSaved: (newValue) {
+                      final amount = parseRawAmount(newValue, 1);
+
+                      if (amount == 0) {
+                        openingBalance = null;
+                      }
+                      else {
+                        openingBalance = amount;
+                      }
+                    },
+                  )
+                : SizedBox(),
+                SizedBox(height: AppSpacing.sm),
                 FormField<bool>(
                   initialValue: account?.isolatedAccount ?? false,
                   builder: (FormFieldState<bool> field) {
