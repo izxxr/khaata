@@ -18,6 +18,16 @@ class CategoryRepository {
     return (db.select(db.categories)..where((c) => c.id.equals(id))).getSingle();
   }
 
+  /// Creates category from the provided JSON data.
+  /// 
+  /// Returns the ID of created category.
+  Future<int> createCategoryFromJson(Map<String, dynamic> data) async {
+    return await db.into(db.categories).insert(CategoriesCompanion.insert(
+      name: data["name"],
+      color: wrapValue(data["color"])
+    ));
+  }
+
   /// Creates a new category with given details.
   /// 
   /// Returns the ID of created category.

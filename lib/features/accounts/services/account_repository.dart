@@ -22,6 +22,18 @@ class AccountRepository {
     return (db.select(db.accounts)..where((a) => a.id.equals(id))).watchSingle();
   }
 
+  /// Creates account from the provided JSON data.
+  /// 
+  /// Returns the ID of created account.
+  Future<int> createAccountFromJson(Map<String, dynamic> data) async {
+    return await db.into(db.accounts).insert(AccountsCompanion.insert(
+      title: data["title"],
+      description: wrapValue(data["description"]),
+      color: wrapValue(data["color"]),
+      isolatedAccount: wrapValue(data["isolatedAccount"])
+    ));
+  }
+
   /// Creates a new account with given details.
   /// 
   /// Returns the ID of created account.

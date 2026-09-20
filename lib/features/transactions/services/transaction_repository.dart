@@ -181,6 +181,26 @@ class TransactionRepository {
     ).watch();
   }
 
+  /// Creates transaction from the provided JSON data.
+  /// 
+  /// Returns the ID of created transaction.
+  Future<int> createTransactionFromJson(Map<String, dynamic> data) async {
+    var createdAt = data["createdAt"];
+
+    if (createdAt != null) createdAt = DateTime.fromMillisecondsSinceEpoch(createdAt);
+
+    return await db.into(db.transactions).insert(TransactionsCompanion.insert(
+      accountId: data["accountId"],
+      amount: data["amount"],
+      title: wrapValue(data["title"]),
+      description: wrapValue(data["description"]),
+      createdAt: wrapValue(createdAt),
+      categoryId: wrapValue(data["categoryId"]),
+      counterpartyId: wrapValue(data["counterpartyId"]),
+      associatedTransactionId: wrapValue(data["associatedTransactionId"]),
+    ));
+  }
+
   /// Creates a new transaction with given details.
   /// 
   /// Returns the ID of created transaction.

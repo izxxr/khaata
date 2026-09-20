@@ -1,4 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:khaata/common/helpers.dart';
+import 'package:khaata/database/database.dart';
 import 'package:khaata/database/tables/account.dart';
 import 'package:khaata/database/tables/category.dart';
 import 'package:khaata/database/tables/counterparty.dart';
@@ -75,4 +77,28 @@ class Transactions extends Table {
     .references(Transactions, #id, onDelete: KeyAction.cascade)
     .withDefault(const Constant(null))
     .nullable()();
+}
+
+
+extension TransactionExtension on Transaction {
+  /// Parses the transaction amount using [helpers.parseTransactionAmount] function.
+  String parseAmount({ bool stripSign = false }) {
+    return parseTransactionAmount(amount, stripSign: stripSign);
+  }
+
+  /// Gets the title for this transaction.
+  /// 
+  /// This returns a default title if the transaction has no
+  /// user defined title.
+  String getTitle() {
+    if (title != null && title!.isNotEmpty) {
+      return title!;
+    }
+
+    if (amount > 0) {
+      return "Incoming transaction";
+    }
+
+    return "Outgoing transaction";
+  }
 }

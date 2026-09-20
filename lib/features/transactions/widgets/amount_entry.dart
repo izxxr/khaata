@@ -4,7 +4,7 @@ import 'package:khaata/app/style.dart';
 import 'package:khaata/common/formatters.dart';
 import 'package:khaata/common/helpers.dart';
 import 'package:khaata/database/database.dart';
-
+import 'package:khaata/database/tables/transaction.dart';
 
 class AmountEntry extends StatefulWidget {
   const new({

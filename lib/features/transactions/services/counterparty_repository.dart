@@ -12,6 +12,17 @@ class CounterpartyRepository {
     return db.select(db.counterparties).watch();
   }
 
+  /// Creates counterparty from the provided JSON data.
+  /// 
+  /// Returns the ID of created counterparty.
+  Future<int> createCounterpartyFromJson(Map<String, dynamic> data) async {
+    return await db.into(db.counterparties).insert(CounterpartiesCompanion.insert(
+      name: data["name"],
+      description: wrapValue(data["description"]),
+      defaultCategoryId: wrapValue(data["defaultCategoryId"]),
+    ));
+  }
+
   /// Creates a new counterparty with given details.
   /// 
   /// Returns the ID of created counterparty.

@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:khaata/common/helpers.dart';
 import 'package:khaata/database/tables/account.dart';
 import 'package:khaata/database/tables/transaction.dart';
 import 'package:khaata/database/tables/category.dart';
@@ -9,6 +8,12 @@ import 'package:khaata/database/tables/counterparty.dart';
 
 import 'database.steps.dart';
 part 'database.g.dart';
+
+
+Value<T> wrapValue<T>(T value, { bool absentIfNull = true }) {
+  if (value == null && absentIfNull) return Value.absent();
+  return Value(value);
+}
 
 
 /// The Drift application database.
@@ -102,29 +107,4 @@ extension Migrations on GeneratedDatabase {
       await m.alterTable(TableMigration(schema.transactions));
     }
   );
-}
-
-// ----
-
-extension TransactionExtension on Transaction {
-  /// Parses the transaction amount using [helpers.parseTransactionAmount] function.
-  String parseAmount({ bool stripSign = false }) {
-    return parseTransactionAmount(amount, stripSign: stripSign);
-  }
-
-  /// Gets the title for this transaction.
-  /// 
-  /// This returns a default title if the transaction has no
-  /// user defined title.
-  String getTitle() {
-    if (title != null && title!.isNotEmpty) {
-      return title!;
-    }
-
-    if (amount > 0) {
-      return "Incoming transaction";
-    }
-
-    return "Outgoing transaction";
-  }
 }

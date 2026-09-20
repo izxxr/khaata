@@ -4,9 +4,10 @@ import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/database/tables/transaction.dart';
+import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/transaction_modal.dart';
-import 'package:khaata/widgets/confirm_dialog.dart';
 
 class TransactionCard extends StatelessWidget {
   const new({

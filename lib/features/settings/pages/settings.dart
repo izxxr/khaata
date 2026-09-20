@@ -1,10 +1,17 @@
+import 'dart:io';
+import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khaata/widgets/confirm_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
 import 'package:khaata/app/bloc/app_event.dart';
 import 'package:khaata/features/settings/widgets/settings_entry.dart';
+import 'package:khaata/features/settings/services/import_export.dart';
 import 'package:khaata/features/accounts/widgets/accounts_dropdown.dart';
 
 
@@ -89,20 +96,122 @@ class Settings extends StatelessWidget {
           ),
         ),
         SettingsEntry(
-          label: "Time Format",
-          description: "24-hours: 14:29, 12-hours: 02:29 PM",
-          controlWidget: DropdownMenu(
-            initialSelection: context.read<AppBloc>().state.timeFormatIs24Hours ? 1 : 0,
-            width: double.infinity,
-            dropdownMenuEntries: [
-              DropdownMenuEntry(value: 1, label: "24 hours"),
-              DropdownMenuEntry(value: 0, label: "12 hours"),
+          label: "Import/Export",
+          description: "Export your data or import existing data. Useful for creating backup.",
+          controlWidget: Row(
+            spacing: AppSpacing.xl,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () async {
+                  bool confirm = await showConfirmDialog(
+                    context,
+                    title: "Caution",
+                    message:
+                      "Importing data will not remove or overwrite your existing "
+                      "accounts or transactions. The imported accounts and transactions "
+                      "will be added alongside existing ones.\n\n"
+                      "This can cause duplication if the imported data already exists or "
+                      "if same data is imported multiple times.\n\n"
+                      "If you would like to replace existing data with imported data, "
+                      "please delete existing data first.\n\n"
+                      "Click proceed to continue with import process or press cancel if "
+                      "you are not sure yet.",
+                  );
+
+                  if (!confirm) return;
+
+                  final fp = await FilePicker.pickFile(
+                    dialogTitle: "Please select directory to export data to:",
+                    type: FileType.custom,
+                    allowedExtensions: ["json"],
+                  );
+
+                  if (fp == null) return;
+
+                  final file = File(fp.uri.path);
+                  final jsonString = await file.readAsString();
+
+                  if (!context.mounted) return;
+
+                  try {
+                    final data = jsonDecode(jsonString);
+                    await importData(context, data);
+                  } catch (e, trace) {
+                    if (!context.mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Failed to import data: $e"),
+                        action: SnackBarAction(
+                          label: "Show Trace",
+                          onPressed: () => showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (ctx) => AlertDialog(
+                              title: Text("Error: $e"),
+                              content: Text(trace.toString()),
+                            )
+                          )
+                        ),
+                      )
+                    );
+                    return;
+                  }
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Data imported successfully")
+                    )
+                  );
+                },
+                icon: Icon(Icons.download),
+                label: Text("Import")
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final data = await buildExportData(context);
+                  final jsonData = jsonEncode(data);
+
+                  final output = await FileSaver.instance.saveFile(
+                    name: "khaata-export-${DateTime.now().toIso8601String()}",
+                    fileExtension: "json",
+                    includeExtension: true,
+                    bytes: Uint8List.fromList(utf8.encode(jsonData)),
+                    mimeType: MimeType.json,
+                  );
+
+                  // file_picker for some reason did not provide implementation
+                  // getDirectoryPath() and saveFile() for Linux even though the
+                  // documentation states it does.
+
+                  // final outputDir = await FilePicker.getDirectoryPath(
+                  //   dialogTitle: "Please select directory to export data to:",
+                  // );
+                  // final fp = "$outputDir/khaata-export-${DateTime.now().toIso8601String()}.json";
+
+                  // if (outputDir != null) {
+                  //   final file = File(fp);
+                  //   await file.writeAsString(jsonData);
+                  // }
+
+                  if (!context.mounted) return;
+
+                  final snackBar = SnackBar(
+                    content: Text(
+                      output.isNotEmpty ?
+                        'Data exported successfully to $output'
+                      : 'Export operation canceled'
+                    ),
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                icon: Icon(Icons.upload),
+                label: Text("Export")
+              ),
             ],
-            onSelected: (value) {
-              context.read<AppBloc>().add(
-                TimeFormatUpdated(is24HoursFormat: value == 1 ? true : false)
-              );
-            },
           )
         ),
         SettingsEntry(
