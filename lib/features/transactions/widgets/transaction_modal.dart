@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khaata/app/style.dart';
 import 'package:khaata/app/bloc/app_bloc.dart';
+import 'package:khaata/app/bloc/app_event.dart';
 import 'package:khaata/common/khaata_colors.dart';
 import 'package:khaata/database/database.dart';
+import 'package:khaata/widgets/dropdown_with_action.dart';
+import 'package:khaata/widgets/datetime_picker.dart';
+import 'package:khaata/features/accounts/services/account_repository.dart';
 import 'package:khaata/features/accounts/widgets/accounts_dropdown.dart';
 import 'package:khaata/features/transactions/services/counterparty_repository.dart';
 import 'package:khaata/features/transactions/widgets/amount_entry.dart';
@@ -12,8 +16,6 @@ import 'package:khaata/features/transactions/widgets/counterparty_modal.dart';
 import 'package:khaata/features/transactions/services/category_repository.dart';
 import 'package:khaata/features/transactions/services/transaction_repository.dart';
 import 'package:khaata/features/transactions/widgets/category_modal.dart';
-import 'package:khaata/widgets/dropdown_with_action.dart';
-import 'package:khaata/widgets/datetime_picker.dart';
 
 class TransactionModal extends StatefulWidget {
   const new({
@@ -176,7 +178,21 @@ class _TransactionModalState extends State<TransactionModal> {
 
                       _formKey.currentState!.save();
 
-                      if (accountId == null) return;
+                      // ignore: prefer_conditional_assignment
+                      if (accountId == null) {
+                        // this only happens if no account exists already to choose
+                        // from, in that case, create an account and also set it as
+                        // the default account
+                        accountId = await context.read<AccountRepository>().createAccount("Default");
+
+                        if (!context.mounted) return;
+
+                        context.read<AppBloc>().add(
+                          DefaultAccountUpdated(accountId: accountId)
+                        );
+                      }
+
+                      if (!context.mounted) return;
 
                       if (widget.transaction != null && !widget.isNew) {
                         _updateTransaction(context, widget.transaction!);

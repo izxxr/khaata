@@ -84,6 +84,10 @@ class _AccountsDropdownState extends State<AccountsDropdown> {
           items: accounts,
           initialValue: accountIds.contains(accountId) ? accountId : null,
           validator: (value) {
+            if (snapshot.data!.isEmpty && value == null) {
+              // No account exists, allow empty value
+              return null;
+            }
             if (value == null) {
               return "Select an account to log transaction";
             }

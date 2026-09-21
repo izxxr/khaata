@@ -13,6 +13,8 @@
 
 - Transaction modal now spans maximum height to avoid scrolling on
   most devices
+- An account is now automatically created and set as default if no account already
+  exists when adding transactions
 
 ## v2.1.0
 
