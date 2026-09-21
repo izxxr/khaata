@@ -15,7 +15,11 @@ class OverviewCard extends StatelessWidget {
     return Container(
       height: 220,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.inversePrimary,
+        // color: Theme.of(context).colorScheme.inversePrimary,
+        gradient: LinearGradient(colors: [
+          Theme.of(context).colorScheme.onPrimary,
+          Theme.of(context).colorScheme.inversePrimary,
+        ])
       ),
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.globalPadding),

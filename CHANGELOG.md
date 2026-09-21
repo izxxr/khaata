@@ -15,6 +15,7 @@
   most devices
 - An account is now automatically created and set as default if no account already
   exists when adding transactions
+- Dashboard overview card now has gradient instead of plain color
 
 ### Bug Fixes
 
