@@ -62,7 +62,7 @@ class TransactionCard extends StatelessWidget {
       context,
       transaction.accountId,
       transaction,
-      showAccountDropdown: basic,
+      showAccountDropdown: false,
       isNew: false,
     );
 

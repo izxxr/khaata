@@ -16,6 +16,11 @@
 - An account is now automatically created and set as default if no account already
   exists when adding transactions
 
+### Bug Fixes
+
+- Remove accounts dropdown from being shown in modal of existing
+  transactions. Transactions' accounts are not intended to be edited.
+
 ## v2.1.0
 
 ### Additions
