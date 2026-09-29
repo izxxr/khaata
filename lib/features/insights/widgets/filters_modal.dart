@@ -12,8 +12,8 @@ import 'package:khaata/features/transactions/services/counterparty_repository.da
 class Filters {
   const new({
     required this.accounts,
-    this.categories,
-    this.counterparties,
+    this.excludeCategories,
+    this.excludeCounterparties,
     this.before,
     this.after,
   });
@@ -21,14 +21,14 @@ class Filters {
   final DateTime? before;
   final DateTime? after;
   final Set<Account> accounts;
-  final Set<Category>? categories;
-  final Set<Counterparty>? counterparties;
+  final Set<Category>? excludeCategories;
+  final Set<Counterparty>? excludeCounterparties;
 
   static Filters getDefault(
     List<Account> accounts,
     {
-      List<Category>? categories,
-      List<Counterparty>? counterparties,
+      List<Category>? excludeCategories,
+      List<Counterparty>? excludeCounterparties,
     }
   ) {
     final selectedAccounts = accounts.toSet();
@@ -36,8 +36,8 @@ class Filters {
 
     return Filters(
       accounts: selectedAccounts,
-      categories: categories?.toSet() ?? {},
-      counterparties: counterparties?.toSet() ?? {},
+      excludeCategories: excludeCategories?.toSet() ?? {},
+      excludeCounterparties: excludeCounterparties?.toSet() ?? {},
     );
   }
 
@@ -102,8 +102,8 @@ class FiltersModal extends StatefulWidget {
         return FiltersModal(
           filter: existingFilter ?? Filters.getDefault(
             accounts!,
-            categories: categories,
-            counterparties: counterparties
+            excludeCategories: [],
+            excludeCounterparties: []
           ),
           accounts: accounts!,
           categories: categories,
@@ -120,8 +120,8 @@ class FiltersModal extends StatefulWidget {
 
 class _FiltersModalState extends State<FiltersModal> {
   late Set<Account> selectedAccounts;
-  late Set<Category>? selectedCategories;
-  late Set<Counterparty>? selectedCounterparties;
+  late Set<Category>? excludedCategories;
+  late Set<Counterparty>? excludedCounterparties;
   late DateTime? before;
   late DateTime? after;
   late bool additional = false;
@@ -131,8 +131,8 @@ class _FiltersModalState extends State<FiltersModal> {
     super.initState();
 
     selectedAccounts = widget.filter.accounts;
-    selectedCategories = widget.filter.categories;
-    selectedCounterparties = widget.filter.counterparties;
+    excludedCategories = widget.filter.excludeCategories;
+    excludedCounterparties = widget.filter.excludeCounterparties;
     before = widget.filter.before;
     after = widget.filter.after;
     additional = widget.categories != null;
@@ -148,44 +148,44 @@ class _FiltersModalState extends State<FiltersModal> {
       additionalWidgets.addAll([
         FlutterMultiSelectDropdown(
           items: widget.categories!,
-          selected: selectedCategories ?? widget.categories!.toSet(),
+          selected: excludedCategories ?? widget.categories!.toSet(),
           width: double.infinity,
           searchable: true,
           trailing: Icon(Icons.category),
           itemLeadingBuilder: (item) => SizedBox(width: AppSpacing.sm),
           onChanged: (v) {
             setState(() {
-              selectedCategories = v;
+              excludedCategories = v;
             });
           },
           labelBuilder: (v) {
-            if (v.length == widget.categories!.length) return "All categories selected";
+            if (v.isEmpty) return "No categories excluded";
+            if (v.length == widget.categories!.length) return "All categories excluded";
+            if (v.length == 1) return "1 category excluded";
 
-            if (v.length == 1) return "1 category selected";
-
-            return "${v.length} categories selected";
+            return "${v.length} categories excluded";
           },
           label: (item) => item.name,
         ),
         SizedBox(height: AppSpacing.md),
         FlutterMultiSelectDropdown(
           items: widget.counterparties!,
-          selected: selectedCounterparties ?? widget.counterparties!.toSet(),
+          selected: excludedCounterparties ?? widget.counterparties!.toSet(),
           width: double.infinity,
           searchable: true,
           itemLeadingBuilder: (item) => SizedBox(width: AppSpacing.sm),
           onChanged: (v) {
             setState(() {
-              selectedCounterparties = v;
+              excludedCounterparties = v;
             });
           },
           trailing: Icon(Icons.people),
           labelBuilder: (v) {
-            if (v.length == widget.counterparties!.length) return "All counterparties selected";
+            if (v.isEmpty) return "No counterparties excluded";
+            if (v.length == widget.counterparties!.length) return "All counterparties excluded";
+            if (v.length == 1) return "1 counterparty excluded";
 
-            if (v.length == 1) return "1 counterparty selected";
-
-            return "${v.length} counterparties selected";
+            return "${v.length} counterparties excluded";
           },
           label: (item) => item.name,
         ),
@@ -219,8 +219,8 @@ class _FiltersModalState extends State<FiltersModal> {
                       context,
                       Filters.getDefault(
                         widget.accounts,
-                        categories: widget.categories,
-                        counterparties: widget.counterparties,
+                        excludeCategories: [],
+                        excludeCounterparties: [],
                       )
                     );
 
@@ -240,8 +240,8 @@ class _FiltersModalState extends State<FiltersModal> {
                       context,
                       Filters(
                         accounts: selectedAccounts,
-                        categories: selectedCategories,
-                        counterparties: selectedCounterparties,
+                        excludeCategories: excludedCategories,
+                        excludeCounterparties: excludedCounterparties,
                         before: before,
                         after: after,
                       )
@@ -277,11 +277,9 @@ class _FiltersModalState extends State<FiltersModal> {
                 });
               },
               labelBuilder: (v) {
-                if (v.length == widget.accounts.length) return "All accounts selected";
-
-                if (v.length == 1) return "1 account selected";
-
-                return "${v.length} accounts selected";
+                if (v.length == widget.accounts.length) return "All accounts included";
+                if (v.length == 1) return "1 account included";
+                return "${v.length} accounts included";
               },
               label: (item) => item.title,
             ),

@@ -16,6 +16,8 @@
 - An account is now automatically created and set as default if no account already
   exists when adding transactions
 - Dashboard overview card now has gradient instead of plain color
+- Transactions search now allows excluding selected categories and counterparties
+  instead of selecting included ones
 
 ### Bug Fixes
 

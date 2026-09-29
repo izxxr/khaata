@@ -64,24 +64,6 @@ class TransactionRepository {
     });
   }
 
-  Expression<bool> _composeCategoryCounterpartyConditions(
-    $$TransactionsTableFilterComposer f,
-    List<int>? categoryIds,
-    List<int>? counterpartyIds,
-  ) {
-    Expression<bool> condition = f.categoryId.id.isNull() | f.counterpartyId.id.isNull();
-
-    if (categoryIds != null) {
-      condition |= f.categoryId.id.isIn(categoryIds);
-    }
-
-    if (counterpartyIds != null) {
-      condition |= f.counterpartyId.id.isIn(counterpartyIds);
-    }
-
-    return condition;
-  }
-
   /// Searches and watches the transactions across multiple accounts.
   /// 
   /// If [accountIds] is empty, the transactions across all accounts are
@@ -94,8 +76,8 @@ class TransactionRepository {
   /// [before] and [after] are used to include transactions only in
   /// or upto specific time.
   /// 
-  /// [counterpartyIds] and [categoryIds] can be provided with IDs list to
-  /// only include transactions from those categories or counterparties.
+  /// [excludeCategoryIds] and [excludeCounterpartyIds] can be provided with IDs list
+  /// to not include transactions from those categories or counterparties.
   /// 
   /// [includeIsolatedAccounts] indicates whether to include transactions
   /// from isolated accounts. This parameter is disregarded when [accountIds]
@@ -111,8 +93,8 @@ class TransactionRepository {
       int? limit,
       DateTime? after,
       DateTime? before,
-      List<int>? categoryIds,
-      List<int>? counterpartyIds,
+      List<int>? excludeCategoryIds,
+      List<int>? excludeCounterpartyIds,
       bool includeIsolatedAccounts = false,
       bool fetchAccount = false,
       bool fetchCategory = false,
@@ -135,8 +117,12 @@ class TransactionRepository {
       query = query.filter((f) => f.createdAt.isBefore(before));
     }
 
-    if (categoryIds != null || counterpartyIds != null) {
-      query = query.filter((f) => _composeCategoryCounterpartyConditions(f, categoryIds, counterpartyIds));
+    if (excludeCategoryIds != null) {
+      query = query.filter((f) => f.categoryId.id.not.isIn(excludeCategoryIds));
+    }
+
+    if (excludeCounterpartyIds != null) {
+      query = query.filter((f) => f.counterpartyId.id.not.isIn(excludeCounterpartyIds));
     }
 
     if (searchQuery.isNotEmpty) {

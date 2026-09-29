@@ -62,8 +62,8 @@ class _TransactionsSearchState extends State<TransactionsSearch> {
               child: TransactionsList(
                 searchQuery: _searchQuery,
                 accountIds: _filter?.accounts.map((e) => e.id).toList(),
-                categoryIds: _filter?.categories?.map((e) => e.id).toList(),
-                counterpartyIds: _filter?.counterparties?.map((e) => e.id).toList(),
+                excludeCategoryIds: _filter?.excludeCategories?.map((e) => e.id).toList(),
+                excludeCounterpartyIds: _filter?.excludeCounterparties?.map((e) => e.id).toList(),
                 before: _filter?.before,
                 after: _filter?.after,
                 basic: true,

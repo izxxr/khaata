@@ -11,8 +11,8 @@ class TransactionsList extends StatefulWidget {
     this.infinite = true,
     this.basic = false,
     this.accountIds,
-    this.categoryIds,
-    this.counterpartyIds,
+    this.excludeCategoryIds,
+    this.excludeCounterpartyIds,
     this.before,
     this.after,
     this.searchQuery,
@@ -21,8 +21,8 @@ class TransactionsList extends StatefulWidget {
   final bool infinite;
   final bool basic;
   final List<int>? accountIds;
-  final List<int>? categoryIds;
-  final List<int>? counterpartyIds;
+  final List<int>? excludeCategoryIds;
+  final List<int>? excludeCounterpartyIds;
   final DateTime? before;
   final DateTime? after;
   final String? searchQuery;
@@ -76,8 +76,8 @@ class _TransactionsListState extends State<TransactionsList> {
         widget.accountIds ?? [],
         limit: _limit,
         searchQuery: widget.searchQuery,
-        categoryIds: widget.categoryIds,
-        counterpartyIds: widget.counterpartyIds,
+        excludeCategoryIds: widget.excludeCategoryIds,
+        excludeCounterpartyIds: widget.excludeCounterpartyIds,
         before: widget.before,
         after: widget.after,
         fetchAccount: widget.basic,
